@@ -10,7 +10,9 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(git push:*)",
-      "Bash(flutter test:*)"
+      "Bash(flutter test:*)",
+      "mcp__auggie-mcp__codebase-retrieval",
+      "Bash(flutter build:*)"
     ]
   }
 }

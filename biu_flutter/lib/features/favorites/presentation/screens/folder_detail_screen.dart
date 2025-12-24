@@ -241,17 +241,37 @@ class FolderDetailScreen extends ConsumerWidget {
     }
 
     // Play the media using playlist notifier
-    ref.read(playlistProvider.notifier).play(
-          PlayItem(
-            id: '${media.bvid}_1',
-            type: PlayDataType.mv,
-            bvid: media.bvid,
-            title: media.title,
-            ownerName: media.upper.name,
-            cover: media.cover,
-            duration: media.duration,
-          ),
-        );
+    // Differentiate between audio (type=12) and video (type=2)
+    if (media.isAudio) {
+      // Audio type - use sid (which is media.id)
+      ref.read(playlistProvider.notifier).play(
+            PlayItem(
+              id: 'audio_${media.id}',
+              type: PlayDataType.audio,
+              sid: media.id,
+              title: media.title,
+              ownerName: media.upper.name,
+              ownerMid: media.upper.mid,
+              cover: media.cover,
+              duration: media.duration,
+            ),
+          );
+    } else {
+      // Video type - use bvid (cid will be fetched by playlist notifier)
+      ref.read(playlistProvider.notifier).play(
+            PlayItem(
+              id: '${media.bvid}_1',
+              type: PlayDataType.mv,
+              bvid: media.bvid,
+              aid: media.id.toString(),
+              title: media.title,
+              ownerName: media.upper.name,
+              ownerMid: media.upper.mid,
+              cover: media.cover,
+              duration: media.duration,
+            ),
+          );
+    }
   }
 }
 

@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:audio_service/audio_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:just_audio/just_audio.dart';
 
@@ -11,6 +10,37 @@ import 'package:biu_flutter/core/storage/storage_service.dart';
 import 'package:biu_flutter/features/player/domain/entities/play_item.dart';
 import 'package:biu_flutter/features/player/presentation/providers/playlist_state.dart';
 import 'package:biu_flutter/features/player/services/audio_player_service.dart';
+
+/// Result of fetching video info for getting cid
+class VideoInfoResult {
+  const VideoInfoResult({
+    required this.cid,
+    required this.aid,
+    this.title,
+    this.cover,
+    this.ownerName,
+    this.ownerMid,
+    this.duration,
+    this.hasMultiPart = false,
+    this.pageIndex,
+    this.pageTitle,
+    this.pageCover,
+    this.totalPage,
+  });
+
+  final String cid;
+  final String aid;
+  final String? title;
+  final String? cover;
+  final String? ownerName;
+  final int? ownerMid;
+  final int? duration;
+  final bool hasMultiPart;
+  final int? pageIndex;
+  final String? pageTitle;
+  final String? pageCover;
+  final int? totalPage;
+}
 
 /// Keys for persistent storage
 class _StorageKeys {
@@ -30,6 +60,8 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
   // Callbacks for fetching audio URLs (injected from features)
   Future<String?> Function(String bvid, String cid)? onFetchMvAudioUrl;
   Future<String?> Function(int sid)? onFetchAudioUrl;
+  // Callback for fetching video info (to get cid when missing)
+  Future<VideoInfoResult?> Function(String bvid)? onFetchVideoInfo;
 
   @override
   PlaylistState build() {
@@ -525,13 +557,25 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
 
     // Fetch new URL based on type
     String? newAudioUrl;
-    if (currentItem.type == PlayDataType.mv &&
-        currentItem.bvid != null &&
-        currentItem.cid != null) {
-      newAudioUrl = await onFetchMvAudioUrl?.call(
-        currentItem.bvid!,
-        currentItem.cid!,
-      );
+    if (currentItem.type == PlayDataType.mv && currentItem.bvid != null) {
+      // Check if we have cid, if not fetch video info first
+      String? cid = currentItem.cid;
+      if (cid == null || cid.isEmpty) {
+        // Fetch video info to get cid
+        final videoInfo = await onFetchVideoInfo?.call(currentItem.bvid!);
+        if (videoInfo != null) {
+          cid = videoInfo.cid;
+          // Update current item with fetched info
+          _updateCurrentItemWithVideoInfo(currentItem, videoInfo);
+        }
+      }
+
+      if (cid != null && cid.isNotEmpty) {
+        newAudioUrl = await onFetchMvAudioUrl?.call(
+          currentItem.bvid!,
+          cid,
+        );
+      }
     } else if (currentItem.type == PlayDataType.audio &&
         currentItem.sid != null) {
       newAudioUrl = await onFetchAudioUrl?.call(currentItem.sid!);
@@ -543,6 +587,32 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
     } else {
       state = state.copyWith(error: 'Failed to get audio URL');
     }
+  }
+
+  /// Update current item with video info from API
+  void _updateCurrentItemWithVideoInfo(PlayItem currentItem, VideoInfoResult info) {
+    final updatedItem = currentItem.copyWith(
+      cid: info.cid,
+      aid: info.aid,
+      title: info.title ?? currentItem.title,
+      cover: info.cover ?? currentItem.cover,
+      ownerName: info.ownerName ?? currentItem.ownerName,
+      ownerMid: info.ownerMid ?? currentItem.ownerMid,
+      duration: info.duration ?? currentItem.duration,
+      hasMultiPart: info.hasMultiPart,
+      pageIndex: info.pageIndex,
+      pageTitle: info.pageTitle,
+      pageCover: info.pageCover,
+      totalPage: info.totalPage,
+    );
+
+    final newList = state.list.map((item) {
+      if (item.id == currentItem.id) return updatedItem;
+      return item;
+    }).toList();
+
+    state = state.copyWith(list: newList);
+    _saveState();
   }
 
   void _onTrackCompleted() {

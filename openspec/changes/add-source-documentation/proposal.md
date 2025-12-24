@@ -257,6 +257,13 @@ biu-flutter 是从 biu (Electron) 迁移而来的项目。迁移不是一次性�
 - [x] `shared/widgets/audio_visualizer.dart` - **新增**，模拟频率条动画（just_audio 无 FFT）
 - [x] `shared/widgets/highlighted_text.dart` - 源引用已添加，搜索高亮支持
 
+### Video/Download + Layout/Routing ✅ Completed
+- [x] Video API 评估完成 - view-detail/archive-desc/ranking 不需要（音乐播放器不需要视频详情页）
+- [x] Download 模块评估完成 - 桌面专属（需要 Electron IPC + FFmpeg）
+- [x] Layout 差异评估完成 - 合理的移动端适配（侧边栏→底部导航）
+- [x] 菜单功能覆盖验证完成 - 所有功能可通过路由访问
+- [x] `features/music_recommend/` - **新增**，实现缺失的推荐音乐功能
+
 ---
 
 ## Success Criteria

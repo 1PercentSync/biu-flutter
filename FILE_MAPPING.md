@@ -89,8 +89,8 @@ biu_flutter/lib/
 
 ## File Mapping Summary
 
-| Category | Total Source Files | Fully Mapped | Partially Mapped | Not Mapped |
-|----------|-------------------|--------------|------------------|------------|
+| Category | Total Source Files | Fully Mapped | Mobile Adapted | Desktop-only/Not needed |
+|----------|-------------------|--------------|----------------|-------------------------|
 | Constants | 7 | 2 | 0 | 5 |
 | Utils/Hooks | 13 | 2 | 4 | 7 |
 | Network/Service | 6 | 6 | 0 | 0 |
@@ -99,16 +99,16 @@ biu_flutter/lib/
 | Player | 20 | 17 | 1 | 2 |
 | Search/History/Later | 12 | 12 | 0 | 0 |
 | User Profile/Follow | 15 | 10 | 0 | 5 |
-| Music/Artist Rank | 6 | 4 | 0 | 2 |
+| Music/Artist Rank | 6 | 6 | 0 | 0 |
 | Settings | 7 | 6 | 1 | 0 |
 | Shared Components | 26 | 12 | 6 | 8 |
-| Layout | 15 | 5 | 3 | 7 |
-| Video/Download | 10 | 3 | 0 | 7 |
-| **Total** | **172** | **105** | **16** | **51** |
+| Layout | 10 | 4 | 5 | 1 |
+| Video/Download | 9 | 1 | 0 | 8 |
+| **Total** | **166** | **106** | **17** | **43** |
 
-**Overall Migration Rate: ~61% fully mapped, 9% partially mapped (Flutter native), 30% not mapped**
+**Overall Migration Rate: ~64% fully mapped, ~10% mobile adapted, ~26% desktop-only or not needed**
 
-*Note: "Partially Mapped" for Shared Components includes Flutter native alternatives (GridView.builder, ListView.builder, etc.)*
+*Note: "Mobile Adapted" includes Flutter native alternatives and mobile UI adaptations.*
 
 ---
 
@@ -341,9 +341,9 @@ biu_flutter/lib/
 | Electron Source | Flutter Target | Status |
 |-----------------|----------------|--------|
 | `service/music-hot-rank.ts` | `features/music_rank/data/datasources/music_rank_remote_datasource.dart` | ✅ |
-| `pages/music-rank/index.tsx` | - | ❌ Missing Screen |
-| `service/music-comprehensive-web-rank.ts` | - | ❌ Missing |
-| `pages/music-recommend/index.tsx` | - | ❌ Missing |
+| `pages/music-rank/index.tsx` | `features/home/presentation/screens/home_screen.dart` | ✅ Full |
+| `service/music-comprehensive-web-rank.ts` | `features/music_recommend/data/datasources/music_recommend_remote_datasource.dart` | ✅ Full |
+| `pages/music-recommend/index.tsx` | `features/music_recommend/presentation/screens/music_recommend_screen.dart` | ✅ Full |
 | `service/musician-list.ts` | `features/artist_rank/data/datasources/artist_rank_remote_datasource.dart` | ✅ |
 | `pages/artist-rank/index.tsx` | `features/artist_rank/presentation/screens/artist_rank_screen.dart` | ✅ |
 
@@ -414,33 +414,43 @@ biu_flutter/lib/
 
 ### 11. Video / Download
 
-| Electron Source | Flutter Target | Status |
-|-----------------|----------------|--------|
-| `service/web-interface-view.ts` | `features/video/data/datasources/video_remote_datasource.dart` | ✅ |
-| `service/web-interface-view-detail.ts` | - | ❌ Missing |
-| `service/web-interface-archive-desc.ts` | - | ❌ Missing |
-| `service/web-interface-ranking.ts` | - | ❌ Missing |
-| `pages/download-list/` | - | ❌ Desktop-only |
-| `components/video-pages-download-select-modal/` | - | ❌ Missing |
-| `store/modal/video-page-download-modal.ts` | - | ❌ Missing |
-| `shared/types/download.d.ts` | - | ❌ Desktop-only |
-| `electron/ipc/download/` | - | ❌ Desktop-only |
+| Electron Source | Flutter Target | Status | Notes |
+|-----------------|----------------|--------|-------|
+| `service/web-interface-view.ts` | `features/video/data/datasources/video_remote_datasource.dart` | ✅ | |
+| `service/web-interface-view-detail.ts` | - | ➖ Not needed | Tags/Comments/Related are for video detail page, not needed for music player |
+| `service/web-interface-archive-desc.ts` | - | ➖ Not needed | Description already in view API response |
+| `service/web-interface-ranking.ts` | - | ➖ Not needed | Video ranking, not music ranking. Music uses music-hot-rank |
+| `pages/download-list/` | - | 🖥️ Desktop-only | Requires FFmpeg and file system access |
+| `components/video-pages-download-select-modal/` | - | 🖥️ Desktop-only | Uses window.electron.addMediaDownloadTask |
+| `store/modal/video-page-download-modal.ts` | - | 🖥️ Desktop-only | Pairs with download modal |
+| `shared/types/download.d.ts` | - | 🖥️ Desktop-only | Download types |
+| `electron/ipc/download/` | - | 🖥️ Desktop-only | Electron IPC |
 
 ---
 
 ### 12. Layout / Routing
 
-| Electron Source | Flutter Target | Status |
-|-----------------|----------------|--------|
-| `layout/index.tsx` | `core/router/app_router.dart` (MainShell) | ⚠️ Different structure |
-| `layout/navbar/index.tsx` | (BottomNavigationBar in app_router.dart) | ⚠️ Different structure |
-| `layout/side/index.tsx` | (BottomNavigationBar replaces sidebar) | ⚠️ Different structure |
-| `layout/side/logo/index.tsx` | - | ❌ Mobile nav different |
-| `layout/side/default-menu/index.tsx` | - | ❌ Mobile nav different |
-| `routes.tsx` | `core/router/routes.dart` | ✅ |
-| `app.tsx` | `main.dart` | ✅ |
-| `index.tsx` | `main.dart` | ✅ |
-| - | `core/router/auth_guard.dart` | 🆕 Flutter-only |
+| Electron Source | Flutter Target | Status | Notes |
+|-----------------|----------------|--------|-------|
+| `layout/index.tsx` | `core/router/app_router.dart` (MainShell) | 📱 Mobile adaptation | Desktop: Sidebar+Navbar+Playbar → Mobile: BottomNav+MiniPlaybar |
+| `layout/navbar/index.tsx` | (BottomNavigationBar in app_router.dart) | 📱 Mobile adaptation | Top navbar → Bottom navigation |
+| `layout/side/index.tsx` | (BottomNavigationBar replaces sidebar) | 📱 Mobile adaptation | Sidebar → Bottom tabs |
+| `layout/side/logo/index.tsx` | - | 📱 Mobile adaptation | Logo in sidebar not needed |
+| `layout/side/default-menu/index.tsx` | `core/router/app_router.dart` | 📱 Mobile adaptation | Sidebar menus → Bottom tabs + Profile menu |
+| `common/constants/menus.tsx` | (Route entries in app_router.dart) | ✅ Full | All menu items accessible via routes |
+| `routes.tsx` | `core/router/routes.dart` | ✅ | |
+| `app.tsx` | `main.dart` | ✅ | |
+| `index.tsx` | `main.dart` | ✅ | |
+| - | `core/router/auth_guard.dart` | 🆕 Flutter-only | |
+
+**Menu Function Coverage** (from `menus.tsx`):
+- 热歌精选 (/) → Flutter: Home tab ✅
+- 音乐大咖 (/artist-rank) → Flutter: AppRoutes.artistRank ✅
+- 推荐音乐 (/music-recommend) → Flutter: AppRoutes.musicRecommend ✅
+- 我的关注 (/follow) → Flutter: AppRoutes.followList ✅
+- 稀后再看 (/later) → Flutter: AppRoutes.later ✅
+- 历史记录 (/history) → Flutter: History tab ✅
+- 下载记录 (/download-list) → 🖥️ Desktop-only
 
 ---
 
@@ -530,20 +540,16 @@ Several Electron files map to multiple Flutter files due to different patterns:
 ### High Priority (Core Functionality)
 
 1. **Video Page List UI** - Cannot browse/switch video parts during playback
-2. **Download Feature** - No audio/video download capability
+2. **Download Feature** - No audio/video download capability (Desktop-only, requires FFmpeg)
 3. **Gaia VGate Verification** - Missing risk control verification
 4. **Video Series Support** - No season/series collection support
-5. **Music Rank Screen** - Data layer exists but no screen component
-6. **Music Recommend Feature** - Completely missing
 
 ### Medium Priority (Enhanced Features)
 
 1. **Dynamic Feed** - User dynamics not implemented
 2. **Volume Slider** - Only mute toggle, no precise control
 3. **Quick Favorite** - No quick add-to-favorites from playbar
-4. **Video Detail API** - Missing tags, hot comments, related videos
-5. **Country List API** - Hardcoded instead of API
-6. **User Masterpiece/Top Videos** - User profile incomplete
+4. **User Masterpiece/Top Videos** - User profile incomplete
 
 ### Low Priority (Desktop-Specific)
 
@@ -553,6 +559,14 @@ Several Electron files map to multiple Flutter files due to different patterns:
 4. **Window Close Options** - Minimize to tray
 5. **Auto Start** - System startup option
 6. **FFmpeg Integration** - Video/audio processing
+
+### Already Implemented (Removed from Missing)
+
+- ~~Music Rank Screen~~ → Home screen displays hot songs
+- ~~Music Recommend Feature~~ → `/music-recommend` route with infinite scroll
+- ~~Country List API~~ → Dynamic country list in SMS login
+- ~~Video Detail API~~ → Not needed for music player (Tags/Comments/Related)
+
 
 ---
 

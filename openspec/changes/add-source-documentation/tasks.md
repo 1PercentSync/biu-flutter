@@ -233,3 +233,57 @@ Document any changes that affect upper layers:
 - New `ConfirmDialog` widget available for async confirmations
 - New `AudioVisualizer` widget available for playback visualization
 - New `VideoCardSkeleton` and `VideoCardSkeletonGrid` for loading states
+
+---
+
+## Phase 5: Video/Download + Layout/Routing Module Consistency Check ✅ Completed
+
+### Video/Download Module Evaluation
+
+| Source File | Status | Reason |
+|-------------|--------|--------|
+| `service/web-interface-view-detail.ts` | ➖ Not needed | Tags/Comments/Related are for video detail page, not music player |
+| `service/web-interface-archive-desc.ts` | ➖ Not needed | Description already in view API response |
+| `service/web-interface-ranking.ts` | ➖ Not needed | Video ranking, music uses music-hot-rank |
+| `components/video-pages-download-select-modal/` | 🖥️ Desktop-only | Uses window.electron.addMediaDownloadTask |
+| `store/modal/video-page-download-modal.ts` | 🖥️ Desktop-only | Pairs with download modal |
+
+### Layout/Routing Module Evaluation
+
+**Layout differences are valid mobile adaptations:**
+- Desktop sidebar → Mobile bottom navigation
+- Desktop top navbar → Mobile Profile page entries
+- All menu functions verified accessible via routes
+
+### Music Recommend Feature Implementation
+
+**Discovery:** `/music-recommend` was missing from Flutter (功能缺失, not "移动端适配")
+
+**Files Created:**
+- `features/music_recommend/data/models/recommended_song.dart`
+- `features/music_recommend/data/datasources/music_recommend_remote_datasource.dart`
+- `features/music_recommend/presentation/providers/music_recommend_state.dart`
+- `features/music_recommend/presentation/providers/music_recommend_notifier.dart`
+- `features/music_recommend/presentation/screens/music_recommend_screen.dart`
+- `features/music_recommend/presentation/widgets/recommended_song_card.dart`
+- `features/music_recommend/music_recommend.dart`
+
+**Files Modified:**
+- `core/router/routes.dart` - Added musicRecommend route
+- `core/router/app_router.dart` - Added route config and import
+- `features/home/presentation/screens/home_screen.dart` - Added entry button
+
+**Features:**
+- API: `/x/centralization/interface/music/comprehensive/web/rank` with pagination
+- Infinite scroll load more
+- Pull-to-refresh
+- Grid/List display modes
+- Entry: HomeScreen "Music Recommend" button
+
+### FILE_MAPPING.md Updates
+
+- Updated Music/Artist Rank section: all 6 items now ✅ Full
+- Updated Video/Download section: clarified desktop-only and not-needed items
+- Updated Layout/Routing section: documented mobile adaptations with menu coverage
+- Updated Missing Features section: removed implemented items
+- Updated File Mapping Summary table

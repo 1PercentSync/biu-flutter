@@ -9,6 +9,7 @@ import '../../features/follow/follow.dart';
 import '../../features/history/history.dart';
 import '../../features/home/home.dart';
 import '../../features/later/later.dart';
+import '../../features/music_recommend/music_recommend.dart';
 import '../../features/profile/profile.dart';
 import '../../features/search/search.dart';
 import '../../features/settings/settings.dart';
@@ -103,6 +104,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.artistRank,
         name: 'artistRank',
         builder: (context, state) => const ArtistRankScreen(),
+      ),
+      // Music Recommend route
+      GoRoute(
+        path: AppRoutes.musicRecommend,
+        name: 'musicRecommend',
+        builder: (context, state) => const MusicRecommendScreen(),
       ),
       // Follow List route
       GoRoute(

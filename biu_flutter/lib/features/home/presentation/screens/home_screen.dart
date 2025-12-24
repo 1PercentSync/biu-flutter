@@ -36,6 +36,11 @@ class HomeScreen extends ConsumerWidget {
               title: const Text('Hot Songs'),
               actions: [
                 IconButton(
+                  icon: const Icon(Icons.recommend_outlined),
+                  tooltip: 'Music Recommend',
+                  onPressed: () => context.push(AppRoutes.musicRecommend),
+                ),
+                IconButton(
                   icon: const Icon(Icons.people_outline),
                   tooltip: 'Music Artists',
                   onPressed: () => context.push(AppRoutes.artistRank),

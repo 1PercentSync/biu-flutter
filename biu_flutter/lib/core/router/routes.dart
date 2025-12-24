@@ -32,6 +32,9 @@ class AppRoutes {
   /// Artist Rank page
   static const String artistRank = '/artists';
 
+  /// Music Recommend page
+  static const String musicRecommend = '/music-recommend';
+
   /// Follow List page
   static const String followList = '/follow';
 

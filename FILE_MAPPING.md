@@ -100,11 +100,11 @@ biu_flutter/lib/
 | Search/History/Later | 12 | 12 | 0 | 0 |
 | User Profile/Follow | 15 | 10 | 0 | 5 |
 | Music/Artist Rank | 6 | 4 | 0 | 2 |
-| Settings | 7 | 3 | 2 | 2 |
+| Settings | 7 | 6 | 1 | 0 |
 | Shared Components | 30 | 6 | 2 | 22 |
 | Layout | 15 | 5 | 3 | 7 |
 | Video/Download | 10 | 3 | 0 | 7 |
-| **Total** | **176** | **98** | **12** | **66** |
+| **Total** | **176** | **99** | **12** | **65** |
 
 **Overall Migration Rate: ~56% fully mapped, 7% partially mapped, 37% not mapped**
 
@@ -351,14 +351,15 @@ biu_flutter/lib/
 
 | Electron Source | Flutter Target | Status |
 |-----------------|----------------|--------|
-| `store/settings.ts` | `features/settings/presentation/providers/settings_notifier.dart` | ⚠️ Partial |
-| `pages/settings/index.tsx` | `features/settings/presentation/screens/settings_screen.dart` | ⚠️ Partial |
-| `pages/settings/system-settings.tsx` | (integrated into settings_screen.dart) | ⚠️ Partial |
-| `pages/settings/menu-settings.tsx` | (simplified: hidden folders only) | ⚠️ Partial |
-| `pages/settings/export-import.tsx` | - | ❌ Missing |
+| `store/settings.ts` | `features/settings/presentation/providers/settings_notifier.dart` | ✅ Full |
+| `pages/settings/index.tsx` | `features/settings/presentation/screens/settings_screen.dart` | ✅ Full |
+| `pages/settings/system-settings.tsx` | (integrated into settings_screen.dart) | ✅ Full |
+| `pages/settings/menu-settings.tsx` | (simplified: hidden folders only in settings_screen.dart) | ⚠️ Simplified |
+| `pages/settings/export-import.tsx` | `features/settings/presentation/providers/settings_notifier.dart` | ✅ Full |
 | `pages/settings/shortcut-settings.tsx` | - | ❌ Desktop-only |
 | `store/shortcuts.ts` | - | ❌ Desktop-only |
-| `components/color-picker/` | `features/settings/presentation/widgets/color_picker.dart` | ✅ |
+| `shared/settings/app-settings.ts` | `features/settings/domain/entities/app_settings.dart` | ✅ Full |
+| `components/color-picker/` | `features/settings/presentation/widgets/color_picker.dart` | ✅ Full |
 | - | `features/settings/presentation/screens/about_screen.dart` | 🆕 Flutter-only |
 | - | `features/settings/presentation/widgets/audio_quality_picker.dart` | 🆕 Flutter-only |
 

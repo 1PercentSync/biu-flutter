@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../../shared/theme/theme.dart';
 import '../../domain/entities/app_settings.dart';
 
-/// Color picker dialog widget with preset colors
+/// Color picker dialog widget with preset colors.
+/// Source: biu/src/components/color-picker/index.tsx#ColorPicker
 class ColorPicker extends StatelessWidget {
   const ColorPicker({
     required this.currentColor, required this.onSelected, super.key,

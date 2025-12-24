@@ -1,4 +1,6 @@
-/// Settings feature exports
+/// Settings feature exports.
+/// Source: biu/src/pages/settings/ (multiple files)
+/// Source: biu/src/store/settings.ts
 library;
 
 export 'domain/entities/app_settings.dart';

@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import '../../../../shared/theme/theme.dart';
 import '../../domain/entities/app_settings.dart';
 
-/// Audio quality picker dialog widget
+/// Audio quality picker dialog widget.
+/// Flutter-only: Source uses inline Select component in system-settings.tsx.
+/// Source: biu/src/pages/settings/system-settings.tsx#audioQuality
 class AudioQualityPicker extends StatelessWidget {
   const AudioQualityPicker({
     required this.currentQuality, required this.onSelected, super.key,

@@ -1,5 +1,11 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../../../core/storage/storage_service.dart';
 import '../../domain/entities/app_settings.dart';
@@ -7,7 +13,8 @@ import '../../domain/entities/app_settings.dart';
 /// Storage key for settings
 const _settingsStorageKey = 'app_settings';
 
-/// Provider for settings
+/// Provider for settings.
+/// Source: biu/src/store/settings.ts#useSettings
 final settingsNotifierProvider =
     StateNotifierProvider<SettingsNotifier, AppSettings>((ref) {
   final storage = ref.watch(storageServiceProvider);
@@ -31,7 +38,8 @@ final hiddenFolderIdsProvider = Provider<List<int>>((ref) {
   return ref.watch(settingsNotifierProvider).hiddenFolderIds;
 });
 
-/// Settings state notifier
+/// Settings state notifier.
+/// Source: biu/src/store/settings.ts#SettingsActions
 class SettingsNotifier extends StateNotifier<AppSettings> {
 
   SettingsNotifier(this._storage) : super(AppSettings.defaults) {
@@ -132,4 +140,112 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
     state = AppSettings.defaults;
     await _saveSettings();
   }
+
+  /// Export settings to JSON and share.
+  /// Source: biu/src/pages/settings/export-import.tsx#handleExport
+  Future<ExportResult> exportSettings() async {
+    try {
+      final json = state.toJson();
+      final jsonString = const JsonEncoder.withIndent('  ').convert(json);
+
+      // Create temp file with timestamp
+      final timestamp = DateTime.now()
+          .toIso8601String()
+          .substring(0, 19)
+          .replaceAll(':', '-')
+          .replaceAll('T', '-');
+      final fileName = 'biu-settings-$timestamp.json';
+
+      final tempDir = await getTemporaryDirectory();
+      final file = File('${tempDir.path}/$fileName');
+      await file.writeAsString(jsonString);
+
+      // Share the file
+      final result = await Share.shareXFiles(
+        [XFile(file.path)],
+        subject: 'Biu Settings Export',
+      );
+
+      return ExportResult(
+        success: result.status == ShareResultStatus.success ||
+            result.status == ShareResultStatus.dismissed,
+        message: 'Settings exported successfully',
+      );
+    } catch (e) {
+      return ExportResult(
+        success: false,
+        message: 'Export failed: $e',
+      );
+    }
+  }
+
+  /// Import settings from JSON file.
+  /// Source: biu/src/pages/settings/export-import.tsx#handleImportFileChange
+  Future<ImportResult> importSettings() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+      );
+
+      if (result == null || result.files.isEmpty) {
+        return const ImportResult(
+          success: false,
+          message: 'No file selected',
+          cancelled: true,
+        );
+      }
+
+      final filePath = result.files.single.path;
+      if (filePath == null) {
+        return const ImportResult(
+          success: false,
+          message: 'Cannot access file',
+        );
+      }
+
+      final file = File(filePath);
+      final jsonString = await file.readAsString();
+      final json = jsonDecode(jsonString) as Map<String, dynamic>;
+
+      // Merge with current settings (like source does)
+      final imported = AppSettings.fromJson(json);
+      state = imported;
+      await _saveSettings();
+
+      return const ImportResult(
+        success: true,
+        message: 'Settings imported successfully',
+      );
+    } catch (e) {
+      return ImportResult(
+        success: false,
+        message: 'Import failed: $e',
+      );
+    }
+  }
+}
+
+/// Result of export operation
+class ExportResult {
+  const ExportResult({
+    required this.success,
+    required this.message,
+  });
+
+  final bool success;
+  final String message;
+}
+
+/// Result of import operation
+class ImportResult {
+  const ImportResult({
+    required this.success,
+    required this.message,
+    this.cancelled = false,
+  });
+
+  final bool success;
+  final String message;
+  final bool cancelled;
 }

@@ -150,12 +150,26 @@ All feature module datasources and key components have been documented with sour
 | `search_result.dart` | Title stripped HTML in fromJson | Keep raw title, add `titlePlain` getter |
 | - | New `highlighted_text.dart` | Parse `<em>` tags for search highlight |
 
+### Settings Module Fixes (Phase 4)
+
+| File | Issue | Fix |
+|------|-------|-----|
+| `app_settings.dart` | AudioQualitySetting values incorrect | Changed to `auto/lossless/high/medium/low` to match source |
+| `settings_screen.dart` | Missing border radius setting | Added slider picker (0-24px) |
+| `settings_screen.dart` | Missing background color settings | Added content background and background color pickers |
+| `settings_notifier.dart` | Missing source references | Added source references |
+| `color_picker.dart` | Missing source reference | Added source reference |
+| `audio_quality_picker.dart` | Missing source reference | Added source reference |
+| `about_screen.dart` | Missing Flutter-only marker | Added Flutter-only marker |
+| `settings_notifier.dart` | Missing import/export functionality | Added exportSettings/importSettings methods |
+| `settings_screen.dart` | Missing import/export UI | Added Data section with export/import buttons |
+
 ### Documented Simplifications
 
 | Module | Missing Feature | Reason |
 |--------|-----------------|--------|
-| auth | Country list API | Hardcoded 3 common regions (acceptable) |
 | search | article/photo/live types | Music player doesn't need them |
+| settings | System menu visibility (menu-settings.tsx) | Mobile uses bottom nav, no sidebar menus to hide |
 
 ---
 
@@ -163,4 +177,7 @@ All feature module datasources and key components have been documented with sour
 
 Document any changes that affect upper layers:
 
-(None yet - Phase 1-2 are documentation only)
+### Settings Module Changes
+- `AudioQualitySetting` enum values changed: `standard` → `medium`, `hires` → `lossless`
+- Added `fromValue()` migration for legacy values
+- New dependencies: `file_picker`, `share_plus`

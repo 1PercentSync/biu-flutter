@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../shared/theme/theme.dart';
 
 /// About screen showing app version and licenses.
+/// Flutter-only: Source shows version info inline in system-settings.tsx.
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
 

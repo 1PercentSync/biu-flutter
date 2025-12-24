@@ -16,6 +16,8 @@ import '../widgets/audio_quality_picker.dart';
 import '../widgets/color_picker.dart';
 
 /// Settings screen for app preferences.
+/// Source: biu/src/pages/settings/index.tsx#SettingsPage
+/// Source: biu/src/pages/settings/system-settings.tsx#SystemSettingsTab
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
@@ -76,6 +78,40 @@ class SettingsScreen extends ConsumerWidget {
           ),
           _buildSettingTile(
             context,
+            title: 'Content Background',
+            trailing: Container(
+              width: 24,
+              height: 24,
+              decoration: BoxDecoration(
+                color: settings.contentBackgroundColor,
+                shape: BoxShape.circle,
+                border: Border.all(color: AppColors.border),
+              ),
+            ),
+            onTap: () => _showContentBackgroundColorPicker(context, ref, settings),
+          ),
+          _buildSettingTile(
+            context,
+            title: 'Background Color',
+            trailing: Container(
+              width: 24,
+              height: 24,
+              decoration: BoxDecoration(
+                color: settings.backgroundColor,
+                shape: BoxShape.circle,
+                border: Border.all(color: AppColors.border),
+              ),
+            ),
+            onTap: () => _showBackgroundColorPicker(context, ref, settings),
+          ),
+          _buildSettingTile(
+            context,
+            title: 'Border Radius',
+            subtitle: '${settings.borderRadius.toInt()}px',
+            onTap: () => _showBorderRadiusPicker(context, ref, settings),
+          ),
+          _buildSettingTile(
+            context,
             title: 'Reset Theme',
             subtitle: 'Restore default colors',
             onTap: () => _showResetThemeDialog(context, ref),
@@ -103,6 +139,22 @@ class SettingsScreen extends ConsumerWidget {
             title: 'Clear Cache',
             subtitle: 'Free up storage space',
             onTap: () => _showClearCacheDialog(context, ref),
+          ),
+          const SizedBox(height: 24),
+
+          // Data settings (import/export)
+          _buildSectionHeader(context, 'Data'),
+          _buildSettingTile(
+            context,
+            title: 'Export Settings',
+            subtitle: 'Save settings to a file',
+            onTap: () => _exportSettings(context, ref),
+          ),
+          _buildSettingTile(
+            context,
+            title: 'Import Settings',
+            subtitle: 'Load settings from a file',
+            onTap: () => _importSettings(context, ref),
           ),
           const SizedBox(height: 24),
 
@@ -258,6 +310,65 @@ class SettingsScreen extends ConsumerWidget {
     }
   }
 
+  /// Show content background color picker.
+  /// Source: biu/src/pages/settings/system-settings.tsx#contentBackgroundColor
+  Future<void> _showContentBackgroundColorPicker(
+    BuildContext context,
+    WidgetRef ref,
+    AppSettings settings,
+  ) async {
+    final selected = await ColorPicker.show(
+      context,
+      currentColor: settings.contentBackgroundColor,
+    );
+
+    if (selected != null) {
+      unawaited(ref.read(settingsNotifierProvider.notifier).setContentBackgroundColor(selected));
+    }
+  }
+
+  /// Show background color picker.
+  /// Source: biu/src/pages/settings/system-settings.tsx#backgroundColor
+  Future<void> _showBackgroundColorPicker(
+    BuildContext context,
+    WidgetRef ref,
+    AppSettings settings,
+  ) async {
+    final selected = await ColorPicker.show(
+      context,
+      currentColor: settings.backgroundColor,
+    );
+
+    if (selected != null) {
+      unawaited(ref.read(settingsNotifierProvider.notifier).setBackgroundColor(selected));
+    }
+  }
+
+  /// Show border radius picker.
+  /// Source: biu/src/pages/settings/system-settings.tsx#borderRadius
+  Future<void> _showBorderRadiusPicker(
+    BuildContext context,
+    WidgetRef ref,
+    AppSettings settings,
+  ) async {
+    final result = await showModalBottomSheet<double>(
+      context: context,
+      backgroundColor: AppColors.contentBackground,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(AppTheme.borderRadiusLarge),
+        ),
+      ),
+      builder: (context) => _BorderRadiusPicker(
+        currentRadius: settings.borderRadius,
+      ),
+    );
+
+    if (result != null) {
+      unawaited(ref.read(settingsNotifierProvider.notifier).setBorderRadius(result));
+    }
+  }
+
   Future<void> _showResetThemeDialog(BuildContext context, WidgetRef ref) async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -399,6 +510,36 @@ class SettingsScreen extends ConsumerWidget {
       builder: (context) => _HiddenFoldersDialog(),
     );
   }
+
+  /// Export settings to file.
+  /// Source: biu/src/pages/settings/export-import.tsx#handleExport
+  Future<void> _exportSettings(BuildContext context, WidgetRef ref) async {
+    final result = await ref.read(settingsNotifierProvider.notifier).exportSettings();
+
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result.message),
+          backgroundColor: result.success ? null : AppColors.error,
+        ),
+      );
+    }
+  }
+
+  /// Import settings from file.
+  /// Source: biu/src/pages/settings/export-import.tsx#handleImportClick
+  Future<void> _importSettings(BuildContext context, WidgetRef ref) async {
+    final result = await ref.read(settingsNotifierProvider.notifier).importSettings();
+
+    if (context.mounted && !result.cancelled) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result.message),
+          backgroundColor: result.success ? null : AppColors.error,
+        ),
+      );
+    }
+  }
 }
 
 /// Dialog for managing hidden folders
@@ -469,6 +610,113 @@ class _HiddenFoldersDialog extends ConsumerWidget {
           child: const Text('Done'),
         ),
       ],
+    );
+  }
+}
+
+/// Border radius picker widget.
+/// Source: biu/src/pages/settings/system-settings.tsx#borderRadius
+class _BorderRadiusPicker extends StatefulWidget {
+  const _BorderRadiusPicker({required this.currentRadius});
+
+  final double currentRadius;
+
+  @override
+  State<_BorderRadiusPicker> createState() => _BorderRadiusPickerState();
+}
+
+class _BorderRadiusPickerState extends State<_BorderRadiusPicker> {
+  late double _radius;
+
+  @override
+  void initState() {
+    super.initState();
+    _radius = widget.currentRadius;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Handle bar
+          Padding(
+            padding: const EdgeInsets.only(top: 12, bottom: 8),
+            child: Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.textTertiary,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          // Title
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text(
+              'Border Radius',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+          ),
+          // Preview
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: AppColors.primary,
+                borderRadius: BorderRadius.circular(_radius),
+              ),
+              child: Center(
+                child: Text(
+                  '${_radius.toInt()}px',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+          // Slider
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Row(
+              children: [
+                const Text('0'),
+                Expanded(
+                  child: Slider(
+                    value: _radius,
+                    max: 24,
+                    divisions: 24,
+                    onChanged: (value) {
+                      setState(() {
+                        _radius = value;
+                      });
+                    },
+                  ),
+                ),
+                const Text('24'),
+              ],
+            ),
+          ),
+          // Confirm button
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                onPressed: () => Navigator.pop(context, _radius),
+                child: const Text('Apply'),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

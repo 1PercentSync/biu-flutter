@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-/// Display mode for list screens
+/// Display mode for list screens.
+/// Source: biu/shared/settings/app-settings.ts#displayMode
 enum DisplayMode {
   /// Card/grid display mode
   card('card', 'Card'),
@@ -20,22 +21,23 @@ enum DisplayMode {
   }
 }
 
-/// Audio quality settings for playback
+/// Audio quality settings for playback.
+/// Source: biu/shared/settings/app-settings.ts#AudioQuality
 enum AudioQualitySetting {
   /// Automatically select best available quality
-  auto('auto', 'Auto', 'Select best quality automatically'),
+  auto('auto', 'Auto', 'Automatically select best quality'),
 
-  /// Low quality (64K)
-  low('low', '64K', 'Low quality, saves data'),
+  /// Lossless quality (FLAC / Hi-Res)
+  lossless('lossless', 'Lossless', 'FLAC / Hi-Res (requires VIP)'),
 
-  /// Standard quality (128K)
-  standard('standard', '128K', 'Standard quality'),
+  /// High quality (180-320 kbps)
+  high('high', 'High', '180-320 kbps'),
 
-  /// High quality (192K)
-  high('high', '192K', 'High quality'),
+  /// Medium quality (100-140 kbps)
+  medium('medium', 'Medium', '100-140 kbps'),
 
-  /// Hi-Res quality (lossless)
-  hires('hires', 'Hi-Res', 'Lossless audio (requires VIP)');
+  /// Low quality (60-80 kbps)
+  low('low', 'Low', '60-80 kbps');
 
   const AudioQualitySetting(this.value, this.label, this.description);
 
@@ -44,6 +46,10 @@ enum AudioQualitySetting {
   final String description;
 
   static AudioQualitySetting fromValue(String value) {
+    // Handle legacy 'standard' value
+    if (value == 'standard') return AudioQualitySetting.medium;
+    // Handle legacy 'hires' value
+    if (value == 'hires') return AudioQualitySetting.lossless;
     return AudioQualitySetting.values.firstWhere(
       (q) => q.value == value,
       orElse: () => AudioQualitySetting.auto,
@@ -51,7 +57,8 @@ enum AudioQualitySetting {
   }
 }
 
-/// App settings entity matching source app configuration
+/// App settings entity matching source app configuration.
+/// Source: biu/shared/settings/app-settings.ts#defaultAppSettings
 class AppSettings {
 
   factory AppSettings.fromJson(Map<String, dynamic> json) {

@@ -139,6 +139,17 @@ biu-flutter 是从 biu (Electron) 迁移而来的项目。迁移不是一次性�
   - **"一致性检查"包含修复发现的问题，不只是记录问题**
   - **唯一应该询问的是：多个可行方案时让用户选择，不是"要不要做"**
 
+### 错误 8: 发现问题后标记为"可后续添加"
+- **场景**：导入/导出功能被标记为"可后续添加，非核心功能"
+- **根因**：
+  1. 试图减少工作量
+  2. 用"非核心功能"作为借口
+  3. 没有用判断标准验证（其他移动端 App 有这个功能吗？有！）
+- **教训**：
+  - **"可后续添加"本质上就是"不想做"，违反"发现问题就修复"原则**
+  - **判断是否需要修复时，必须用客观标准（其他 App 有吗？），不能主观判断"核心不核心"**
+  - **如果当前无法修复（例如需要额外依赖），应该立即添加依赖并修复，而不是搁置**
+
 ---
 
 ## Verification Process
@@ -211,6 +222,7 @@ biu-flutter 是从 biu (Electron) 迁移而来的项目。迁移不是一次性�
 - [x] `features/user_profile/` - 源引用已添加，行为一致
 - [x] `features/follow/` - 源引用已添加，行为一致
 - [x] `features/video/` - 行为一致（WBI 签名正确使用）
+- [x] `features/settings/` - 源引用已添加，**修复音质枚举值不一致、添加圆角和背景色设置 UI**
 - [x] `shared/widgets/playbar/` - 源引用已添加
 
 ### Shared Widgets ✅ Completed
@@ -276,6 +288,16 @@ biu-flutter 是从 biu (Electron) 迁移而来的项目。迁移不是一次性�
 | 行为 | `addToNext` 不移动位置 | 用户体验不一致 |
 | 边界 | 缺少国家列表 API | 非中国用户无法选择地区 (**已修复**) |
 | 边界 | 缺少 article/photo/live 搜索 | 功能简化（可接受，音乐播放器不需要） |
+
+### Settings 模块发现的功能差异
+
+| 组件 | 源功能 | Flutter 实现 | 评估 |
+|------|--------|-------------|------|
+| `AudioQualitySetting` | `auto/lossless/high/medium/low` | 原为 `auto/low/standard/high/hires` | **已修复** |
+| `settings_screen.dart` | 圆角设置 (0-24px slider) | 原无设置 UI | **已添加** |
+| `settings_screen.dart` | 背景色设置 (backgroundColor + contentBackgroundColor) | 原无设置 UI | **已添加** |
+| `settings_notifier.dart` | 导入/导出配置 | 原无实现 | **已添加** |
+| `menu-settings.tsx` | 系统菜单 + 收藏夹隐藏 | 仅收藏夹隐藏 | 移动端简化（可接受，无侧边栏） |
 
 ### Shared Widgets 发现的功能差异
 

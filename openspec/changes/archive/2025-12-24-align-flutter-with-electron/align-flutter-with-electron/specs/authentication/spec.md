@@ -79,7 +79,7 @@ The authentication system SHALL automatically fetch and inject bili_ticket cooki
 - **WHEN** API request is made
 - **THEN** valid bili_ticket is included in request cookies
 
-## MODIFIED Requirements
+---
 
 ### Requirement: SMS Login Country Support
 

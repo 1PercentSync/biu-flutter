@@ -1,4 +1,9 @@
-/// Utility functions for URL handling
+/// Utility functions for URL handling.
+///
+/// Provides URL manipulation for Bilibili media URLs including protocol handling,
+/// image format conversion, and deadline validation.
+///
+/// Source: biu/src/common/utils/url.ts + biu/src/common/utils/audio.ts
 class UrlUtils {
   UrlUtils._();
 
@@ -39,7 +44,9 @@ class UrlUtils {
     }
   }
 
-  /// Ensure URL uses HTTPS protocol
+  /// Ensure URL uses HTTPS protocol.
+  ///
+  /// Source: biu/src/common/utils/url.ts#formatUrlProtocal
   static String formatProtocol(String? url) {
     if (url == null || url.isEmpty) return '';
     if (url.startsWith('//')) {
@@ -90,17 +97,29 @@ class UrlUtils {
     return match?.group(0);
   }
 
-  /// Build Bilibili video URL from BV ID
-  static String buildVideoUrl(String bvid) {
+  /// Build Bilibili video URL from BV ID.
+  ///
+  /// [pageIndex] is 1-based page number for multi-part videos.
+  /// Only appended if > 1.
+  ///
+  /// Source: biu/src/common/utils/url.ts#getBiliVideoLink
+  static String buildVideoUrl(String bvid, {int? pageIndex}) {
+    if (pageIndex != null && pageIndex > 1) {
+      return 'https://www.bilibili.com/video/$bvid?p=$pageIndex';
+    }
     return 'https://www.bilibili.com/video/$bvid';
   }
 
-  /// Build Bilibili audio URL from song ID
+  /// Build Bilibili audio URL from song ID.
+  ///
+  /// Source: biu/src/common/utils/url.ts#getBiliVideoLink
   static String buildAudioUrl(int sid) {
     return 'https://www.bilibili.com/audio/au$sid';
   }
 
-  /// Build Bilibili user space URL from mid
+  /// Build Bilibili user space URL from mid.
+  ///
+  /// Source: Flutter-only
   static String buildUserUrl(int mid) {
     return 'https://space.bilibili.com/$mid';
   }

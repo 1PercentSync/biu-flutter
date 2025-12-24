@@ -1,5 +1,10 @@
-/// Bilibili Common Error Codes
-/// Source: https://socialsisteryi.github.io/bilibili-API-collect/docs/misc/errcode.html
+/// Bilibili Common Error Codes.
+///
+/// Comprehensive enum of all Bilibili API error codes with their meanings.
+/// Used for consistent error handling across the application.
+///
+/// External Reference: https://socialsisteryi.github.io/bilibili-API-collect/docs/misc/errcode.html
+/// Source: biu/src/common/constants/response-code.ts#BiliErrorCode
 enum BiliErrorCode {
   /// Application not found or banned
   appNotFoundOrBanned(-1, 'Application not found or banned'),

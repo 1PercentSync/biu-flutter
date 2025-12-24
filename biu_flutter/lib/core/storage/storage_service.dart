@@ -10,7 +10,12 @@ final storageServiceProvider = Provider<StorageService>((ref) {
   );
 });
 
-/// Abstract interface for key-value storage
+/// Abstract interface for key-value storage.
+///
+/// Replaces Zustand persist middleware from source project.
+/// Provides async key-value storage for app state persistence.
+///
+/// Source: Flutter-only (replaces biu/src/store/*.ts persist middleware)
 abstract class StorageService {
   /// Get a string value
   Future<String?> getString(String key);

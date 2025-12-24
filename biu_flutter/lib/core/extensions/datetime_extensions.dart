@@ -1,6 +1,10 @@
 import 'package:intl/intl.dart';
 
-/// Extension methods for DateTime
+/// Extension methods for DateTime.
+///
+/// Provides date formatting utilities for displaying timestamps.
+///
+/// Source: biu/src/common/utils/time.ts (formatSecondsToDate, formatMillisecond)
 extension DateTimeExtensions on DateTime {
   /// Format as date string (YYYY-MM-DD)
   String toDateString() {
@@ -33,7 +37,11 @@ extension DateTimeExtensions on DateTime {
   }
 }
 
-/// Extension methods for int (as Unix timestamp)
+/// Extension methods for int (as Unix timestamp).
+///
+/// Converts Unix timestamps to DateTime and formatted strings.
+///
+/// Source: biu/src/common/utils/time.ts#formatSecondsToDate
 extension UnixTimestampExtensions on int {
   /// Convert Unix timestamp (seconds) to DateTime
   DateTime toDateTime() {

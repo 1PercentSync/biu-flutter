@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/extensions/duration_extensions.dart';
+import '../../core/utils/number_utils.dart';
 import '../theme/theme.dart';
 import 'cached_image.dart';
 
@@ -256,7 +257,7 @@ class VideoCard extends StatelessWidget {
           ),
           const SizedBox(width: 2),
           Text(
-            _formatCount(viewCount!),
+            NumberUtils.formatCompact(viewCount),
             style: statStyle,
           ),
           const SizedBox(width: 12),
@@ -270,7 +271,7 @@ class VideoCard extends StatelessWidget {
           ),
           const SizedBox(width: 2),
           Text(
-            _formatCount(danmakuCount!),
+            NumberUtils.formatCompact(danmakuCount),
             style: statStyle,
           ),
         ],
@@ -278,14 +279,6 @@ class VideoCard extends StatelessWidget {
     );
   }
 
-  String _formatCount(int count) {
-    if (count >= 100000000) {
-      return '${(count / 100000000).toStringAsFixed(1)}亿';
-    } else if (count >= 10000) {
-      return '${(count / 10000).toStringAsFixed(1)}万';
-    }
-    return count.toString();
-  }
 }
 
 /// A list tile variant for video display.
@@ -499,7 +492,7 @@ class VideoListTile extends StatelessWidget {
           ),
           const SizedBox(width: 2),
           Text(
-            _formatCount(viewCount!),
+            NumberUtils.formatCompact(viewCount),
             style: statStyle,
           ),
           const SizedBox(width: 12),
@@ -513,7 +506,7 @@ class VideoListTile extends StatelessWidget {
           ),
           const SizedBox(width: 2),
           Text(
-            _formatCount(danmakuCount!),
+            NumberUtils.formatCompact(danmakuCount),
             style: statStyle,
           ),
         ],
@@ -521,12 +514,4 @@ class VideoListTile extends StatelessWidget {
     );
   }
 
-  String _formatCount(int count) {
-    if (count >= 100000000) {
-      return '${(count / 100000000).toStringAsFixed(1)}亿';
-    } else if (count >= 10000) {
-      return '${(count / 10000).toStringAsFixed(1)}万';
-    }
-    return count.toString();
-  }
 }

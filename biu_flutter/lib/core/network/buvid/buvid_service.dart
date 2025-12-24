@@ -33,12 +33,13 @@ class BuvidResponse {
   final String b4; // buvid4
 }
 
-/// BUVID service for generating and managing BUVID cookies
+/// BUVID service for generating and managing BUVID cookies.
 ///
 /// BUVID is a unique identifier used by Bilibili for tracking and
 /// anti-spam purposes. It needs to be included in cookies for API requests.
 ///
-/// Reference: https://socialsisteryi.github.io/bilibili-API-collect/docs/misc/buvid3_4.html
+/// External Reference: https://socialsisteryi.github.io/bilibili-API-collect/docs/misc/buvid3_4.html
+/// Source: biu/src/service/web-buvid.ts#generateBuvid
 class BuvidService {
   BuvidService._();
 

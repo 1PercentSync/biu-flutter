@@ -1,4 +1,8 @@
-/// Play mode for the audio player
+/// Play mode for the audio player.
+///
+/// Defines how the playlist behaves when a track finishes playing.
+///
+/// Source: biu/src/common/constants/audio.tsx#PlayMode
 enum PlayMode {
   /// Sequential play - play in order, stop at the end
   sequence(1, 'Sequential', 'order_play'),
@@ -39,8 +43,12 @@ enum PlayMode {
   }
 }
 
-/// Audio quality levels for Bilibili
-/// Sorted from lowest to highest quality
+/// Audio quality levels for Bilibili.
+///
+/// Contains quality IDs and their mappings for audio stream selection.
+/// IDs are sorted from lowest to highest quality (last is lossless).
+///
+/// Source: biu/src/common/constants/audio.tsx#audioQualitySort
 class AudioQuality {
   AudioQuality._();
 

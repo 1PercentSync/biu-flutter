@@ -84,7 +84,7 @@ The audio player SHALL provide a user interface for adjusting playback speed.
 - **THEN** playback speed changes immediately
 - **AND** rate preference is persisted
 
-## MODIFIED Requirements
+---
 
 ### Requirement: Add To Next Queue Behavior
 

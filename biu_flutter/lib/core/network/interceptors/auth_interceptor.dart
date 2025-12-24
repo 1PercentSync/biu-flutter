@@ -4,10 +4,16 @@ import 'package:dio/dio.dart';
 import '../ticket/bili_ticket_service.dart';
 import '../wbi/wbi_sign.dart';
 
-/// Interceptor for handling authentication-related tasks:
-/// - Injecting CSRF token
-/// - Adding WBI signature when needed
+/// Interceptor for handling authentication-related tasks.
+///
+/// Handles:
+/// - Injecting CSRF token (bili_jct) when `useCSRF` is set
+/// - Adding WBI signature when `useWbi` is set
 /// - Injecting bili_ticket cookie
+///
+/// Note: Unlike source, cookie refresh is handled separately in auth feature.
+///
+/// Source: biu/src/service/request/request-interceptors.ts#requestInterceptors
 class AuthInterceptor extends Interceptor {
   AuthInterceptor({required this.cookieJar});
 

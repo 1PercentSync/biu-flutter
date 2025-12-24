@@ -91,23 +91,6 @@ The favorites system SHALL support playing all items in a folder with a single a
 
 ---
 
-### Requirement: Clean Invalid Items
-
-The favorites system SHALL support removing invalid (deleted/unavailable) items from a folder.
-
-#### Scenario: Clean invalid items
-- **WHEN** user selects "Clean Invalid" from folder menu
-- **THEN** confirmation dialog is shown
-- **AND** upon confirmation, API removes all invalid items
-- **AND** folder content is refreshed
-
-#### Scenario: Invalid item indication
-- **WHEN** folder contains invalid items
-- **THEN** invalid items are visually distinguished (dimmed, badge, etc.)
-- **AND** user is informed of invalid item presence
-
----
-
 ### Requirement: Video Favorite Status Check
 
 The favorites system SHALL be able to check if a specific video is already favorited.
@@ -121,3 +104,20 @@ The favorites system SHALL be able to check if a specific video is already favor
 - **WHEN** video is playing
 - **THEN** favorite button shows current status
 - **AND** tapping toggles favorite state
+
+## MODIFIED Requirements
+
+### Requirement: Clean Invalid Items
+
+The application SHALL allow cleaning invalid/deleted items from folders with enhanced UI feedback.
+
+#### Scenario: Clean folder
+- **WHEN** user selects "Clean Invalid" from folder menu
+- **THEN** confirmation dialog is shown
+- **AND** upon confirmation, all invalid items are removed from folder
+- **AND** folder content is refreshed
+
+#### Scenario: Invalid item indication
+- **WHEN** folder contains invalid items
+- **THEN** invalid items are visually distinguished (dimmed, badge, etc.)
+- **AND** user is informed of invalid item presence

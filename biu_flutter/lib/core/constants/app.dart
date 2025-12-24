@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 
-/// Application-wide constants and default settings
+/// Application-wide constants and default settings.
+///
+/// Contains app metadata, default UI values, and theme colors.
+///
+/// Source: Flutter-only (migrated from various source constants)
 class AppConstants {
   AppConstants._();
 
@@ -29,7 +33,12 @@ class AppConstants {
   static const List<String> displayModes = ['card', 'list'];
 }
 
-/// Storage keys for persistent data
+/// Storage keys for persistent data.
+///
+/// Centralized key definitions for SharedPreferences and secure storage.
+/// Corresponds to Zustand persist middleware keys in source.
+///
+/// Source: Flutter-only (keys derived from biu/src/store/*.ts persist configs)
 class StorageKeys {
   StorageKeys._();
 

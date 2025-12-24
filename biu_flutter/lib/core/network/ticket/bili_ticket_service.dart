@@ -36,12 +36,13 @@ class BiliTicketResponse {
   final int ticketTtl;
 }
 
-/// Bili Ticket service for managing bili_ticket
+/// Bili Ticket service for managing bili_ticket.
 ///
 /// bili_ticket is a JWT token used by Bilibili for anti-spam protection.
 /// It needs to be refreshed periodically (TTL is typically 259200 seconds / 3 days).
 ///
-/// Reference: https://socialsisteryi.github.io/bilibili-API-collect/docs/misc/sign/bili_ticket.html
+/// External Reference: https://socialsisteryi.github.io/bilibili-API-collect/docs/misc/sign/bili_ticket.html
+/// Source: biu/src/service/web-bili-ticket.ts#genBiliTicket
 class BiliTicketService {
   BiliTicketService._();
 

@@ -1,4 +1,9 @@
-/// Extension methods for String
+/// Extension methods for String.
+///
+/// Provides HTML stripping and URL utilities for Bilibili content.
+///
+/// Source: biu/src/common/utils/str.ts#stripHtml
+/// Source: biu/src/common/utils/url.ts (toHttps logic)
 extension StringExtensions on String {
   /// Remove HTML tags from the string
   /// Used for processing search result titles

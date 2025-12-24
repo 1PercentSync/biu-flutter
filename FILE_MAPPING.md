@@ -134,7 +134,7 @@ biu_flutter/lib/
 | Electron Source | Flutter Target | Status | Notes |
 |-----------------|----------------|--------|-------|
 | `common/utils/color.ts` | `core/utils/color_utils.dart` | ✅ Full | Flutter has more features |
-| `common/utils/number.ts` | `core/utils/number_utils.dart` + `format_utils.dart` | ⚠️ One-to-Many | Split into two files |
+| `common/utils/number.ts` | `core/utils/number_utils.dart` | ✅ Full | Deleted duplicate format_utils.dart |
 | `common/utils/url.ts` | `core/utils/url_utils.dart` + `core/extensions/string_extensions.dart` | ⚠️ One-to-Many | Partial overlap |
 | `common/utils/time.ts` | `core/extensions/datetime_extensions.dart` + `duration_extensions.dart` | ⚠️ One-to-Many | Uses extensions pattern |
 | `common/utils/str.ts` | `core/extensions/string_extensions.dart` | ✅ Full | stripHtml function |

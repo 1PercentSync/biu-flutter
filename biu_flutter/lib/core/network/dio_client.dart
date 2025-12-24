@@ -8,7 +8,15 @@ import 'interceptors/auth_interceptor.dart';
 import 'interceptors/logging_interceptor.dart';
 import 'interceptors/response_interceptor.dart';
 
-/// Singleton Dio client for Bilibili API requests
+/// Singleton Dio client for Bilibili API requests.
+///
+/// Manages multiple Dio instances for different Bilibili endpoints:
+/// - [dio]: api.bilibili.com (main API)
+/// - [passportDio]: passport.bilibili.com (login/auth)
+/// - [searchDio]: s.search.bilibili.com (search)
+/// - [biliDio]: www.bilibili.com (web pages, audio info)
+///
+/// Source: biu/src/service/request/index.ts
 class DioClient {
   DioClient._();
 
@@ -18,6 +26,7 @@ class DioClient {
   late final Dio _dio;
   late final Dio _passportDio;
   late final Dio _searchDio;
+  late final Dio _biliDio;
   late final PersistCookieJar _cookieJar;
 
   bool _initialized = false;
@@ -30,6 +39,11 @@ class DioClient {
 
   /// Get the search Dio instance
   Dio get searchDio => _searchDio;
+
+  /// Get the bili Dio instance (for www.bilibili.com)
+  ///
+  /// Source: biu/src/service/request/index.ts#biliRequest
+  Dio get biliDio => _biliDio;
 
   /// Get the cookie jar
   PersistCookieJar get cookieJar => _cookieJar;
@@ -59,6 +73,13 @@ class DioClient {
     // Create search Dio instance for s.search.bilibili.com
     _searchDio = _createDio(
       baseUrl: 'https://s.search.bilibili.com',
+      withAuth: true,
+    );
+
+    // Create bili Dio instance for www.bilibili.com
+    // Source: biu/src/service/request/index.ts#biliRequest
+    _biliDio = _createDio(
+      baseUrl: 'https://www.bilibili.com',
       withAuth: true,
     );
 

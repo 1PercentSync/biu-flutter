@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/utils/number_utils.dart';
 import '../../../../shared/theme/theme.dart';
 import '../../../../shared/widgets/cached_image.dart';
 import '../../data/models/musician.dart';
@@ -133,15 +134,6 @@ class MusicianListTile extends StatelessWidget {
   final Musician musician;
   final VoidCallback onTap;
 
-  String _formatCount(int count) {
-    if (count >= 100000000) {
-      return '${(count / 100000000).toStringAsFixed(1)}亿';
-    } else if (count >= 10000) {
-      return '${(count / 10000).toStringAsFixed(1)}万';
-    }
-    return count.toString();
-  }
-
   @override
   Widget build(BuildContext context) {
     return ListTile(
@@ -162,7 +154,7 @@ class MusicianListTile extends StatelessWidget {
       subtitle: Row(
         children: [
           Text(
-            '${_formatCount(musician.fansCount)} fans',
+            '${NumberUtils.formatCompact(musician.fansCount)} fans',
             style: const TextStyle(
               color: AppColors.textSecondary,
               fontSize: 12,

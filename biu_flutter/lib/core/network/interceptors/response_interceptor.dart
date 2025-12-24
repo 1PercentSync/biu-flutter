@@ -3,7 +3,9 @@ import 'package:dio/dio.dart';
 import '../../constants/api.dart';
 import '../../errors/app_exception.dart';
 
-/// Interceptor for handling Bilibili API response format
+/// Interceptor for handling Bilibili API response format.
+///
+/// Source: biu/src/service/request/response-interceptors.ts#geetestInterceptors
 ///
 /// Bilibili APIs return responses in the format:
 /// {

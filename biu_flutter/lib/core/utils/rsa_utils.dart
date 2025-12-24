@@ -4,7 +4,14 @@ import 'dart:typed_data';
 import 'package:pointycastle/asn1.dart';
 import 'package:pointycastle/export.dart';
 
-/// RSA encryption utilities for Bilibili password login
+/// RSA encryption utilities for Bilibili password login.
+///
+/// Handles password encryption using the public key from Bilibili's login API.
+/// Note: This uses PKCS1 padding for password login, different from the RSA-OAEP
+/// used in cookie refresh flow (see cookie_refresh_service.dart).
+///
+/// Source: biu/src/layout/navbar/login/password-login.tsx (encryption logic)
+/// Related: biu/src/common/utils/cookie.ts#getCorrespondPath (different RSA usage)
 class RsaUtils {
   RsaUtils._();
 

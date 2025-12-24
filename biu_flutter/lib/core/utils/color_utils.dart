@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 
-/// Utility functions for color manipulation
+/// Utility functions for color manipulation.
+///
+/// Provides hex color parsing, HSL conversion, and color adjustment functions.
+/// Extended beyond source with Flutter-specific utilities.
+///
+/// Source: biu/src/common/utils/color.ts (hexToHsl, hexToRgb)
 class ColorUtils {
   ColorUtils._();
 

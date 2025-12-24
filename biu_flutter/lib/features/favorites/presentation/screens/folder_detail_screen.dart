@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/audio.dart';
 import '../../../../core/extensions/duration_extensions.dart';
+import '../../../../core/utils/number_utils.dart';
 import '../../../../shared/theme/theme.dart';
 import '../../../../shared/widgets/cached_image.dart';
 import '../../../../shared/widgets/empty_state.dart';
@@ -969,7 +970,7 @@ class _MediaListItem extends StatelessWidget {
           const SizedBox(width: 8),
           if (media.playCount > 0)
             Text(
-              '${_formatCount(media.playCount)} plays',
+              '${NumberUtils.formatCompact(media.playCount)} plays',
               style: const TextStyle(
                 color: AppColors.textTertiary,
                 fontSize: 12,
@@ -990,15 +991,6 @@ class _MediaListItem extends StatelessWidget {
       onTap: media.isInvalid && !isSelectionMode ? null : onTap,
       onLongPress: onLongPress,
     );
-  }
-
-  String _formatCount(int count) {
-    if (count >= 100000000) {
-      return '${(count / 100000000).toStringAsFixed(1)}亿';
-    } else if (count >= 10000) {
-      return '${(count / 10000).toStringAsFixed(1)}万';
-    }
-    return count.toString();
   }
 }
 

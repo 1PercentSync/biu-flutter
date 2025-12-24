@@ -5,9 +5,13 @@ import 'package:dio/dio.dart';
 import '../../storage/storage_service.dart';
 import '../dio_client.dart';
 
-/// WBI signature generation for Bilibili API requests
+/// WBI signature generation for Bilibili API requests.
 ///
-/// Reference: https://socialsisteryi.github.io/bilibili-API-collect/docs/misc/sign/wbi.html
+/// Implements the WBI (Web Bilibili Interface) signature algorithm required
+/// for authenticated API calls.
+///
+/// External Reference: https://socialsisteryi.github.io/bilibili-API-collect/docs/misc/sign/wbi.html
+/// Source: biu/src/service/request/wbi-sign.ts#encodeParamsWbi
 class WbiSign {
   WbiSign._();
 

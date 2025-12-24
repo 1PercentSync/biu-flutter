@@ -18,7 +18,12 @@ import '../../shared/widgets/playbar/playbar.dart';
 import 'auth_guard.dart';
 import 'routes.dart';
 
-/// Provider for the app router
+/// Provider for the app router.
+///
+/// Implements app navigation using GoRouter with route guards.
+///
+/// Source: biu/src/routes.tsx + biu/src/app.tsx (route definitions)
+/// Note: Flutter uses declarative routing (GoRouter) vs React Router.
 final appRouterProvider = Provider<GoRouter>((ref) {
   final authGuard = ref.watch(authGuardProvider);
 

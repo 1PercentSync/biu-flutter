@@ -12,22 +12,27 @@ The application SHALL provide a settings screen for user preferences.
 - **THEN** settings screen SHALL display all configurable options
 
 ### Requirement: Audio Quality Selection
-The application SHALL allow users to select preferred audio quality.
 
-#### Scenario: Quality options
-- **GIVEN** settings screen
-- **WHEN** audio quality setting is shown
-- **THEN** options SHALL include: Auto, 64K, 132K, 192K, Flac, Hi-Res
+The settings system SHALL provide comprehensive audio quality selection options matching the source application.
 
-#### Scenario: Quality application
-- **GIVEN** quality is set to specific level
-- **WHEN** audio stream is fetched
-- **THEN** that quality SHALL be requested (or nearest available)
+#### Scenario: Audio quality options
+- **WHEN** user opens audio quality settings
+- **THEN** options are displayed: Auto, Low (64K), Standard (128K), High (192K), Hi-Res (Lossless)
 
-#### Scenario: VIP requirement
-- **GIVEN** high quality is selected (Flac, Hi-Res)
-- **WHEN** user is not VIP
-- **THEN** lower quality SHALL be used with informative message
+#### Scenario: VIP-only quality indication
+- **WHEN** user is not VIP and views Hi-Res option
+- **THEN** option indicates VIP requirement
+- **AND** selection is still allowed (API will fallback)
+
+#### Scenario: Quality preference persistence
+- **WHEN** user selects audio quality
+- **THEN** preference is persisted
+- **AND** subsequent audio fetches use this preference
+
+#### Scenario: Quality applied to playback
+- **WHEN** audio is fetched for playback
+- **THEN** quality selection logic uses user preference
+- **AND** best available quality within preference is selected
 
 ### Requirement: Theme Customization
 The application SHALL allow basic theme customization.
@@ -106,4 +111,53 @@ The application SHALL allow users to manage cached data.
 - **GIVEN** cache management section
 - **WHEN** displayed
 - **THEN** current cache size SHALL be shown
+
+### Requirement: Display Mode Setting
+
+The settings system SHALL provide an option to switch between card and list display modes for content listings.
+
+#### Scenario: Display mode options
+- **WHEN** user opens display settings
+- **THEN** options for "Card" and "List" mode are available
+
+#### Scenario: Card mode selected
+- **WHEN** user selects card display mode
+- **THEN** content listings (search, favorites, etc.) use grid/card layout
+- **AND** preference is persisted
+
+#### Scenario: List mode selected
+- **WHEN** user selects list display mode
+- **THEN** content listings use vertical list layout
+- **AND** preference is persisted
+
+#### Scenario: Display mode applied globally
+- **WHEN** display mode is changed
+- **THEN** all applicable screens reflect the new mode
+- **AND** no app restart is required
+
+---
+
+### Requirement: Menu Customization
+
+The settings system SHALL allow users to hide specific favorites folders from navigation menu.
+
+#### Scenario: View hidden folders settings
+- **WHEN** user opens menu customization settings
+- **THEN** list of favorites folders is displayed
+- **AND** each folder has visibility toggle
+
+#### Scenario: Hide folder
+- **WHEN** user toggles folder visibility off
+- **THEN** folder is hidden from navigation menu
+- **AND** folder remains accessible via favorites screen
+- **AND** hidden folder IDs are persisted
+
+#### Scenario: Show hidden folder
+- **WHEN** user toggles previously hidden folder visibility on
+- **THEN** folder reappears in navigation menu
+
+#### Scenario: Hidden folders persist across sessions
+- **WHEN** app is restarted
+- **THEN** hidden folder preferences are restored
+- **AND** menu reflects saved visibility state
 

@@ -147,7 +147,7 @@ The API layer SHALL implement Bilibili musician listing endpoints.
 - **THEN** API call to `/x/copyright-music-publicity/index/uploader_list` is made
 - **AND** response contains ranked musicians with stats
 
-## MODIFIED Requirements
+---
 
 ### Requirement: Search API Enhancement
 

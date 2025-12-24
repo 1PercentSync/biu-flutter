@@ -16,7 +16,10 @@
       "Bash(pushd:*)",
       "Bash(dir:*)",
       "Bash(mkdir:*)",
-      "Bash(flutter run:*)"
+      "Bash(flutter run:*)",
+      "Bash(openspec list:*)",
+      "Bash(openspec archive:*)",
+      "Bash(openspec validate:*)"
     ]
   }
 }

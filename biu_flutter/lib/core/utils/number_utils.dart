@@ -1,15 +1,22 @@
-/// Utility functions for number formatting
+/// Utility functions for number formatting.
+///
+/// Source: biu/src/common/utils/number.ts#formatNumber
 class NumberUtils {
   NumberUtils._();
 
-  /// Format large numbers with K, M, B suffixes
-  /// e.g., 1234 -> "1.2K", 1234567 -> "1.2M"
+  /// Format large numbers using Chinese convention (万/亿).
+  ///
+  /// Uses the same formatting as Intl.NumberFormat("zh-CN", { notation: "compact" }):
+  /// - Numbers < 10000: displayed as-is
+  /// - Numbers >= 10000 and < 100000000: displayed in 万 (wan, 10K)
+  /// - Numbers >= 100000000: displayed in 亿 (yi, 100M)
+  ///
+  /// Source: biu/src/common/utils/number.ts#formatNumber
   static String formatCompact(int? number) {
     if (number == null) return '0';
-    if (number < 1000) return number.toString();
-    if (number < 10000) {
-      return '${(number / 1000).toStringAsFixed(1)}K';
-    }
+    // Unlike English K/M/B convention, Chinese uses 万/亿
+    // Numbers under 10000 are displayed as-is (matching source Intl behavior)
+    if (number < 10000) return number.toString();
     if (number < 100000000) {
       // Use 万 (wan) for Chinese convention
       final wan = number / 10000;

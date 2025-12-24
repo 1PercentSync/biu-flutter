@@ -1,4 +1,8 @@
-/// Extension methods for Duration
+/// Extension methods for Duration.
+///
+/// Provides formatting for media playback duration display.
+///
+/// Source: biu/src/common/utils/time.ts#formatDuration
 extension DurationExtensions on Duration {
   /// Format duration as mm:ss or hh:mm:ss
   String toFormattedString() {
@@ -20,7 +24,9 @@ extension DurationExtensions on Duration {
   String get formatted => toFormattedString();
 }
 
-/// Extension methods for int (as seconds)
+/// Extension methods for int (as seconds).
+///
+/// Source: biu/src/common/utils/time.ts#formatDuration (duration formatting)
 extension SecondsExtensions on int {
   /// Convert seconds to Duration
   Duration get seconds => Duration(seconds: this);

@@ -1,4 +1,9 @@
-/// API base URLs and endpoints for Bilibili
+/// API base URLs and endpoints for Bilibili.
+///
+/// Contains all the base URLs, timeout configurations, and user agent strings
+/// needed for Bilibili API communication.
+///
+/// Source: Flutter-only (consolidates values from multiple source files)
 class ApiConstants {
   ApiConstants._();
 

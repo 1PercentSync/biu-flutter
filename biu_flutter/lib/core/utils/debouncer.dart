@@ -1,6 +1,11 @@
 import 'dart:async';
 
-/// A utility class for debouncing function calls
+/// A utility class for debouncing function calls.
+///
+/// Delays execution until a specified duration has passed without new calls.
+/// Commonly used for search input to avoid excessive API requests.
+///
+/// Source: Flutter-only (standard debounce pattern)
 class Debouncer {
   Debouncer({this.delay = const Duration(milliseconds: 300)});
 
@@ -31,7 +36,12 @@ class Debouncer {
   bool get isPending => _timer?.isActive ?? false;
 }
 
-/// A utility class for throttling function calls
+/// A utility class for throttling function calls.
+///
+/// Ensures a minimum duration between executions, ignoring calls during cooldown.
+/// Used for rate-limiting operations like scroll events or button clicks.
+///
+/// Source: Flutter-only (standard throttle pattern)
 class Throttler {
   Throttler({this.duration = const Duration(milliseconds: 300)});
 

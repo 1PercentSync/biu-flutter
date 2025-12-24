@@ -243,29 +243,30 @@ This task list is designed for autonomous agent implementation. After completing
 ### B.1 Music Rank (Homepage) [P0]
 
 #### B.1.1 Music Rank API
-- [ ] B.1.1.1 Create music rank data models
-  - HotSong, RankInfo, etc.
-  - Location: `lib/features/music_rank/data/models/`
+- [x] B.1.1.1 Create music rank data models
+  - HotSong model with fields: id, musicId, musicTitle, author, bvid, aid, cid, cover, album, totalVv, wishCount
+  - Location: `lib/features/music_rank/data/models/hot_song.dart`
   - Reference: `biu/src/service/music-hot-rank.ts`
 
-- [ ] B.1.1.2 Implement music rank API datasource
-  - GET `/x/copyright-music-publicity/toplist/music_rank`
+- [x] B.1.1.2 Implement music rank API datasource
+  - GET `/x/centralization/interface/music/hot/rank`
   - Location: `lib/features/music_rank/data/datasources/music_rank_remote_datasource.dart`
   - Reference: `biu/src/service/music-hot-rank.ts`
 
 #### B.1.2 Music Rank UI
-- [ ] B.1.2.1 Create MusicRankScreen
-  - Grid/list of hot songs
-  - Tap to play functionality
-  - Location: `lib/features/music_rank/presentation/screens/music_rank_screen.dart`
+- [x] B.1.2.1 Create MusicRankScreen
+  - Integrated into HomeScreen with grid display
+  - Tap to play functionality via PlaylistNotifier
+  - Location: `lib/features/home/presentation/screens/home_screen.dart`
   - Reference: `biu/src/pages/music-rank/index.tsx`
 
-- [ ] B.1.2.2 Replace home screen with music rank
-  - Update router to use MusicRankScreen as home
-  - Location: `lib/core/router/app_router.dart`
+- [x] B.1.2.2 Replace home screen with music rank
+  - HomeScreen now displays MusicRank content
+  - Location: `lib/features/home/presentation/screens/home_screen.dart`
 
-- [ ] B.1.2.3 Create HotSongCard widget
-  - Rank number, cover, title, artist
+- [x] B.1.2.3 Create HotSongCard widget
+  - Rank number badge (with color for top 3), cover, title, artist, play count
+  - Also includes HotSongListTile for list view mode
   - Location: `lib/features/music_rank/presentation/widgets/hot_song_card.dart`
   - Reference: `biu/src/pages/music-rank/index.tsx`
 

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/router/routes.dart';
 import '../../../../shared/theme/theme.dart';
 import '../../../../shared/widgets/cached_image.dart';
+import '../../../auth/domain/entities/user.dart';
 import '../../../auth/presentation/providers/auth_notifier.dart';
 import '../../domain/entities/app_settings.dart';
 import '../providers/settings_notifier.dart';
@@ -134,7 +135,7 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildUserTile(BuildContext context, WidgetRef ref, dynamic user) {
+  Widget _buildUserTile(BuildContext context, WidgetRef ref, User? user) {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(

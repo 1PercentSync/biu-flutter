@@ -50,7 +50,7 @@ class UserSearchCard extends StatelessWidget {
             placeholder: (context, url) => Container(
               width: 48,
               height: 48,
-              color: AppColors.surfaceVariant,
+              color: AppColors.surfaceElevated,
               child: const Icon(
                 Icons.person,
                 color: AppColors.textTertiary,
@@ -59,7 +59,7 @@ class UserSearchCard extends StatelessWidget {
             errorWidget: (context, url, error) => Container(
               width: 48,
               height: 48,
-              color: AppColors.surfaceVariant,
+              color: AppColors.surfaceElevated,
               child: const Icon(
                 Icons.person,
                 color: AppColors.textTertiary,

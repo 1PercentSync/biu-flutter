@@ -181,7 +181,7 @@ biu_flutter/lib/
 | `service/passport-login-web-cookie-refresh.ts` | ↳ + `data/services/cookie_refresh_service.dart` | ✅ |
 | `service/passport-login-web-confirm-refresh.ts` | ↳ (same file, confirmRefresh) | ✅ |
 | `service/user-info.ts` | ↳ (same file, getUserInfo) | ✅ |
-| `service/passport-login-web-country.ts` | - | ❌ Missing (hardcoded in Flutter) |
+| `service/passport-login-web-country.ts` | ↳ (same file, getCountryList) | ✅ |
 | `service/gaia-vgate*.ts` (3 files) | - | ❌ Missing |
 | `service/member-web-account.ts` | - | ❌ Missing |
 | `service/user-account.ts` | - | ❌ Missing |

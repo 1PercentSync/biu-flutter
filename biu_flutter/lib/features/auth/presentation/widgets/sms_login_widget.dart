@@ -196,50 +196,89 @@ class _SmsLoginWidgetState extends ConsumerState<SmsLoginWidget> {
   }
 
   void _showCountryCodePicker() {
+    final state = ref.read(smsLoginNotifierProvider);
+    final countryList = state.countryList;
+
     showModalBottomSheet<void>(
       context: context,
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Padding(
-              padding: EdgeInsets.all(16),
-              child: Text(
-                '选择国家/地区',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+      isScrollControlled: true,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.6,
+        minChildSize: 0.3,
+        maxChildSize: 0.9,
+        expand: false,
+        builder: (context, scrollController) => SafeArea(
+          child: Column(
+            children: [
+              const Padding(
+                padding: EdgeInsets.all(16),
+                child: Text(
+                  '选择国家/地区',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
-            ),
-            ListTile(
-              title: const Text('中国大陆'),
-              trailing: const Text('+86'),
-              onTap: () {
-                ref.read(smsLoginNotifierProvider.notifier).setCountryCode(86);
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: const Text('中国香港'),
-              trailing: const Text('+852'),
-              onTap: () {
-                ref.read(smsLoginNotifierProvider.notifier).setCountryCode(852);
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: const Text('中国台湾'),
-              trailing: const Text('+886'),
-              onTap: () {
-                ref.read(smsLoginNotifierProvider.notifier).setCountryCode(886);
-                Navigator.pop(context);
-              },
-            ),
-            const SizedBox(height: 16),
-          ],
+              Expanded(
+                child: countryList.isEmpty
+                    ? _buildFallbackCountryList()
+                    : ListView.builder(
+                        controller: scrollController,
+                        itemCount: countryList.length,
+                        itemBuilder: (context, index) {
+                          final country = countryList[index];
+                          final code = int.tryParse(country.countryCode) ?? 0;
+                          return ListTile(
+                            title: Text(country.name),
+                            trailing: Text(country.displayCode),
+                            selected: code == state.countryCode,
+                            onTap: () {
+                              ref
+                                  .read(smsLoginNotifierProvider.notifier)
+                                  .setCountryCode(code);
+                              Navigator.pop(context);
+                            },
+                          );
+                        },
+                      ),
+              ),
+            ],
+          ),
         ),
       ),
+    );
+  }
+
+  /// Fallback country list when API fails
+  Widget _buildFallbackCountryList() {
+    return ListView(
+      children: [
+        ListTile(
+          title: const Text('中国大陆'),
+          trailing: const Text('+86'),
+          onTap: () {
+            ref.read(smsLoginNotifierProvider.notifier).setCountryCode(86);
+            Navigator.pop(context);
+          },
+        ),
+        ListTile(
+          title: const Text('中国香港'),
+          trailing: const Text('+852'),
+          onTap: () {
+            ref.read(smsLoginNotifierProvider.notifier).setCountryCode(852);
+            Navigator.pop(context);
+          },
+        ),
+        ListTile(
+          title: const Text('中国台湾'),
+          trailing: const Text('+886'),
+          onTap: () {
+            ref.read(smsLoginNotifierProvider.notifier).setCountryCode(886);
+            Navigator.pop(context);
+          },
+        ),
+      ],
     );
   }
 

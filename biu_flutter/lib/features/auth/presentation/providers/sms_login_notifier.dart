@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../data/datasources/auth_remote_datasource.dart';
+import '../../data/models/country_response.dart';
 import '../../domain/repositories/auth_repository.dart';
 import 'auth_notifier.dart';
 
@@ -23,12 +25,16 @@ class SmsLoginState {
     this.captchaKey,
     this.countryCode = 86, // Default to China
     this.countdown = 0,
+    this.countryList = const [],
+    this.isLoadingCountries = false,
   });
   final SmsLoginStatus status;
   final String? errorMessage;
   final String? captchaKey;
   final int countryCode;
   final int countdown;
+  final List<CountryInfo> countryList;
+  final bool isLoadingCountries;
 
   static const SmsLoginState initial = SmsLoginState();
 
@@ -36,12 +42,23 @@ class SmsLoginState {
   bool get isLoggingIn => status == SmsLoginStatus.loggingIn;
   bool get canSendCode => countdown == 0 && !isSendingCode;
 
+  /// Get selected country info
+  CountryInfo? get selectedCountry {
+    if (countryList.isEmpty) return null;
+    return countryList.firstWhere(
+      (c) => int.tryParse(c.countryCode) == countryCode,
+      orElse: () => countryList.first,
+    );
+  }
+
   SmsLoginState copyWith({
     SmsLoginStatus? status,
     String? errorMessage,
     String? captchaKey,
     int? countryCode,
     int? countdown,
+    List<CountryInfo>? countryList,
+    bool? isLoadingCountries,
     bool clearError = false,
     bool clearCaptchaKey = false,
   }) {
@@ -51,6 +68,8 @@ class SmsLoginState {
       captchaKey: clearCaptchaKey ? null : (captchaKey ?? this.captchaKey),
       countryCode: countryCode ?? this.countryCode,
       countdown: countdown ?? this.countdown,
+      countryList: countryList ?? this.countryList,
+      isLoadingCountries: isLoadingCountries ?? this.isLoadingCountries,
     );
   }
 }
@@ -60,22 +79,52 @@ final smsLoginNotifierProvider =
     StateNotifierProvider.autoDispose<SmsLoginNotifier, SmsLoginState>((ref) {
   final repository = ref.watch(authRepositoryProvider);
   final authNotifier = ref.watch(authNotifierProvider.notifier);
-  return SmsLoginNotifier(repository, authNotifier);
+  return SmsLoginNotifier(repository, authNotifier)..loadCountries();
 });
 
 /// SMS login state notifier
 class SmsLoginNotifier extends StateNotifier<SmsLoginState> {
 
   SmsLoginNotifier(this._repository, this._authNotifier)
-      : super(SmsLoginState.initial);
+      : _datasource = AuthRemoteDatasource(),
+        super(SmsLoginState.initial);
   final AuthRepository _repository;
   final AuthNotifier _authNotifier;
+  final AuthRemoteDatasource _datasource;
   Timer? _countdownTimer;
 
   @override
   void dispose() {
     _countdownTimer?.cancel();
     super.dispose();
+  }
+
+  /// Load country list from API
+  /// Source: biu/src/service/passport-login-web-country.ts#getPassportLoginDefaultCountry
+  Future<void> loadCountries() async {
+    if (state.countryList.isNotEmpty) return;
+
+    state = state.copyWith(isLoadingCountries: true);
+
+    try {
+      final response = await _datasource.getCountryList();
+      if (response.isSuccess && response.list.isNotEmpty) {
+        // Set default country code if available
+        final defaultCode = response.defaultCountry != null
+            ? int.tryParse(response.defaultCountry!.countryCode) ?? 86
+            : 86;
+        state = state.copyWith(
+          countryList: response.list,
+          countryCode: defaultCode,
+          isLoadingCountries: false,
+        );
+      } else {
+        state = state.copyWith(isLoadingCountries: false);
+      }
+    } catch (e) {
+      // Silently fail - UI will show fallback options
+      state = state.copyWith(isLoadingCountries: false);
+    }
   }
 
   /// Set country code

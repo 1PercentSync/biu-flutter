@@ -42,7 +42,7 @@ Deviations from 1:1 mapping should be **justified by Flutter/Dart conventions**.
 
 | Module | Missing Feature | Source Reference | Status |
 |--------|-----------------|------------------|--------|
-| `auth` | Country list API for SMS login | `biu/src/service/passport-login-web-country.ts` | ⚠️ Simplified: Hardcoded 3 common regions |
+| ~~`auth`~~ | ~~Country list API for SMS login~~ | `biu/src/service/passport-login-web-country.ts` | ✅ Fixed: Added getCountryList API |
 | `search` | Article/Photo/Live search types | `biu/src/service/web-interface-search-type.ts` | ⚠️ Simplified: Music player only needs video/user search |
 
 ### Behavioral Differences

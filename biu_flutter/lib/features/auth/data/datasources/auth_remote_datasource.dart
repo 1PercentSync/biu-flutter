@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 
 import '../../../../core/network/dio_client.dart';
 import '../models/captcha_response.dart';
+import '../models/country_response.dart';
 import '../models/login_response.dart';
 import '../models/qrcode_response.dart';
 import '../models/session_response.dart';
@@ -258,5 +259,15 @@ class AuthRemoteDatasource {
       ),
     );
     return LogoutResponse.fromJson(response.data ?? {});
+  }
+
+  /// Get country/region list for SMS login
+  /// GET /x/passport-login/web/country
+  /// Source: biu/src/service/passport-login-web-country.ts#getPassportLoginDefaultCountry
+  Future<CountryListResponse> getCountryList() async {
+    final response = await _passportDio.get<Map<String, dynamic>>(
+      '/x/passport-login/web/country',
+    );
+    return CountryListResponse.fromJson(response.data ?? {});
   }
 }

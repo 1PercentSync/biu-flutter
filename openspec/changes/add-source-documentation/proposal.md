@@ -19,7 +19,22 @@ biu-flutter 是从 biu (Electron) 迁移而来的项目。迁移不是一次性�
 
 ## Core Principles
 
-### 1. 文件 1:1 对应（除非有合理理由）
+### 1. 一致性 ≠ 死板照搬
+
+**关键理解**：一致性维护的目标是**行为一致**，不是代码复制。
+
+**允许不一致的情况**：
+- **Dart/Flutter 惯例**：使用 extension 而非 utility function、使用 Riverpod 而非 Zustand
+- **移动端适配**：底部导航替代侧边栏、下拉刷新替代按钮刷新、触摸友好的 UI
+- **Clean Architecture**：多个 service 聚合为一个 DataSource
+- **平台限制**：桌面特有功能（FFmpeg、系统托盘）无需迁移
+
+**不允许不一致的情况**：
+- 无合理理由的功能缺失（如缺少国家列表 API）
+- 请求选项遗漏（如缺少 useCSRF）
+- 行为逻辑错误（如 addToNext 不移动项目）
+
+### 2. 文件 1:1 对应（有合理理由可偏离）
 
 **为什么**：1:1 对应使维护变得简单。当源文件变化时，可以直接找到对应的目标文件更新。
 
@@ -31,7 +46,7 @@ biu-flutter 是从 biu (Electron) 迁移而来的项目。迁移不是一次性�
 **不合理的偏离**：
 - `number.ts` → `number_utils.dart` + `format_utils.dart`（无理由拆分，已修复）
 
-### 2. FILE_MAPPING.md 是真相来源
+### 3. FILE_MAPPING.md 是真相来源
 
 **为什么**：需要一个权威文档来追踪映射关系。没有它，一致性检查就是随机的、不完整的。
 
@@ -40,19 +55,25 @@ biu-flutter 是从 biu (Electron) 迁移而来的项目。迁移不是一次性�
 - 验证一致性 → 对照 FILE_MAPPING.md 逐条检查
 - INCONSISTENCIES.md 记录问题 → FILE_MAPPING.md 记录状态
 
-### 3. 源引用精确到函数/类名
+### 4. 源引用精确到函数/类名
 
 **为什么**：只写文件名不够，因为一个文件可能有多个函数。精确到函数名才能在源文件变化时快速定位。
 
 **格式**：`Source: biu/src/path/to/file.ts#functionName`
 
-### 4. 优先级：层级 > 边界 > 行为 > 文档
+### 5. 优先级：层级 > 边界 > 行为 > 文档
 
 **为什么**：
 - 层级错误 → 整个架构混乱
 - 边界错误 → 功能分散/重复
 - 行为错误 → 用户体验不一致
 - 文档缺失 → 维护困难但不影响功能
+
+### 6. 发现问题就修复，必要时重写
+
+**为什么**：维护一致性有时需要重写代码，不是小修小补。如果现有实现根本不对，就重写。
+
+**但是**：重写应该谨慎，确保理解源实现后再动手。
 
 ---
 
@@ -131,6 +152,7 @@ biu-flutter 是从 biu (Electron) 迁移而来的项目。迁移不是一次性�
 |------|-------|----------------|-----|
 | `playlist_notifier.dart` | `addToNext` 只设 nextId 不移动位置 | 源会移动已存在的项到当前项后面 | 添加移动逻辑，匹配源行为 |
 | `later_remote_datasource.dart` | `add/remove` 缺少 `useCSRF: true` | 源使用 `useCSRF: true` | 添加 CSRF 选项 |
+| `auth_remote_datasource.dart` | 缺少国家列表 API | 源有动态国家列表 | 添加 `getCountryList` + model + UI |
 
 ---
 
@@ -208,5 +230,5 @@ biu-flutter 是从 biu (Electron) 迁移而来的项目。迁移不是一次性�
 |------|------|------------------------|
 | 行为 | `later` 缺少 `useCSRF` | API 调用永远失败 (-111) |
 | 行为 | `addToNext` 不移动位置 | 用户体验不一致 |
-| 边界 | 缺少国家列表 API | 非中国用户无法 SMS 登录 |
-| 边界 | 缺少 article/photo/live 搜索 | 功能简化（可接受） |
+| 边界 | 缺少国家列表 API | 非中国用户无法选择地区 (**已修复**) |
+| 边界 | 缺少 article/photo/live 搜索 | 功能简化（可接受，音乐播放器不需要） |

@@ -252,25 +252,25 @@ After completing each phase or major task:
   - QR, Password, SMS tabs
   - Reference: `biu/src/layout/navbar/login/`
 
-## Phase 6: Favorites
+## Phase 6: Favorites ✅
 
 ### 6.1 Favorites Data Layer
-- [ ] 6.1.1 Create FavoritesFolder entity
-- [ ] 6.1.2 Create FavoritesRepository interface
-- [ ] 6.1.3 Implement folder list APIs
+- [x] 6.1.1 Create FavoritesFolder entity
+- [x] 6.1.2 Create FavoritesRepository interface
+- [x] 6.1.3 Implement folder list APIs
   - Reference: `biu/src/service/fav-folder-*.ts`
-- [ ] 6.1.4 Implement resource APIs
+- [x] 6.1.4 Implement resource APIs
   - Reference: `biu/src/service/fav-resource*.ts`
 
 ### 6.2 Favorites UI
-- [ ] 6.2.1 Create Favorites screen
+- [x] 6.2.1 Create Favorites screen
   - Created and Collected tabs
   - Reference: `biu/src/layout/side/collection/`
-- [ ] 6.2.2 Create Folder detail screen
+- [x] 6.2.2 Create Folder detail screen
   - List items with actions
-- [ ] 6.2.3 Create Folder edit dialog
+- [x] 6.2.3 Create Folder edit dialog
   - Reference: `biu/src/components/favorites-edit-modal/`
-- [ ] 6.2.4 Create Folder select sheet
+- [x] 6.2.4 Create Folder select sheet
   - For adding videos to favorites
   - Reference: `biu/src/components/favorites-select-modal/`
 

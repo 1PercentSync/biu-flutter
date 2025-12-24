@@ -74,6 +74,20 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: 'settings',
         builder: (context, state) => const SettingsScreen(),
       ),
+      // Favorites folder detail route
+      GoRoute(
+        path: AppRoutes.favoritesFolder,
+        name: 'favoritesFolder',
+        builder: (context, state) {
+          final folderId = int.tryParse(state.pathParameters['folderId'] ?? '');
+          if (folderId == null) {
+            return const Scaffold(
+              body: Center(child: Text('Invalid folder ID')),
+            );
+          }
+          return FolderDetailScreen(folderId: folderId);
+        },
+      ),
       // Full player route (modal)
       GoRoute(
         path: '/player',

@@ -1,0 +1,651 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:math';
+
+import 'package:audio_service/audio_service.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:just_audio/just_audio.dart';
+
+import 'package:biu_flutter/core/constants/audio.dart';
+import 'package:biu_flutter/core/storage/storage_service.dart';
+import 'package:biu_flutter/features/player/domain/entities/play_item.dart';
+import 'package:biu_flutter/features/player/presentation/providers/playlist_state.dart';
+import 'package:biu_flutter/features/player/services/audio_player_service.dart';
+
+/// Keys for persistent storage
+class _StorageKeys {
+  static const String playlistState = 'playlist_state';
+  static const String currentTime = 'play_current_time';
+}
+
+/// Notifier for managing playlist state and audio playback.
+class PlaylistNotifier extends Notifier<PlaylistState> {
+  late AudioPlayerService _playerService;
+  late BiuAudioHandler _audioHandler;
+  StreamSubscription<PlayerState>? _playerStateSubscription;
+  StreamSubscription<Duration>? _positionSubscription;
+  StreamSubscription<Duration?>? _durationSubscription;
+  StreamSubscription<ProcessingState>? _processingStateSubscription;
+
+  // Callbacks for fetching audio URLs (injected from features)
+  Future<String?> Function(String bvid, String cid)? onFetchMvAudioUrl;
+  Future<String?> Function(int sid)? onFetchAudioUrl;
+
+  @override
+  PlaylistState build() {
+    // Initialize player service
+    _playerService = AudioPlayerService();
+
+    // Clean up on disposal
+    ref.onDispose(() {
+      _playerStateSubscription?.cancel();
+      _positionSubscription?.cancel();
+      _durationSubscription?.cancel();
+      _processingStateSubscription?.cancel();
+      _playerService.dispose();
+    });
+
+    // Load persisted state
+    _loadPersistedState();
+
+    return const PlaylistState();
+  }
+
+  /// Initialize the audio handler for background playback.
+  /// Must be called after AudioService.init()
+  void setAudioHandler(BiuAudioHandler handler) {
+    _audioHandler = handler;
+  }
+
+  /// Initialize player and restore state
+  Future<void> initialize() async {
+    // Set up player state listener
+    _playerStateSubscription =
+        _playerService.playerStateStream.listen((playerState) {
+      state = state.copyWith(
+        isPlaying: playerState.playing,
+      );
+
+      // Handle track completion
+      if (playerState.processingState == ProcessingState.completed) {
+        _onTrackCompleted();
+      }
+    });
+
+    // Set up position listener
+    _positionSubscription = _playerService.positionStream.listen((position) {
+      state = state.copyWith(
+        currentTime: position.inMilliseconds / 1000.0,
+      );
+    });
+
+    // Set up duration listener
+    _durationSubscription = _playerService.durationStream.listen((duration) {
+      if (duration != null) {
+        state = state.copyWith(
+          duration: duration.inMilliseconds / 1000.0,
+        );
+      }
+    });
+
+    // Set up processing state listener
+    _processingStateSubscription =
+        _playerService.processingStateStream.listen((processingState) {
+      state = state.copyWith(
+        isLoading: processingState == ProcessingState.loading ||
+            processingState == ProcessingState.buffering,
+      );
+    });
+
+    // Apply persisted settings
+    await _playerService.setVolume(state.volume);
+    await _playerService.setSpeed(state.rate);
+    await _playerService.setLoopMode(
+      state.playMode == PlayMode.single ? LoopMode.one : LoopMode.off,
+    );
+
+    // Restore playback position if there's a current item
+    if (state.playId != null && state.currentItem != null) {
+      await _ensureAudioUrlValid();
+
+      final savedTime = await _loadCurrentTime();
+      if (savedTime > 0) {
+        await _playerService.seek(Duration(milliseconds: (savedTime * 1000).round()));
+        state = state.copyWith(currentTime: savedTime);
+      }
+    }
+  }
+
+  // ============ Playback Controls ============
+
+  /// Toggle play/pause
+  Future<void> togglePlay() async {
+    if (state.isEmpty || state.playId == null) return;
+
+    if (_playerService.isPlaying) {
+      await _playerService.pause();
+    } else {
+      await _ensureAudioUrlValid();
+      await _playerService.play();
+    }
+  }
+
+  /// Toggle mute
+  void toggleMute() {
+    final newMuted = !state.isMuted;
+    _playerService.setVolume(newMuted ? 0.0 : state.volume);
+    state = state.copyWith(isMuted: newMuted);
+    _saveState();
+  }
+
+  /// Set volume (0.0 to 1.0)
+  void setVolume(double volume) {
+    final clampedVolume = volume.clamp(0.0, 1.0);
+    _playerService.setVolume(state.isMuted ? 0.0 : clampedVolume);
+    state = state.copyWith(volume: clampedVolume);
+    _saveState();
+  }
+
+  /// Toggle play mode (cycle through modes)
+  void togglePlayMode() {
+    final newMode = state.playMode.next;
+    _playerService.setLoopMode(
+      newMode == PlayMode.single ? LoopMode.one : LoopMode.off,
+    );
+    state = state.copyWith(playMode: newMode);
+    _saveState();
+  }
+
+  /// Set playback rate (0.5 to 2.0)
+  void setRate(double rate) {
+    final clampedRate = rate.clamp(0.5, 2.0);
+    _playerService.setSpeed(clampedRate);
+    state = state.copyWith(rate: clampedRate);
+    _saveState();
+  }
+
+  /// Seek to position (in seconds)
+  Future<void> seek(double seconds) async {
+    await _playerService.seek(Duration(milliseconds: (seconds * 1000).round()));
+    state = state.copyWith(currentTime: seconds);
+    _saveCurrentTime();
+  }
+
+  /// Set whether to keep page order in random play mode
+  void setShouldKeepPagesOrderInRandomPlayMode(bool shouldKeep) {
+    state = state.copyWith(shouldKeepPagesOrderInRandomPlayMode: shouldKeep);
+    _saveState();
+  }
+
+  // ============ Playlist Operations ============
+
+  /// Play a single item (adds to playlist if not present)
+  Future<void> play(PlayItem item) async {
+    // Check if already playing
+    final currentItem = state.currentItem;
+    if (currentItem != null && currentItem.isSameContent(item)) {
+      if (!_playerService.isPlaying) {
+        await _ensureAudioUrlValid();
+        await _playerService.play();
+      }
+      return;
+    }
+
+    // Check if item already exists in playlist
+    final existingIndex =
+        state.list.indexWhere((i) => i.isSameContent(item));
+    if (existingIndex != -1) {
+      await playListItem(state.list[existingIndex].id);
+      return;
+    }
+
+    // Add new item and play
+    final newList = [...state.list, item];
+    state = state.copyWith(
+      list: newList,
+      playId: item.id,
+      currentTime: 0.0,
+      clearDuration: true,
+    );
+
+    await _playCurrentItem();
+  }
+
+  /// Play a specific item from the playlist by ID
+  Future<void> playListItem(String id) async {
+    if (state.playId == id) return;
+
+    final itemIndex = state.list.indexWhere((item) => item.id == id);
+    if (itemIndex == -1) return;
+
+    state = state.copyWith(
+      playId: id,
+      nextId: state.nextId == id ? null : state.nextId,
+      clearNextId: state.nextId == id,
+      currentTime: 0.0,
+      clearDuration: true,
+    );
+
+    await _playCurrentItem();
+  }
+
+  /// Replace the entire playlist and play the first item
+  Future<void> playList(List<PlayItem> items) async {
+    if (items.isEmpty) return;
+
+    state = state.copyWith(
+      list: items,
+      playId: items.first.id,
+      clearNextId: true,
+      currentTime: 0.0,
+      clearDuration: true,
+    );
+
+    await _playCurrentItem();
+  }
+
+  /// Add item to play next
+  Future<void> addToNext(PlayItem item) async {
+    // Don't add if currently playing
+    final currentItem = state.currentItem;
+    if (currentItem != null && currentItem.isSameContent(item)) return;
+
+    // Don't add if already set as next
+    if (state.nextId != null) {
+      final nextItem = state.list.cast<PlayItem?>().firstWhere(
+            (i) => i?.id == state.nextId,
+            orElse: () => null,
+          );
+      if (nextItem != null && nextItem.isSameContent(item)) return;
+    }
+
+    // Check if item already exists
+    final existingIndex =
+        state.list.indexWhere((i) => i.isSameContent(item));
+    if (existingIndex != -1) {
+      state = state.copyWith(nextId: state.list[existingIndex].id);
+      _saveState();
+      return;
+    }
+
+    // Add new item and set as next
+    if (state.isEmpty) {
+      // Empty list - just play it
+      await play(item);
+      return;
+    }
+
+    // Insert after current item
+    final currentIndex = state.currentIndex;
+    final insertIndex = currentIndex == -1 ? 0 : currentIndex + 1;
+    final newList = [...state.list];
+    newList.insert(insertIndex, item);
+
+    state = state.copyWith(
+      list: newList,
+      nextId: item.id,
+    );
+    _saveState();
+  }
+
+  /// Add multiple items to the end of playlist
+  void addList(List<PlayItem> items) {
+    if (items.isEmpty) return;
+
+    if (state.isEmpty) {
+      playList(items);
+      return;
+    }
+
+    // Filter out duplicates
+    final currentItem = state.currentItem;
+    final newItems = items
+        .where((item) =>
+            !state.list.any((i) => i.isSameContent(item)) &&
+            (currentItem == null || !currentItem.isSameContent(item)))
+        .toList();
+
+    if (newItems.isEmpty) return;
+
+    state = state.copyWith(
+      list: [...state.list, ...newItems],
+    );
+    _saveState();
+  }
+
+  /// Remove a single page/part from playlist
+  Future<void> delPage(String id) async {
+    if (state.list.length == 1) {
+      await clear();
+      return;
+    }
+
+    // If deleting current item, play next first
+    if (id == state.playId) {
+      await next();
+    }
+
+    final newList = state.list.where((item) => item.id != id).toList();
+    state = state.copyWith(list: newList);
+    _saveState();
+  }
+
+  /// Remove all items with same content (all parts of a video)
+  Future<void> del(String id) async {
+    if (state.list.length == 1) {
+      await clear();
+      return;
+    }
+
+    final removedItem = state.list.cast<PlayItem?>().firstWhere(
+          (item) => item?.id == id,
+          orElse: () => null,
+        );
+    if (removedItem == null) return;
+
+    // If deleting current content, play next first
+    final currentItem = state.currentItem;
+    if (currentItem != null && currentItem.isSameContent(removedItem)) {
+      // Find next item that's different
+      final nextDifferent = state.list.cast<PlayItem?>().firstWhere(
+            (item) => item != null && !item.isSameContent(removedItem),
+            orElse: () => null,
+          );
+
+      if (nextDifferent == null) {
+        await clear();
+        return;
+      }
+
+      await playListItem(nextDifferent.id);
+    }
+
+    final newList =
+        state.list.where((item) => !item.isSameContent(removedItem)).toList();
+    state = state.copyWith(list: newList);
+    _saveState();
+  }
+
+  /// Clear the entire playlist
+  Future<void> clear() async {
+    await _playerService.stop();
+
+    state = state.copyWith(
+      isPlaying: false,
+      list: [],
+      clearPlayId: true,
+      clearNextId: true,
+      clearDuration: true,
+      currentTime: 0.0,
+    );
+
+    _saveState();
+    _saveCurrentTime();
+  }
+
+  // ============ Navigation ============
+
+  /// Play next track
+  Future<void> next() async {
+    if (state.isEmpty || state.playId == null) return;
+
+    // Play designated "next" item if set
+    if (state.nextId != null) {
+      await playListItem(state.nextId!);
+      return;
+    }
+
+    final currentIndex = state.currentIndex;
+    if (currentIndex == -1) return;
+
+    String nextPlayId;
+
+    switch (state.playMode) {
+      case PlayMode.sequence:
+      case PlayMode.single:
+      case PlayMode.loop:
+        if (state.length == 1) {
+          // Single item - restart
+          await seek(0);
+          await _playerService.play();
+          return;
+        }
+        final nextIndex = (currentIndex + 1) % state.length;
+        nextPlayId = state.list[nextIndex].id;
+        break;
+
+      case PlayMode.random:
+        if (state.length == 1) {
+          // Single item - restart
+          await seek(0);
+          await _playerService.play();
+          return;
+        }
+
+        // Keep page order for multi-part videos if enabled
+        final currentItem = state.currentItem;
+        if (state.shouldKeepPagesOrderInRandomPlayMode &&
+            currentItem != null &&
+            currentItem.pageIndex != null &&
+            currentItem.totalPage != null &&
+            currentItem.pageIndex! < currentItem.totalPage!) {
+          // Find next page
+          final nextPage = state.list.cast<PlayItem?>().firstWhere(
+                (item) =>
+                    item?.bvid == currentItem.bvid &&
+                    item?.pageIndex == currentItem.pageIndex! + 1,
+                orElse: () => null,
+              );
+          if (nextPage != null) {
+            nextPlayId = nextPage.id;
+            break;
+          }
+        }
+
+        // Random selection (excluding current)
+        final random = Random();
+        int nextIndex;
+        do {
+          nextIndex = random.nextInt(state.length);
+        } while (nextIndex == currentIndex && state.length > 1);
+        nextPlayId = state.list[nextIndex].id;
+        break;
+    }
+
+    await playListItem(nextPlayId);
+  }
+
+  /// Play previous track
+  Future<void> prev() async {
+    if (state.isEmpty || state.playId == null) return;
+
+    final currentIndex = state.currentIndex;
+    if (currentIndex == -1) return;
+
+    final prevIndex = (currentIndex - 1 + state.length) % state.length;
+    await playListItem(state.list[prevIndex].id);
+  }
+
+  /// Update audio URL for the current item
+  void updateCurrentItemAudioUrl({
+    required String audioUrl,
+    String? videoUrl,
+    bool? isLossless,
+    bool? isDolby,
+  }) {
+    final currentItem = state.currentItem;
+    if (currentItem == null) return;
+
+    final updatedItem = currentItem.copyWith(
+      audioUrl: audioUrl,
+      videoUrl: videoUrl,
+      isLossless: isLossless,
+      isDolby: isDolby,
+    );
+
+    final newList = state.list.map((item) {
+      if (item.id == currentItem.id) return updatedItem;
+      return item;
+    }).toList();
+
+    state = state.copyWith(list: newList);
+    _saveState();
+  }
+
+  // ============ Private Methods ============
+
+  Future<void> _playCurrentItem() async {
+    final currentItem = state.currentItem;
+    if (currentItem == null) return;
+
+    await _ensureAudioUrlValid();
+
+    // Update media session
+    _audioHandler.updateCurrentMediaItem(currentItem);
+
+    await _playerService.play();
+    _saveState();
+    _saveCurrentTime();
+  }
+
+  Future<void> _ensureAudioUrlValid() async {
+    final currentItem = state.currentItem;
+    if (currentItem == null) return;
+
+    // Check if URL is already valid
+    final audioUrl = currentItem.audioUrl;
+    if (audioUrl != null && audioUrl.isNotEmpty) {
+      try {
+        await _playerService.setUrl(audioUrl);
+        return;
+      } catch (_) {
+        // URL might be expired, try to refresh
+      }
+    }
+
+    // Fetch new URL based on type
+    String? newAudioUrl;
+    if (currentItem.type == PlayDataType.mv &&
+        currentItem.bvid != null &&
+        currentItem.cid != null) {
+      newAudioUrl = await onFetchMvAudioUrl?.call(
+        currentItem.bvid!,
+        currentItem.cid!,
+      );
+    } else if (currentItem.type == PlayDataType.audio &&
+        currentItem.sid != null) {
+      newAudioUrl = await onFetchAudioUrl?.call(currentItem.sid!);
+    }
+
+    if (newAudioUrl != null && newAudioUrl.isNotEmpty) {
+      updateCurrentItemAudioUrl(audioUrl: newAudioUrl);
+      await _playerService.setUrl(newAudioUrl);
+    } else {
+      state = state.copyWith(error: 'Failed to get audio URL');
+    }
+  }
+
+  void _onTrackCompleted() {
+    if (state.playMode == PlayMode.single) {
+      // Loop mode is handled by just_audio
+      return;
+    }
+
+    // Check if at end of sequence mode
+    if (state.playMode == PlayMode.sequence) {
+      final currentIndex = state.currentIndex;
+      if (currentIndex == state.length - 1) {
+        // End of playlist - stop
+        seek(0);
+        _playerService.pause();
+        return;
+      }
+    }
+
+    // Play next
+    next();
+  }
+
+  // ============ Persistence ============
+
+  Future<void> _loadPersistedState() async {
+    try {
+      final storage = ref.read(storageServiceProvider);
+      final jsonString = await storage.getString(_StorageKeys.playlistState);
+      if (jsonString != null) {
+        final json = jsonDecode(jsonString) as Map<String, dynamic>;
+        state = PlaylistState.fromJson(json);
+      }
+    } catch (e) {
+      // Ignore persistence errors
+    }
+  }
+
+  Future<void> _saveState() async {
+    try {
+      final storage = ref.read(storageServiceProvider);
+      final jsonString = jsonEncode(state.toJson());
+      await storage.setString(_StorageKeys.playlistState, jsonString);
+    } catch (e) {
+      // Ignore persistence errors
+    }
+  }
+
+  Future<double> _loadCurrentTime() async {
+    try {
+      final storage = ref.read(storageServiceProvider);
+      return await storage.getDouble(_StorageKeys.currentTime) ?? 0.0;
+    } catch (e) {
+      return 0.0;
+    }
+  }
+
+  Future<void> _saveCurrentTime() async {
+    try {
+      final storage = ref.read(storageServiceProvider);
+      await storage.setDouble(_StorageKeys.currentTime, state.currentTime);
+    } catch (e) {
+      // Ignore persistence errors
+    }
+  }
+
+  /// Get the current item (for external access)
+  PlayItem? getPlayItem() => state.currentItem;
+
+  /// Get the audio player service (for external access)
+  AudioPlayerService getPlayerService() => _playerService;
+}
+
+/// Provider for the playlist notifier
+final playlistProvider =
+    NotifierProvider<PlaylistNotifier, PlaylistState>(() => PlaylistNotifier());
+
+/// Provider for the current play item
+final currentPlayItemProvider = Provider<PlayItem?>((ref) {
+  return ref.watch(playlistProvider).currentItem;
+});
+
+/// Provider for the playing state
+final isPlayingProvider = Provider<bool>((ref) {
+  return ref.watch(playlistProvider).isPlaying;
+});
+
+/// Provider for the current position
+final currentPositionProvider = Provider<double>((ref) {
+  return ref.watch(playlistProvider).currentTime;
+});
+
+/// Provider for the duration
+final durationProvider = Provider<double?>((ref) {
+  return ref.watch(playlistProvider).duration;
+});
+
+/// Provider for the play mode
+final playModeProvider = Provider<PlayMode>((ref) {
+  return ref.watch(playlistProvider).playMode;
+});
+
+/// Provider for the loading state
+final isLoadingProvider = Provider<bool>((ref) {
+  return ref.watch(playlistProvider).isLoading;
+});

@@ -152,46 +152,46 @@ After completing each phase or major task:
   - Clear all stored credentials
   - Reference: `biu/src/service/passport-login-exit.ts`
 
-## Phase 4: Audio Player
+## Phase 4: Audio Player ✅
 
 ### 4.1 Player Core
-- [ ] 4.1.1 Create `lib/features/player/` structure
-- [ ] 4.1.2 Create PlayItem entity
+- [x] 4.1.1 Create `lib/features/player/` structure
+- [x] 4.1.2 Create PlayItem entity
   - Mirror PlayData from source
   - Reference: `biu/src/store/play-list.ts` (PlayData interface)
-- [ ] 4.1.3 Create AudioPlayerService
+- [x] 4.1.3 Create AudioPlayerService
   - Wrapper around just_audio
   - Reference: `biu/src/store/play-list.ts` (audio element handling)
-- [ ] 4.1.4 Configure background playback for iOS
+- [x] 4.1.4 Configure background playback for iOS
   - Audio session, background modes
   - Reference: just_audio documentation
 
 ### 4.2 Playlist Management
-- [ ] 4.2.1 Create PlaylistNotifier
+- [x] 4.2.1 Create PlaylistNotifier
   - List state, current index, play modes
   - Reference: `biu/src/store/play-list.ts`
-- [ ] 4.2.2 Implement add/remove/clear operations
+- [x] 4.2.2 Implement add/remove/clear operations
   - Reference: `biu/src/store/play-list.ts` (play, del, clear methods)
-- [ ] 4.2.3 Implement play mode switching
+- [x] 4.2.3 Implement play mode switching
   - Sequential, Loop, Single, Shuffle
   - Reference: `biu/src/store/play-list.ts` (PlayMode enum)
-- [ ] 4.2.4 Implement next/prev navigation
+- [x] 4.2.4 Implement next/prev navigation
   - Handle shuffle with page order option
   - Reference: `biu/src/store/play-list.ts` (next, prev methods)
 
 ### 4.3 Media Session
-- [ ] 4.3.1 Configure audio_service for media controls
+- [x] 4.3.1 Configure audio_service for media controls
   - Now playing info, playback controls
   - Reference: `biu/src/store/play-list.ts` (updateMediaSession)
-- [ ] 4.3.2 Handle media button events
+- [x] 4.3.2 Handle media button events
   - Play, pause, next, previous
   - Reference: `biu/src/store/play-list.ts` (mediaSession handlers)
 
 ### 4.4 Playlist Persistence
-- [ ] 4.4.1 Implement playlist serialization
+- [x] 4.4.1 Implement playlist serialization
   - Save/load from local storage
   - Reference: `biu/src/store/play-list.ts` (persist middleware)
-- [ ] 4.4.2 Implement progress persistence
+- [x] 4.4.2 Implement progress persistence
   - Save current position periodically
   - Reference: `biu/src/store/play-progress.ts`
 

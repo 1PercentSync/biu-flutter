@@ -1,5 +1,14 @@
 import 'dart:convert';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+/// Provider for the storage service.
+/// Must be overridden in the app initialization with a properly initialized instance.
+final storageServiceProvider = Provider<StorageService>((ref) {
+  throw UnimplementedError(
+    'storageServiceProvider must be overridden with a properly initialized instance',
+  );
+});
 
 /// Abstract interface for key-value storage
 abstract class StorageService {

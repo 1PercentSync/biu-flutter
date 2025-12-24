@@ -24,4 +24,10 @@ class ApiConstants {
 
   /// Bilibili API response success code
   static const int successCode = 0;
+
+  /// Bilibili main site URL (for referer header)
+  static const String bilibiliReferer = 'https://www.bilibili.com';
+
+  /// User agent for audio streaming requests
+  static const String userAgent = webUserAgent;
 }

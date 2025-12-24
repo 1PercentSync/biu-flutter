@@ -7,48 +7,48 @@ After completing each phase or major task:
 3. Commit changes: `git commit -m "type(scope): description"`
 4. Push to remote: `git push`
 
-## Phase 1: Core Infrastructure
+## Phase 1: Core Infrastructure ✅
 
 ### 1.1 Project Setup
-- [ ] 1.1.1 Update `pubspec.yaml` with required dependencies
+- [x] 1.1.1 Update `pubspec.yaml` with required dependencies
   - flutter_riverpod, go_router, dio, shared_preferences, sqflite
   - just_audio, audio_service, cached_network_image
   - Reference: None (new file)
-- [ ] 1.1.2 Create directory structure under `lib/`
+- [x] 1.1.2 Create directory structure under `lib/`
   - Create: core/, features/, shared/ directories
   - Reference: None (new structure)
-- [ ] 1.1.3 Configure `analysis_options.yaml` with strict linting
+- [x] 1.1.3 Configure `analysis_options.yaml` with strict linting
   - Reference: `biu/.eslintrc` (for linting philosophy)
-- [ ] 1.1.4 Set up app entry point `lib/main.dart` with ProviderScope
+- [x] 1.1.4 Set up app entry point `lib/main.dart` with ProviderScope
   - Reference: `biu/src/index.tsx`
 
 ### 1.2 Core Utilities
-- [ ] 1.2.1 Create `lib/core/constants/` with app constants
+- [x] 1.2.1 Create `lib/core/constants/` with app constants
   - Audio quality levels, play modes, API base URLs
   - Reference: `biu/src/common/constants/`
-- [ ] 1.2.2 Create `lib/core/extensions/` with Dart extensions
+- [x] 1.2.2 Create `lib/core/extensions/` with Dart extensions
   - String extensions, DateTime extensions
   - Reference: `biu/src/common/utils/str.ts`, `time.ts`
-- [ ] 1.2.3 Create `lib/core/errors/` with exception classes
+- [x] 1.2.3 Create `lib/core/errors/` with exception classes
   - BilibiliApiException, NetworkException, AuthException
   - Reference: `biu/src/service/request/response-interceptors.ts`
-- [ ] 1.2.4 Create `lib/core/utils/` with utility functions
+- [x] 1.2.4 Create `lib/core/utils/` with utility functions
   - URL formatting, number formatting
   - Reference: `biu/src/common/utils/`
 
 ### 1.3 Navigation
-- [ ] 1.3.1 Configure go_router in `lib/core/router/`
+- [x] 1.3.1 Configure go_router in `lib/core/router/`
   - Define routes: /, /login, /search, /favorites, /profile, /settings
   - Reference: `biu/src/app.tsx` (React Router setup)
-- [ ] 1.3.2 Implement auth redirect guard
+- [x] 1.3.2 Implement auth redirect guard
   - Redirect to /login if not authenticated for protected routes
   - Reference: Authentication flow in source
 
 ### 1.4 Local Storage
-- [ ] 1.4.1 Create storage abstraction in `lib/core/storage/`
+- [x] 1.4.1 Create storage abstraction in `lib/core/storage/`
   - Interface for key-value storage
   - Implementation using shared_preferences
-- [ ] 1.4.2 Create secure storage for sensitive data
+- [x] 1.4.2 Create secure storage for sensitive data
   - Cookies, tokens using flutter_secure_storage
   - Reference: `biu/src/store/token.ts`
 

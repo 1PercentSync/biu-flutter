@@ -35,6 +35,34 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
 
+  # State Management
+  flutter_riverpod: ^2.6.0
+
+  # Navigation
+  go_router: ^14.6.0
+
+  # HTTP Client & Cookie Management
+  dio: ^5.7.0
+  dio_cookie_manager: ^3.1.1
+  cookie_jar: ^4.0.8
+
+  # Local Storage
+  shared_preferences: ^2.5.2
+  flutter_secure_storage: ^9.2.2
+  sqflite: ^2.4.1
+  path_provider: ^2.1.5
+
+  # Audio Playback
+  just_audio: ^0.9.43
+  audio_service: ^0.18.15
+
+  # Image Caching
+  cached_network_image: ^3.4.1
+
+  # Utilities
+  crypto: ^3.0.6
+  intl: ^0.20.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -45,6 +73,8 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
+  riverpod_generator: ^2.6.3
+  build_runner: ^2.4.13
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

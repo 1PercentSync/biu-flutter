@@ -20,7 +20,9 @@
       "Bash(openspec list:*)",
       "Bash(openspec archive:*)",
       "Bash(openspec validate:*)",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "Bash(cmd /c:*)",
+      "Bash(python:*)"
     ]
   }
 }

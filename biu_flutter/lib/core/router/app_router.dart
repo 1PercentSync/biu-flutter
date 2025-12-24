@@ -3,6 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/auth/auth.dart';
+import '../../features/favorites/favorites.dart';
+import '../../features/home/home.dart';
+import '../../features/profile/profile.dart';
+import '../../features/search/search.dart';
+import '../../features/settings/settings.dart';
+import '../../shared/theme/theme.dart';
+import '../../shared/widgets/playbar/playbar.dart';
 import 'auth_guard.dart';
 import 'routes.dart';
 
@@ -15,7 +22,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     debugLogDiagnostics: true,
     redirect: authGuard.redirect,
     routes: [
-      // Main shell with bottom navigation
+      // Main shell with bottom navigation and playbar
       ShellRoute(
         builder: (context, state, child) {
           return MainShell(child: child);
@@ -24,22 +31,34 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: AppRoutes.home,
             name: 'home',
-            builder: (context, state) => const PlaceholderScreen(title: 'Home'),
+            pageBuilder: (context, state) => NoTransitionPage(
+              key: state.pageKey,
+              child: const HomeScreen(),
+            ),
           ),
           GoRoute(
             path: AppRoutes.search,
             name: 'search',
-            builder: (context, state) => const PlaceholderScreen(title: 'Search'),
+            pageBuilder: (context, state) => NoTransitionPage(
+              key: state.pageKey,
+              child: const SearchScreen(),
+            ),
           ),
           GoRoute(
             path: AppRoutes.favorites,
             name: 'favorites',
-            builder: (context, state) => const PlaceholderScreen(title: 'Favorites'),
+            pageBuilder: (context, state) => NoTransitionPage(
+              key: state.pageKey,
+              child: const FavoritesScreen(),
+            ),
           ),
           GoRoute(
             path: AppRoutes.profile,
             name: 'profile',
-            builder: (context, state) => const PlaceholderScreen(title: 'Profile'),
+            pageBuilder: (context, state) => NoTransitionPage(
+              key: state.pageKey,
+              child: const ProfileScreen(),
+            ),
           ),
         ],
       ),
@@ -53,7 +72,28 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.settings,
         name: 'settings',
-        builder: (context, state) => const PlaceholderScreen(title: 'Settings'),
+        builder: (context, state) => const SettingsScreen(),
+      ),
+      // Full player route (modal)
+      GoRoute(
+        path: '/player',
+        name: 'player',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const FullPlayerScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(0, 1),
+                end: Offset.zero,
+              ).animate(CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeOut,
+              )),
+              child: child,
+            );
+          },
+        ),
       ),
     ],
     errorBuilder: (context, state) => Scaffold(
@@ -64,17 +104,39 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   );
 });
 
-/// Main shell widget with bottom navigation
-class MainShell extends StatelessWidget {
+/// Main shell widget with bottom navigation and playbar
+class MainShell extends ConsumerWidget {
   const MainShell({required this.child, super.key});
 
   final Widget child;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      body: child,
-      bottomNavigationBar: NavigationBar(
+      body: Column(
+        children: [
+          // Main content area
+          Expanded(child: child),
+          // Mini playbar
+          MiniPlaybar(
+            onTap: () => context.push('/player'),
+          ),
+        ],
+      ),
+      bottomNavigationBar: _buildNavigationBar(context),
+    );
+  }
+
+  Widget _buildNavigationBar(BuildContext context) {
+    return DecoratedBox(
+      decoration: const BoxDecoration(
+        border: Border(
+          top: BorderSide(
+            color: AppColors.divider,
+          ),
+        ),
+      ),
+      child: NavigationBar(
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.home_outlined),
@@ -105,7 +167,9 @@ class MainShell extends StatelessWidget {
 
   int _calculateSelectedIndex(BuildContext context) {
     final location = GoRouterState.of(context).uri.path;
-    if (location.startsWith(AppRoutes.home)) return 0;
+    if (location.startsWith(AppRoutes.home) && location == AppRoutes.home) {
+      return 0;
+    }
     if (location.startsWith(AppRoutes.search)) return 1;
     if (location.startsWith(AppRoutes.favorites)) return 2;
     if (location.startsWith(AppRoutes.profile)) return 3;
@@ -123,28 +187,5 @@ class MainShell extends StatelessWidget {
       case 3:
         context.go(AppRoutes.profile);
     }
-  }
-}
-
-/// Placeholder screen for development
-class PlaceholderScreen extends StatelessWidget {
-  const PlaceholderScreen({required this.title, super.key});
-
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-      ),
-      body: Center(
-        child: Text(
-          '$title Screen\n(Placeholder)',
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.headlineSmall,
-        ),
-      ),
-    );
   }
 }

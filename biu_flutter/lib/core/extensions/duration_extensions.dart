@@ -15,6 +15,9 @@ extension DurationExtensions on Duration {
           '${seconds.toString().padLeft(2, '0')}';
     }
   }
+
+  /// Alias for toFormattedString()
+  String get formatted => toFormattedString();
 }
 
 /// Extension methods for int (as seconds)

@@ -150,6 +150,26 @@ biu-flutter 是从 biu (Electron) 迁移而来的项目。迁移不是一次性�
   - **判断是否需要修复时，必须用客观标准（其他 App 有吗？），不能主观判断"核心不核心"**
   - **如果当前无法修复（例如需要额外依赖），应该立即添加依赖并修复，而不是搁置**
 
+### 错误 9: 用各种标签掩盖功能缺失
+- **场景**：Shared Components 检查中，多个缺失组件被标记为：
+  - "🔵 Flutter native" - `confirm-modal` 标记为 "AlertDialog is sufficient"
+  - "⚠️ Future enhancement" - `audio-waveform` 标记为 "needs deps"
+  - "➖ Not needed" - `search-filter` 标记为 "Not currently used"
+- **根因**：
+  1. 本质是错误 6、7、8 的变体和组合
+  2. 用看起来合理的标签（Flutter native、技术限制）掩盖偷懒
+  3. 没有深入检查实际使用情况
+  4. 没有验证"Flutter native"是否真的满足需求
+- **实际情况**：
+  - `confirm-modal`：AlertDialog 不提供异步 loading 状态 → 需要实现 `ConfirmDialog`
+  - `audio-waveform`：网易云、QQ音乐都有可视化 → 需要实现 `AudioVisualizer`（就算 just_audio 不支持 FFT，也要用模拟动画）
+  - `search-filter`：folder_detail_screen 已有搜索+排序功能 → 不是"Not used"，是"已内联实现"
+- **教训**：
+  - **"Flutter native"不是万能借口** - 必须验证原生方案是否真的满足源功能的所有需求
+  - **"技术限制"需要验证** - 如果有替代方案（如模拟动画），就不是真正的限制
+  - **"Not used"需要搜索验证** - 功能可能内联在其他文件中
+  - **每个"非实现"标签都需要具体理由**，不能只写一个标签就结束
+
 ---
 
 ## Verification Process
@@ -232,7 +252,10 @@ biu-flutter 是从 biu (Electron) 迁移而来的项目。迁移不是一次性�
 - [x] `shared/widgets/track_list_item.dart` - 源引用已添加，使用 NumberUtils.formatCompact
 - [x] `shared/widgets/video_card.dart` - 源引用已添加（移动端适配版）
 - [x] `shared/widgets/async_value_widget.dart` - Flutter-only 标记已添加
-- [x] `shared/widgets/loading_state.dart` - Flutter-only 标记已添加
+- [x] `shared/widgets/loading_state.dart` - Flutter-only 标记已添加，**新增 VideoCardSkeleton**
+- [x] `shared/widgets/confirm_dialog.dart` - **新增**，支持异步 loading 和类型区分
+- [x] `shared/widgets/audio_visualizer.dart` - **新增**，模拟频率条动画（just_audio 无 FFT）
+- [x] `shared/widgets/highlighted_text.dart` - 源引用已添加，搜索高亮支持
 
 ---
 
@@ -308,6 +331,13 @@ biu-flutter 是从 biu (Electron) 迁移而来的项目。迁移不是一次性�
 | `cached_image.dart` | 内联 `_formatUrl` | 改用 `UrlUtils.formatProtocol` | **已修复** |
 | `track_list_item.dart` | 内联 `_formatPlayCount` | 改用 `NumberUtils.formatCompact` | **已修复** |
 | `empty_state.dart` | 默认文本 "暂无内容" | 原为 "No content" | **已修复** |
+| `confirm-modal` | 异步确认 + loading 状态 | 原用原生 AlertDialog | **已修复** - 新增 `ConfirmDialog` |
+| `audio-waveform` | Web Audio API FFT 可视化 | 原无实现 | **已修复** - 新增 `AudioVisualizer`（模拟动画） |
+| `image-card/skeleton.tsx` | 卡片骨架屏 | 原只有列表骨架 | **已修复** - 新增 `VideoCardSkeleton` |
+| `search-filter` | 搜索框 + 排序选择器 | folder_detail 内联实现 | **已确认** - 功能存在 |
 
 > **经验教训**：之前将搜索高亮和点击跳转标记为"移动端简化（可接受）"是错误的判断。
 > 这些是用户可感知的功能缺失，必须修复。参见 [错误 6](#错误-6-将功能缺失错误归类为移动端简化) 和 [错误 7](#错误-7-询问用户是否应该修复甩锅行为)。
+>
+> **新增教训**：用"Flutter native"、"Future enhancement"等标签掩盖功能缺失是错误 9。
+> 每个"非实现"标签都需要验证，不能只写一个标签就结束。

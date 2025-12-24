@@ -173,6 +173,53 @@ All feature module datasources and key components have been documented with sour
 
 ---
 
+## Phase 4: Shared Components Consistency Check
+
+### New Components Added
+
+| File | Source | Notes |
+|------|--------|-------|
+| `confirm_dialog.dart` | `confirm-modal/index.tsx` | Async loading, type colors (warning/danger) |
+| `audio_visualizer.dart` | `audio-waveform/index.tsx` | Simulated animation (just_audio no FFT) |
+| `loading_state.dart#VideoCardSkeleton` | `image-card/skeleton.tsx` | Card skeleton for grid loading |
+| `loading_state.dart#VideoCardSkeletonGrid` | `grid-list/index.tsx` (loading) | Grid of card skeletons |
+
+### Integration Changes
+
+| File | Change |
+|------|--------|
+| `full_player_screen.dart` | Added `AudioVisualizer` in cover section |
+
+### Verified Existing Implementations
+
+| Source | Flutter Implementation | Status |
+|--------|------------------------|--------|
+| `search-filter/index.tsx` | `folder_detail_screen.dart` (inline) | ✅ Exists |
+| `mv-action/index.tsx` | `video_card.dart#VideoCardAction` | ✅ Exists |
+
+### Confirmed Flutter Native Alternatives
+
+| Source | Flutter Alternative | Reason |
+|--------|---------------------|--------|
+| `ellipsis/index.tsx` | `Text.overflow` + `maxLines` | Mobile has no hover for tooltip |
+| `grid-list/index.tsx` | `GridView.builder` + `AsyncValueWidget` | Native virtualization |
+| `virtual-list/index.tsx` | `ListView.builder` | Native virtualization |
+| `scroll-container/index.tsx` | Native scroll | Mobile doesn't need custom scrollbars |
+| `if/index.tsx` | Conditional expressions | Dart syntax |
+
+### Desktop-Only (Not Applicable)
+
+- `shortcut-key-input/index.tsx` - Keyboard shortcuts
+- `font-select/index.tsx` - Font selection
+- `update-check-button/index.tsx` - Desktop auto-update
+- `video-pages-download-select-modal/index.tsx` - Download selection
+
+### Mobile Adaptation (Not Needed)
+
+- `release-note-modal/index.tsx` - App store handles updates
+
+---
+
 ## Breaking Changes Log
 
 Document any changes that affect upper layers:
@@ -181,3 +228,8 @@ Document any changes that affect upper layers:
 - `AudioQualitySetting` enum values changed: `standard` → `medium`, `hires` → `lossless`
 - Added `fromValue()` migration for legacy values
 - New dependencies: `file_picker`, `share_plus`
+
+### Shared Widgets Changes
+- New `ConfirmDialog` widget available for async confirmations
+- New `AudioVisualizer` widget available for playback visualization
+- New `VideoCardSkeleton` and `VideoCardSkeletonGrid` for loading states

@@ -101,12 +101,14 @@ biu_flutter/lib/
 | User Profile/Follow | 15 | 10 | 0 | 5 |
 | Music/Artist Rank | 6 | 4 | 0 | 2 |
 | Settings | 7 | 6 | 1 | 0 |
-| Shared Components | 30 | 6 | 2 | 22 |
+| Shared Components | 26 | 12 | 6 | 8 |
 | Layout | 15 | 5 | 3 | 7 |
 | Video/Download | 10 | 3 | 0 | 7 |
-| **Total** | **176** | **99** | **12** | **65** |
+| **Total** | **172** | **105** | **16** | **51** |
 
-**Overall Migration Rate: ~56% fully mapped, 7% partially mapped, 37% not mapped**
+**Overall Migration Rate: ~61% fully mapped, 9% partially mapped (Flutter native), 30% not mapped**
+
+*Note: "Partially Mapped" for Shared Components includes Flutter native alternatives (GridView.builder, ListView.builder, etc.)*
 
 ---
 
@@ -367,37 +369,46 @@ biu_flutter/lib/
 
 ### 10. Shared Components
 
-| Electron Source | Flutter Target | Status |
-|-----------------|----------------|--------|
-| `components/empty/index.tsx` | `shared/widgets/empty_state.dart` | ✅ |
-| `components/error-fallback/index.tsx` | `shared/widgets/error_state.dart` | ✅ |
-| `components/image/index.tsx` | `shared/widgets/cached_image.dart` | ✅ |
-| `components/music-list-item/index.tsx` | `shared/widgets/track_list_item.dart` | ✅ (highlightTitle + onArtistTap) |
-| `components/mv-card/index.tsx` | `shared/widgets/video_card.dart` | ✅ (highlightTitle + onOwnerTap) |
-| `components/image-card/index.tsx` | `shared/widgets/video_card.dart` | ✅ |
-| `components/music-list-item/index.tsx#isTitleIncludeHtmlTag` | `shared/widgets/highlighted_text.dart` | 🆕 New |
-| `components/image-card/skeleton.tsx` | - | ❌ Missing |
-| `components/confirm-modal/index.tsx` | - | ❌ Missing |
-| `components/mv-action/index.tsx` | - | ❌ Missing |
-| `components/async-button/index.tsx` | - | ❌ Missing |
-| `components/audio-waveform/index.tsx` | - | ❌ Missing |
-| `components/ellipsis/index.tsx` | - | ❌ Missing |
-| `components/grid-list/index.tsx` | - | ❌ Missing |
-| `components/if/index.tsx` | - | ❌ Flutter native syntax |
-| `components/menu/` | - | ❌ Missing |
-| `components/scroll-container/index.tsx` | - | ❌ Missing |
-| `components/search-filter/index.tsx` | - | ❌ Missing |
-| `components/select-all-checkbox-group/index.tsx` | - | ❌ Missing |
-| `components/shortcut-key-input/index.tsx` | - | ❌ Desktop-only |
-| `components/typography/index.tsx` | - | ❌ Missing |
-| `components/update-check-button/index.tsx` | - | ❌ Desktop-only |
-| `components/video-pages-download-select-modal/index.tsx` | - | ❌ Missing |
-| `components/virtual-list/index.tsx` | - | ❌ Missing |
-| `components/release-note-modal/index.tsx` | - | ❌ Missing |
-| `components/font-select/index.tsx` | - | ❌ Desktop-only |
-| `components/theme/index.tsx` | `shared/theme/app_theme.dart` | ✅ |
-| - | `shared/widgets/async_value_widget.dart` | 🆕 Flutter-only |
-| - | `shared/widgets/loading_state.dart` | 🆕 Flutter-only |
+| Electron Source | Flutter Target | Status | Notes |
+|-----------------|----------------|--------|-------|
+| `components/empty/index.tsx` | `shared/widgets/empty_state.dart` | ✅ | |
+| `components/error-fallback/index.tsx` | `shared/widgets/error_state.dart` | ✅ | |
+| `components/image/index.tsx` | `shared/widgets/cached_image.dart` | ✅ | |
+| `components/music-list-item/index.tsx` | `shared/widgets/track_list_item.dart` | ✅ | highlightTitle + onArtistTap |
+| `components/mv-card/index.tsx` | `shared/widgets/video_card.dart` | ✅ | highlightTitle + onOwnerTap + VideoCardAction |
+| `components/image-card/index.tsx` | `shared/widgets/video_card.dart` | ✅ | |
+| `components/music-list-item/index.tsx#isTitleIncludeHtmlTag` | `shared/widgets/highlighted_text.dart` | ✅ | |
+| `components/image-card/skeleton.tsx` | `shared/widgets/loading_state.dart#VideoCardSkeleton` | ✅ | VideoCardSkeleton + VideoCardSkeletonGrid |
+| `components/confirm-modal/index.tsx` | `shared/widgets/confirm_dialog.dart` | ✅ | Async loading, type colors |
+| `components/mv-action/index.tsx` | `shared/widgets/video_card.dart#VideoCardAction` | ✅ | Download is Desktop-only |
+| `components/async-button/index.tsx` | Flutter different pattern | 🔵 | Riverpod state management |
+| `components/audio-waveform/index.tsx` | `shared/widgets/audio_visualizer.dart` | ✅ | Simulated (just_audio no FFT) |
+| `components/ellipsis/index.tsx` | Flutter native | 🔵 | Text.overflow + maxLines |
+| `components/grid-list/index.tsx` | Flutter native | 🔵 | GridView.builder + AsyncValueWidget |
+| `components/if/index.tsx` | Flutter native | 🔵 | Conditional expressions |
+| `components/menu/` | - | ➖ | Directory not found |
+| `components/scroll-container/index.tsx` | Flutter native | 🔵 | Mobile: native scroll |
+| `components/search-filter/index.tsx` | `features/favorites/.../folder_detail_screen.dart` | ✅ | Inline in folder detail |
+| `components/select-all-checkbox-group/index.tsx` | - | ➖ | Settings simplified |
+| `components/shortcut-key-input/index.tsx` | - | 🖥️ | Desktop-only |
+| `components/typography/index.tsx` | - | ➖ | Used by release-note-modal |
+| `components/update-check-button/index.tsx` | - | 🖥️ | Desktop-only |
+| `components/video-pages-download-select-modal/index.tsx` | - | 🖥️ | Desktop-only |
+| `components/virtual-list/index.tsx` | Flutter native | 🔵 | ListView.builder is virtualized |
+| `components/release-note-modal/index.tsx` | - | 📱 | Mobile: app store updates |
+| `components/font-select/index.tsx` | - | 🖥️ | Desktop-only |
+| `components/theme/index.tsx` | `shared/theme/app_theme.dart` | ✅ | |
+| - | `shared/widgets/async_value_widget.dart` | 🆕 | Flutter-only |
+| - | `shared/widgets/loading_state.dart` | 🆕 | Flutter-only (shimmer, skeleton) |
+
+**Legend:**
+- ✅ Implemented
+- 🔵 Flutter native alternative
+- 📱 Mobile adaptation (not needed)
+- 🖥️ Desktop-only (not applicable)
+- ⚠️ Future enhancement
+- ➖ Not needed
+- 🆕 Flutter-only
 
 ---
 

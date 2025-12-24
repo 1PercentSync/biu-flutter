@@ -1,0 +1,313 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:uuid/uuid.dart';
+
+import '../../../../core/constants/audio.dart';
+import '../../../../shared/theme/theme.dart';
+import '../../../auth/auth.dart';
+import '../../../player/player.dart';
+import '../../data/models/space_arc_search.dart';
+import '../providers/user_profile_notifier.dart';
+import '../providers/user_profile_state.dart';
+import '../widgets/space_info_header.dart';
+import '../widgets/video_post_card.dart';
+
+const _uuid = Uuid();
+
+/// User profile screen
+/// Reference: biu/src/pages/user-profile/index.tsx
+class UserProfileScreen extends ConsumerStatefulWidget {
+  const UserProfileScreen({
+    required this.mid,
+    super.key,
+  });
+
+  final int mid;
+
+  @override
+  ConsumerState<UserProfileScreen> createState() => _UserProfileScreenState();
+}
+
+class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  final _scrollController = ScrollController();
+  final _keywordController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 1, vsync: this);
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    _scrollController.dispose();
+    _keywordController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      ref.read(userProfileProvider(widget.mid).notifier).loadMoreVideos();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final state = ref.watch(userProfileProvider(widget.mid));
+    final authState = ref.watch(authNotifierProvider);
+    final isSelf = authState.user?.mid == widget.mid;
+
+    return Scaffold(
+      body: RefreshIndicator(
+        onRefresh: () =>
+            ref.read(userProfileProvider(widget.mid).notifier).refresh(),
+        child: CustomScrollView(
+          controller: _scrollController,
+          slivers: [
+            // App bar
+            SliverAppBar(
+              floating: true,
+              snap: true,
+              title: Text(state.spaceInfo?.name ?? 'User'),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.refresh),
+                  onPressed: () => ref
+                      .read(userProfileProvider(widget.mid).notifier)
+                      .refresh(),
+                ),
+              ],
+            ),
+            // Header
+            if (state.spaceInfo != null)
+              SliverToBoxAdapter(
+                child: SpaceInfoHeader(
+                  spaceInfo: state.spaceInfo!,
+                  relationStat: state.relationStat,
+                  relationData: state.relationData,
+                  isSelf: isSelf,
+                  isLoggedIn: authState.isAuthenticated,
+                  onFollowTap: authState.isAuthenticated
+                      ? () => ref
+                          .read(userProfileProvider(widget.mid).notifier)
+                          .toggleFollow()
+                      : null,
+                ),
+              )
+            else if (state.isLoadingInfo)
+              const SliverToBoxAdapter(
+                child: SizedBox(
+                  height: 200,
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+              ),
+            // Blocked view
+            if (state.isBlocked)
+              const SliverFillRemaining(
+                child: Center(
+                  child: Text('This user is blocked'),
+                ),
+              )
+            else ...[
+              // Tab bar
+              SliverToBoxAdapter(
+                child: _buildTabBar(context),
+              ),
+              // Search and filter
+              SliverToBoxAdapter(
+                child: _buildSearchFilter(context, state),
+              ),
+              // Videos grid
+              _buildVideosGrid(context, state),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTabBar(BuildContext context) {
+    return ColoredBox(
+      color: AppColors.contentBackground,
+      child: TabBar(
+        controller: _tabController,
+        tabs: const [
+          Tab(text: 'Videos'),
+        ],
+        indicatorColor: Theme.of(context).primaryColor,
+        labelColor: Theme.of(context).primaryColor,
+        unselectedLabelColor: AppColors.textSecondary,
+      ),
+    );
+  }
+
+  Widget _buildSearchFilter(BuildContext context, UserProfileState state) {
+    return ColoredBox(
+      color: AppColors.contentBackground,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: [
+            // Search input
+            Expanded(
+              child: SizedBox(
+                height: 36,
+                child: TextField(
+                  controller: _keywordController,
+                  decoration: InputDecoration(
+                    hintText: 'Search videos...',
+                    prefixIcon: const Icon(Icons.search, size: 20),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      borderSide: const BorderSide(color: AppColors.divider),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      borderSide: const BorderSide(color: AppColors.divider),
+                    ),
+                    filled: true,
+                    fillColor: AppColors.surface,
+                  ),
+                  style: const TextStyle(fontSize: 14),
+                  onSubmitted: (value) {
+                    ref
+                        .read(userProfileProvider(widget.mid).notifier)
+                        .setVideoKeyword(value);
+                  },
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            // Sort dropdown
+            Container(
+              height: 36,
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: AppColors.divider),
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  value: state.videoOrder,
+                  icon: const Icon(Icons.arrow_drop_down, size: 20),
+                  style: Theme.of(context).textTheme.bodyMedium,
+                  items: const [
+                    DropdownMenuItem(
+                      value: 'pubdate',
+                      child: Text('Latest'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'click',
+                      child: Text('Most Played'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'stow',
+                      child: Text('Most Saved'),
+                    ),
+                  ],
+                  onChanged: (value) {
+                    if (value != null) {
+                      ref
+                          .read(userProfileProvider(widget.mid).notifier)
+                          .setVideoOrder(value);
+                    }
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildVideosGrid(BuildContext context, UserProfileState state) {
+    if (state.isLoadingVideos && (state.videos?.isEmpty ?? true)) {
+      return const SliverFillRemaining(
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    final videos = state.videos ?? [];
+
+    if (videos.isEmpty) {
+      return const SliverFillRemaining(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.video_library_outlined,
+                size: 64,
+                color: AppColors.textSecondary,
+              ),
+              SizedBox(height: 16),
+              Text(
+                'No videos found',
+                style: TextStyle(color: AppColors.textSecondary),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return SliverPadding(
+      padding: const EdgeInsets.all(12),
+      sliver: SliverGrid(
+        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+          maxCrossAxisExtent: 300,
+          childAspectRatio: 0.75,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+        ),
+        delegate: SliverChildBuilderDelegate(
+          (context, index) {
+            // Loading indicator at the end
+            if (index == videos.length) {
+              if (state.isLoadingMore) {
+                return const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(16),
+                    child: CircularProgressIndicator(),
+                  ),
+                );
+              }
+              return const SizedBox.shrink();
+            }
+
+            final video = videos[index];
+            return VideoPostCard(
+              video: video,
+              onTap: () => _playVideo(video),
+            );
+          },
+          childCount: videos.length + (state.hasMoreVideos ? 1 : 0),
+        ),
+      ),
+    );
+  }
+
+  void _playVideo(SpaceArcVListItem video) {
+    final playItem = PlayItem(
+      id: _uuid.v4(),
+      title: video.title,
+      type: PlayDataType.mv,
+      bvid: video.bvid,
+      aid: video.aid.toString(),
+      cover: video.pic,
+      ownerName: video.author,
+      ownerMid: video.mid,
+      duration: video.durationSeconds,
+    );
+
+    ref.read(playlistProvider.notifier).play(playItem);
+  }
+}

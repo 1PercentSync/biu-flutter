@@ -370,14 +370,19 @@ This task list is designed for autonomous agent implementation. After completing
 
 ### B.6 User Profile Enhancement [P1]
 
-- [ ] B.6.1 Implement user space APIs
+- [x] B.6.1 Implement user space APIs
   - Space info: `/x/space/wbi/acc/info`
   - Space videos: `/x/space/wbi/arc/search`
+  - Space relation: `/x/space/wbi/acc/relation`
+  - Relation stat: `/x/relation/stat`
+  - Location: `lib/features/user_profile/data/datasources/user_profile_remote_datasource.dart`
   - Reference: `biu/src/service/space-wbi-*.ts`
 
-- [ ] B.6.2 Create enhanced UserProfileScreen
-  - User info header
-  - Videos tab
+- [x] B.6.2 Create enhanced UserProfileScreen
+  - User info header with avatar, name, sign, level, VIP badge
+  - Follow/unfollow button with relation stats
+  - Videos tab with search/filter and pagination
+  - Location: `lib/features/user_profile/presentation/screens/user_profile_screen.dart`
   - Reference: `biu/src/pages/user-profile/index.tsx`
 
 ---

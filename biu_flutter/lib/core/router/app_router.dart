@@ -12,6 +12,7 @@ import '../../features/later/later.dart';
 import '../../features/profile/profile.dart';
 import '../../features/search/search.dart';
 import '../../features/settings/settings.dart';
+import '../../features/user_profile/user_profile.dart';
 import '../../shared/theme/theme.dart';
 import '../../shared/widgets/playbar/playbar.dart';
 import 'auth_guard.dart';
@@ -103,6 +104,20 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.followList,
         name: 'followList',
         builder: (context, state) => const FollowListScreen(),
+      ),
+      // User Space/Profile route
+      GoRoute(
+        path: AppRoutes.userSpace,
+        name: 'userSpace',
+        builder: (context, state) {
+          final mid = int.tryParse(state.pathParameters['mid'] ?? '');
+          if (mid == null) {
+            return const Scaffold(
+              body: Center(child: Text('Invalid user ID')),
+            );
+          }
+          return UserProfileScreen(mid: mid);
+        },
       ),
       // Watch Later route
       GoRoute(

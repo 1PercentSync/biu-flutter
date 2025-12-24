@@ -20,23 +20,23 @@ This task list is designed for autonomous agent implementation. After completing
 ### A.1 Search Module Alignment
 
 #### A.1.1 "Music Only" Filter [P0]
-- [ ] A.1.1.1 Add `musicOnly` state to search provider
+- [x] A.1.1.1 Add `musicOnly` state to search provider
   - Default: `true` (match source behavior)
   - Location: `lib/features/search/presentation/providers/`
   - Reference: `biu/src/pages/search/index.tsx:15` (`musicOnly` state)
 
-- [ ] A.1.1.2 Update search API call to include `tids` parameter
+- [x] A.1.1.2 Update search API call to include `tids` parameter
   - When musicOnly=true, pass `tids: 3` (music category)
   - Location: `lib/features/search/data/datasources/search_remote_datasource.dart`
   - Reference: `biu/src/pages/search/index.tsx:50-55`
 
-- [ ] A.1.1.3 Add "Music Only" toggle switch to search UI
+- [x] A.1.1.3 Add "Music Only" toggle switch to search UI
   - Position: Below search bar or in filter area
   - Location: `lib/features/search/presentation/screens/search_screen.dart`
   - Reference: `biu/src/pages/search/index.tsx:102-107` (Switch component)
 
 #### A.1.2 Search History [P0]
-- [ ] A.1.2.1 Create SearchHistoryItem model
+- [x] A.1.2.1 Create SearchHistoryItem model
   ```dart
   class SearchHistoryItem {
     final String value;
@@ -46,14 +46,14 @@ This task list is designed for autonomous agent implementation. After completing
   - Location: `lib/features/search/domain/entities/search_history_item.dart`
   - Reference: `biu/src/store/search-history.ts:5-8`
 
-- [ ] A.1.2.2 Create SearchHistoryNotifier with persistence
+- [x] A.1.2.2 Create SearchHistoryNotifier with persistence
   - Methods: `add(value)`, `delete(item)`, `clear()`
   - Persistence key: `search-history`
   - Max items: 20 (prevent unlimited growth)
   - Location: `lib/features/search/presentation/providers/search_history_notifier.dart`
   - Reference: `biu/src/store/search-history.ts`
 
-- [ ] A.1.2.3 Add search history UI to search screen
+- [x] A.1.2.3 Add search history UI to search screen
   - Display on focus when query is empty
   - Chip/tag style with delete button
   - "Clear All" button
@@ -62,36 +62,36 @@ This task list is designed for autonomous agent implementation. After completing
   - Reference: `biu/src/layout/navbar/search/index.tsx:60-100`
 
 #### A.1.3 Search Pagination [P1]
-- [ ] A.1.3.1 Add pagination state to search provider
+- [x] A.1.3.1 Add pagination state to search provider
   - Fields: `currentPage`, `totalPages`, `hasMore`
   - Location: `lib/features/search/presentation/providers/`
   - Reference: `biu/src/pages/search/index.tsx`
 
-- [ ] A.1.3.2 Implement load more functionality
+- [x] A.1.3.2 Implement load more functionality
   - Trigger: Scroll to bottom or "Load More" button
   - Location: `lib/features/search/presentation/screens/search_screen.dart`
   - Reference: `biu/src/pages/search/video-list.tsx`
 
-- [ ] A.1.3.3 Add pagination UI component
+- [x] A.1.3.3 Add pagination UI component
   - Option A: Infinite scroll with loading indicator
   - Option B: Page number buttons (like source)
   - Reference: Source uses HeroUI Pagination component
 
 #### A.1.4 User Search Tab [P1]
-- [ ] A.1.4.1 Create user search result model
+- [x] A.1.4.1 Create user search result model
   - Fields: mid, uname, usign, upic, fans, videos, level
   - Location: `lib/features/search/data/models/search_user_result.dart`
   - Reference: `biu/src/pages/search/search-type.tsx`
 
-- [ ] A.1.4.2 Implement user search API call
+- [x] A.1.4.2 Implement user search API call
   - Already defined but unused: `searchUser()` in datasource
   - Location: `lib/features/search/data/datasources/search_remote_datasource.dart`
 
-- [ ] A.1.4.3 Add TabBar for Video/User search
+- [x] A.1.4.3 Add TabBar for Video/User search
   - Location: `lib/features/search/presentation/screens/search_screen.dart`
   - Reference: `biu/src/pages/search/search-type.tsx`
 
-- [ ] A.1.4.4 Create UserSearchResultCard widget
+- [x] A.1.4.4 Create UserSearchResultCard widget
   - Display: Avatar, name, signature, fans count
   - Location: `lib/features/search/presentation/widgets/user_search_card.dart`
   - Reference: `biu/src/pages/search/user-list.tsx`

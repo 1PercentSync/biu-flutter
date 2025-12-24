@@ -11,6 +11,9 @@ import '../../../player/domain/entities/play_item.dart';
 import '../../../player/presentation/providers/playlist_notifier.dart';
 import '../../data/datasources/search_remote_datasource.dart';
 import '../../data/models/search_result.dart';
+import '../providers/search_history_notifier.dart';
+import '../widgets/search_history_widget.dart';
+import '../widgets/user_search_card.dart';
 
 /// Provider for search data source
 final searchDataSourceProvider = Provider<SearchRemoteDataSource>((ref) {
@@ -226,15 +229,53 @@ class SearchScreen extends ConsumerStatefulWidget {
   ConsumerState<SearchScreen> createState() => _SearchScreenState();
 }
 
-class _SearchScreenState extends ConsumerState<SearchScreen> {
+class _SearchScreenState extends ConsumerState<SearchScreen>
+    with SingleTickerProviderStateMixin {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
+  final ScrollController _scrollController = ScrollController();
+  late TabController _tabController;
+  bool _showSearchHistory = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(_onTabChanged);
+    _searchFocusNode.addListener(_onFocusChanged);
+    _scrollController.addListener(_onScroll);
+  }
 
   @override
   void dispose() {
     _searchController.dispose();
     _searchFocusNode.dispose();
+    _scrollController.dispose();
+    _tabController.removeListener(_onTabChanged);
+    _tabController.dispose();
     super.dispose();
+  }
+
+  void _onTabChanged() {
+    if (_tabController.indexIsChanging) {
+      final tab =
+          _tabController.index == 0 ? SearchTabType.video : SearchTabType.user;
+      ref.read(searchNotifierProvider.notifier).setSearchTab(tab);
+    }
+  }
+
+  void _onFocusChanged() {
+    setState(() {
+      _showSearchHistory =
+          _searchFocusNode.hasFocus && _searchController.text.isEmpty;
+    });
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      ref.read(searchNotifierProvider.notifier).loadMore();
+    }
   }
 
   @override
@@ -246,7 +287,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       body: Column(
         children: [
           // Search header
-          _buildSearchHeader(context),
+          _buildSearchHeader(context, searchState),
+          // Tab bar (only show when we have search results)
+          if (searchState.hasSearched) _buildTabBar(context, searchState),
           // Content area
           Expanded(
             child: _buildContent(context, searchState),
@@ -256,52 +299,115 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     );
   }
 
-  Widget _buildSearchHeader(BuildContext context) {
+  Widget _buildSearchHeader(BuildContext context, SearchState searchState) {
     return SafeArea(
       bottom: false,
       child: Container(
         padding: const EdgeInsets.all(16),
-        child: Row(
+        child: Column(
           children: [
-            Expanded(
-              child: TextField(
-                controller: _searchController,
-                focusNode: _searchFocusNode,
-                decoration: InputDecoration(
-                  hintText: 'Search videos, music, users...',
-                  prefixIcon: const Icon(
-                    Icons.search,
-                    color: AppColors.textTertiary,
-                  ),
-                  suffixIcon: _searchController.text.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(
-                            Icons.clear,
-                            color: AppColors.textTertiary,
-                          ),
-                          onPressed: () {
-                            _searchController.clear();
-                            ref.read(searchNotifierProvider.notifier).clearQuery();
-                            setState(() {});
-                          },
-                        )
-                      : null,
-                  filled: true,
-                  fillColor: AppColors.surface,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(AppTheme.borderRadius),
-                    borderSide: BorderSide.none,
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _searchController,
+                    focusNode: _searchFocusNode,
+                    decoration: InputDecoration(
+                      hintText: 'Search videos, music, users...',
+                      prefixIcon: const Icon(
+                        Icons.search,
+                        color: AppColors.textTertiary,
+                      ),
+                      suffixIcon: _searchController.text.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(
+                                Icons.clear,
+                                color: AppColors.textTertiary,
+                              ),
+                              onPressed: () {
+                                _searchController.clear();
+                                ref
+                                    .read(searchNotifierProvider.notifier)
+                                    .clearQuery();
+                                setState(() {
+                                  _showSearchHistory = _searchFocusNode.hasFocus;
+                                });
+                              },
+                            )
+                          : null,
+                      filled: true,
+                      fillColor: AppColors.surface,
+                      border: OutlineInputBorder(
+                        borderRadius:
+                            BorderRadius.circular(AppTheme.borderRadius),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                    onChanged: (value) {
+                      ref.read(searchNotifierProvider.notifier).setQuery(value);
+                      setState(() {
+                        _showSearchHistory =
+                            _searchFocusNode.hasFocus && value.isEmpty;
+                      });
+                    },
+                    onSubmitted: _performSearch,
                   ),
                 ),
-                onChanged: (value) {
-                  ref.read(searchNotifierProvider.notifier).setQuery(value);
-                  setState(() {});
-                },
-                onSubmitted: _performSearch,
-              ),
+              ],
             ),
+            // Music only toggle (only for video search)
+            if (searchState.searchTab == SearchTabType.video)
+              _buildMusicOnlyToggle(context, searchState),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildMusicOnlyToggle(BuildContext context, SearchState searchState) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Text(
+            'Music Only',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+          ),
+          const SizedBox(width: 8),
+          Switch(
+            value: searchState.musicOnly,
+            onChanged: (value) {
+              ref.read(searchNotifierProvider.notifier).setMusicOnly(value);
+            },
+            activeColor: AppColors.primary,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTabBar(BuildContext context, SearchState searchState) {
+    return Container(
+      decoration: const BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: AppColors.divider,
+            width: 1,
+          ),
+        ),
+      ),
+      child: TabBar(
+        controller: _tabController,
+        tabs: const [
+          Tab(text: 'Videos'),
+          Tab(text: 'Users'),
+        ],
+        labelColor: AppColors.primary,
+        unselectedLabelColor: AppColors.textSecondary,
+        indicatorColor: AppColors.primary,
       ),
     );
   }
@@ -328,25 +434,20 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     }
 
     if (searchState.hasSearched) {
-      return _buildSearchResults(context, searchState.results);
+      if (searchState.searchTab == SearchTabType.video) {
+        return _buildVideoSearchResults(context, searchState);
+      } else {
+        return _buildUserSearchResults(context, searchState);
+      }
     }
 
-    if (searchState.query.isEmpty) {
-      return _buildSearchSuggestions(context);
-    }
-
-    return const EmptyState(
-      icon: Icon(
-        Icons.search,
-        size: 48,
-        color: AppColors.textTertiary,
-      ),
-      title: 'Search',
-      message: 'Press enter to search',
-    );
+    // Show search suggestions and history when not searched
+    return _buildSearchSuggestions(context);
   }
 
-  Widget _buildSearchResults(BuildContext context, List<SearchVideoItem> results) {
+  Widget _buildVideoSearchResults(
+      BuildContext context, SearchState searchState) {
+    final results = searchState.results;
     if (results.isEmpty) {
       return const EmptyState(
         icon: Icon(
@@ -360,6 +461,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     }
 
     return GridView.builder(
+      controller: _scrollController,
       padding: const EdgeInsets.all(16),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
@@ -367,8 +469,16 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
       ),
-      itemCount: results.length,
+      itemCount: results.length + (searchState.hasMore ? 1 : 0),
       itemBuilder: (context, index) {
+        if (index >= results.length) {
+          // Loading more indicator
+          return Center(
+            child: searchState.isLoadingMore
+                ? const CircularProgressIndicator()
+                : const SizedBox.shrink(),
+          );
+        }
         final video = results[index];
         return VideoCard(
           title: video.title.stripHtml(),
@@ -377,6 +487,49 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           duration: video.duration,
           viewCount: video.play,
           onTap: () => _playVideo(video),
+        );
+      },
+    );
+  }
+
+  Widget _buildUserSearchResults(
+      BuildContext context, SearchState searchState) {
+    final results = searchState.userResults;
+    if (results.isEmpty) {
+      return const EmptyState(
+        icon: Icon(
+          Icons.search_off,
+          size: 48,
+          color: AppColors.textTertiary,
+        ),
+        title: 'No Results',
+        message: 'No users found for your search',
+      );
+    }
+
+    return ListView.builder(
+      controller: _scrollController,
+      padding: const EdgeInsets.all(16),
+      itemCount: results.length + (searchState.hasMore ? 1 : 0),
+      itemBuilder: (context, index) {
+        if (index >= results.length) {
+          // Loading more indicator
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: searchState.isLoadingMore
+                  ? const CircularProgressIndicator()
+                  : const SizedBox.shrink(),
+            ),
+          );
+        }
+        final user = results[index];
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: UserSearchCard(
+            user: user,
+            onTap: () => _openUserProfile(user),
+          ),
         );
       },
     );
@@ -407,6 +560,13 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     ref.read(playlistProvider.notifier).play(playItem);
   }
 
+  void _openUserProfile(SearchUserItem user) {
+    // TODO: Navigate to user profile screen when implemented
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('User: ${user.uname}')),
+    );
+  }
+
   Widget _buildSearchSuggestions(BuildContext context) {
     final hotSearches = ref.watch(hotSearchKeywordsProvider);
 
@@ -415,13 +575,21 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Search history section
+          SearchHistoryWidget(
+            onSelect: (query) {
+              _searchController.text = query;
+              _performSearch(query);
+            },
+          ),
+          const SizedBox(height: 24),
           // Hot searches section
           _buildSectionHeader(context, 'Hot Searches'),
           const SizedBox(height: 12),
           hotSearches.when(
             data: _buildHotSearches,
             loading: () => const LoadingIndicator(),
-            error: (_, _) => _buildHotSearches(_fallbackHotSearches),
+            error: (_, __) => _buildHotSearches(_fallbackHotSearches),
           ),
         ],
       ),
@@ -472,6 +640,12 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   void _performSearch(String query) {
     if (query.isEmpty) return;
     _searchFocusNode.unfocus();
+    setState(() {
+      _showSearchHistory = false;
+    });
+    // Add to search history
+    ref.read(searchHistoryProvider.notifier).add(query);
+    // Perform search
     ref.read(searchNotifierProvider.notifier).search(query);
   }
 }

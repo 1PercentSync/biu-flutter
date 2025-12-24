@@ -52,7 +52,11 @@ class _StorageKeys {
 /// Notifier for managing playlist state and audio playback.
 class PlaylistNotifier extends Notifier<PlaylistState> {
   late AudioPlayerService _playerService;
-  late BiuAudioHandler _audioHandler;
+
+  /// The audio handler for background playback.
+  /// Must be set after AudioService.init()
+  late BiuAudioHandler audioHandler;
+
   StreamSubscription<PlayerState>? _playerStateSubscription;
   StreamSubscription<Duration>? _positionSubscription;
   StreamSubscription<Duration?>? _durationSubscription;
@@ -83,11 +87,6 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
 
     return const PlaylistState();
   }
-
-  /// Initialize the audio handler for background playback.
-  /// Must be called after AudioService.init()
-  BiuAudioHandler get audioHandler => _audioHandler;
-  set audioHandler(BiuAudioHandler handler) => _audioHandler = handler;
 
   /// Initialize player and restore state
   Future<void> initialize() async {
@@ -578,7 +577,7 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
 
     // Update media session
     debugPrint('[Playlist] Updating media session');
-    _audioHandler.updateCurrentMediaItem(currentItem);
+    audioHandler.updateCurrentMediaItem(currentItem);
 
     debugPrint('[Playlist] Starting player');
     try {

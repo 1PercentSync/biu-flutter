@@ -371,9 +371,10 @@ biu_flutter/lib/
 | `components/empty/index.tsx` | `shared/widgets/empty_state.dart` | ✅ |
 | `components/error-fallback/index.tsx` | `shared/widgets/error_state.dart` | ✅ |
 | `components/image/index.tsx` | `shared/widgets/cached_image.dart` | ✅ |
-| `components/music-list-item/index.tsx` | `shared/widgets/track_list_item.dart` | ✅ |
-| `components/mv-card/index.tsx` | `shared/widgets/video_card.dart` | ✅ |
+| `components/music-list-item/index.tsx` | `shared/widgets/track_list_item.dart` | ✅ (highlightTitle + onArtistTap) |
+| `components/mv-card/index.tsx` | `shared/widgets/video_card.dart` | ✅ (highlightTitle + onOwnerTap) |
 | `components/image-card/index.tsx` | `shared/widgets/video_card.dart` | ✅ |
+| `components/music-list-item/index.tsx#isTitleIncludeHtmlTag` | `shared/widgets/highlighted_text.dart` | 🆕 New |
 | `components/image-card/skeleton.tsx` | - | ❌ Missing |
 | `components/confirm-modal/index.tsx` | - | ❌ Missing |
 | `components/mv-action/index.tsx` | - | ❌ Missing |

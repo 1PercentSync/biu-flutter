@@ -4,6 +4,7 @@ import '../../core/extensions/duration_extensions.dart';
 import '../../core/utils/number_utils.dart';
 import '../theme/theme.dart';
 import 'cached_image.dart';
+import 'highlighted_text.dart';
 
 /// Action item for video card popup menu.
 ///
@@ -24,6 +25,7 @@ class VideoCardAction {
 ///
 /// Shows cover image, title, author, view count, duration, etc.
 /// Mobile-adapted version with additional stats (danmaku count) and popup menu actions.
+/// Supports highlighted titles (for search results) and clickable owner names.
 ///
 /// Source: biu/src/components/mv-card/index.tsx#MVCard
 /// Source: biu/src/components/image-card/index.tsx#ImageCard
@@ -33,18 +35,21 @@ class VideoCard extends StatelessWidget {
     super.key,
     this.coverUrl,
     this.ownerName,
+    this.ownerMid,
     this.ownerAvatar,
     this.duration,
     this.viewCount,
     this.danmakuCount,
     this.pubDate,
     this.isActive = false,
+    this.highlightTitle = false,
     this.onTap,
     this.onLongPress,
+    this.onOwnerTap,
     this.actions,
   });
 
-  /// Video title
+  /// Video title (may contain HTML `<em>` tags if [highlightTitle] is true)
   final String title;
 
   /// Cover image URL
@@ -52,6 +57,11 @@ class VideoCard extends StatelessWidget {
 
   /// Owner/author name
   final String? ownerName;
+
+  /// Owner/author mid (user ID) for navigation
+  ///
+  /// Source: biu/src/components/mv-card/index.tsx (via MVAction ownerMid)
+  final int? ownerMid;
 
   /// Owner avatar URL
   final String? ownerAvatar;
@@ -71,11 +81,19 @@ class VideoCard extends StatelessWidget {
   /// Whether this video is currently active/selected
   final bool isActive;
 
+  /// Whether title contains HTML highlight tags (from search results)
+  ///
+  /// Source: biu/src/components/mv-card/index.tsx#isTitleIncludeHtmlTag
+  final bool highlightTitle;
+
   /// Callback when tapped
   final VoidCallback? onTap;
 
   /// Callback when long pressed
   final VoidCallback? onLongPress;
+
+  /// Callback when owner name is tapped
+  final VoidCallback? onOwnerTap;
 
   /// Actions to show in popup menu
   final List<VideoCardAction>? actions;
@@ -198,19 +216,29 @@ class VideoCard extends StatelessWidget {
   }
 
   Widget _buildInfoSection(BuildContext context) {
+    final titleStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
+          fontWeight: FontWeight.w500,
+          height: 1.3,
+        );
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Title
-        Text(
-          title,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w500,
-                height: 1.3,
-              ),
-        ),
+        // Title - supports HTML highlight tags from search results
+        // Source: biu/src/components/mv-card/index.tsx#isTitleIncludeHtmlTag
+        if (highlightTitle)
+          HighlightedText(
+            text: title,
+            style: titleStyle,
+            maxLines: 2,
+          )
+        else
+          Text(
+            title,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: titleStyle,
+          ),
         const SizedBox(height: 8),
         // Owner and stats
         Row(
@@ -226,17 +254,10 @@ class VideoCard extends StatelessWidget {
               ),
               const SizedBox(width: 6),
             ],
-            // Owner name
+            // Owner name - clickable when onOwnerTap is provided
             if (ownerName != null)
               Expanded(
-                child: Text(
-                  ownerName!,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                ),
+                child: _buildOwnerName(context),
               ),
           ],
         ),
@@ -245,6 +266,29 @@ class VideoCard extends StatelessWidget {
         _buildStatsRow(context),
       ],
     );
+  }
+
+  Widget _buildOwnerName(BuildContext context) {
+    final ownerWidget = Text(
+      ownerName!,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: AppColors.textSecondary,
+            decoration: onOwnerTap != null ? TextDecoration.underline : null,
+            decorationColor: AppColors.textSecondary.withValues(alpha: 0.5),
+          ),
+    );
+
+    if (onOwnerTap != null) {
+      return GestureDetector(
+        onTap: onOwnerTap,
+        behavior: HitTestBehavior.opaque,
+        child: ownerWidget,
+      );
+    }
+
+    return ownerWidget;
   }
 
   Widget _buildStatsRow(BuildContext context) {
@@ -291,24 +335,28 @@ class VideoCard extends StatelessWidget {
 ///
 /// Horizontal layout suitable for lists, showing video info in a row format.
 /// Flutter-only: provides an alternative layout to VideoCard for list views.
+/// Supports highlighted titles (for search results) and clickable owner names.
 class VideoListTile extends StatelessWidget {
   const VideoListTile({
     required this.title,
     super.key,
     this.coverUrl,
     this.ownerName,
+    this.ownerMid,
     this.ownerAvatar,
     this.duration,
     this.viewCount,
     this.danmakuCount,
     this.pubDate,
     this.isActive = false,
+    this.highlightTitle = false,
     this.onTap,
     this.onLongPress,
+    this.onOwnerTap,
     this.actions,
   });
 
-  /// Video title
+  /// Video title (may contain HTML `<em>` tags if [highlightTitle] is true)
   final String title;
 
   /// Cover image URL
@@ -316,6 +364,9 @@ class VideoListTile extends StatelessWidget {
 
   /// Owner/author name
   final String? ownerName;
+
+  /// Owner/author mid (user ID) for navigation
+  final int? ownerMid;
 
   /// Owner avatar URL
   final String? ownerAvatar;
@@ -335,11 +386,17 @@ class VideoListTile extends StatelessWidget {
   /// Whether this video is currently active/selected
   final bool isActive;
 
+  /// Whether title contains HTML highlight tags (from search results)
+  final bool highlightTitle;
+
   /// Callback when tapped
   final VoidCallback? onTap;
 
   /// Callback when long pressed
   final VoidCallback? onLongPress;
+
+  /// Callback when owner name is tapped
+  final VoidCallback? onOwnerTap;
 
   /// Actions to show in popup menu
   final List<VideoCardAction>? actions;
@@ -453,36 +510,60 @@ class VideoListTile extends StatelessWidget {
   }
 
   Widget _buildInfo(BuildContext context) {
+    final titleStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
+          fontWeight: FontWeight.w500,
+          height: 1.3,
+        );
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        // Title
-        Text(
-          title,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w500,
-                height: 1.3,
-              ),
-        ),
-        const SizedBox(height: 6),
-        // Owner
-        if (ownerName != null)
+        // Title - supports HTML highlight tags from search results
+        if (highlightTitle)
+          HighlightedText(
+            text: title,
+            style: titleStyle,
+            maxLines: 2,
+          )
+        else
           Text(
-            ownerName!,
-            maxLines: 1,
+            title,
+            maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppColors.textSecondary,
-                ),
+            style: titleStyle,
           ),
+        const SizedBox(height: 6),
+        // Owner - clickable when onOwnerTap is provided
+        if (ownerName != null) _buildOwnerName(context),
         const SizedBox(height: 4),
         // Stats row
         _buildStatsRow(context),
       ],
     );
+  }
+
+  Widget _buildOwnerName(BuildContext context) {
+    final ownerWidget = Text(
+      ownerName!,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: AppColors.textSecondary,
+            decoration: onOwnerTap != null ? TextDecoration.underline : null,
+            decorationColor: AppColors.textSecondary.withValues(alpha: 0.5),
+          ),
+    );
+
+    if (onOwnerTap != null) {
+      return GestureDetector(
+        onTap: onOwnerTap,
+        behavior: HitTestBehavior.opaque,
+        child: ownerWidget,
+      );
+    }
+
+    return ownerWidget;
   }
 
   Widget _buildStatsRow(BuildContext context) {

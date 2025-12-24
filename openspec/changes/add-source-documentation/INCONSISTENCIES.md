@@ -9,6 +9,14 @@ This document tracks inconsistencies found between Flutter and Electron implemen
 | `core/utils/number_utils.dart` | `formatCompact` used "K" suffix for 1000-9999 range | `biu/src/common/utils/number.ts` uses zh-CN Intl format | Changed to display raw number for <10000, matching source |
 | `core/utils/url_utils.dart` | `buildVideoUrl` missing pageIndex support | `biu/src/common/utils/url.ts#getBiliVideoLink` | Added optional `pageIndex` parameter |
 | `core/utils/format_utils.dart` | Duplicate of `number_utils.dart`, never used | N/A | **Deleted** - restored 1:1 mapping with `number.ts` |
+| `shared/widgets/empty_state.dart` | Default message "No content" instead of "暂无内容" | `biu/src/components/empty/index.tsx` | Changed to "暂无内容" |
+| `shared/widgets/cached_image.dart` | Inline `_formatUrl` duplicate | `biu/src/common/utils/url.ts#formatUrlProtocal` | Use `UrlUtils.formatProtocol` |
+| `shared/widgets/track_list_item.dart` | Inline `_formatPlayCount` duplicate | `biu/src/common/utils/number.ts#formatNumber` | Use `NumberUtils.formatCompact` |
+| `shared/widgets/track_list_item.dart` | Missing search highlight (isTitleIncludeHtmlTag) | `biu/src/components/music-list-item/index.tsx` | Added `highlightTitle` param + `HighlightedText` |
+| `shared/widgets/track_list_item.dart` | Missing artist tap navigation (ownerMid) | `biu/src/components/music-list-item/index.tsx` | Added `artistMid` + `onArtistTap` params |
+| `shared/widgets/video_card.dart` | Missing search highlight (isTitleIncludeHtmlTag) | `biu/src/components/mv-card/index.tsx` | Added `highlightTitle` param + `HighlightedText` |
+| `shared/widgets/video_card.dart` | Missing owner tap navigation (ownerMid) | `biu/src/components/mv-card/index.tsx` | Added `ownerMid` + `onOwnerTap` params |
+| `features/search/data/models/search_result.dart` | Title stripped HTML in fromJson | Source keeps `<em>` for highlighting | Keep raw title, added `titlePlain` getter |
 
 ## Pending Review
 

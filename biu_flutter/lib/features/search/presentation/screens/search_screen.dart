@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/audio.dart';
-import '../../../../core/extensions/string_extensions.dart';
 import '../../../../shared/theme/theme.dart';
 import '../../../../shared/widgets/empty_state.dart';
 import '../../../../shared/widgets/loading_state.dart';
@@ -480,12 +480,17 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
           return Padding(
             padding: const EdgeInsets.only(bottom: 12),
             child: VideoListTile(
-              title: video.title.stripHtml(),
+              title: video.title,
+              highlightTitle: true,
               coverUrl: video.pic,
               ownerName: video.author,
+              ownerMid: video.mid,
               duration: video.duration,
               viewCount: video.play,
               onTap: () => _playVideo(video),
+              onOwnerTap: video.mid > 0
+                  ? () => context.push('/user/${video.mid}')
+                  : null,
               actions: [
                 VideoCardAction(
                   label: 'Watch Later',
@@ -521,12 +526,17 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
         }
         final video = results[index];
         return VideoCard(
-          title: video.title.stripHtml(),
+          title: video.title,
+          highlightTitle: true,
           coverUrl: video.pic,
           ownerName: video.author,
+          ownerMid: video.mid,
           duration: video.duration,
           viewCount: video.play,
           onTap: () => _playVideo(video),
+          onOwnerTap: video.mid > 0
+              ? () => context.push('/user/${video.mid}')
+              : null,
           actions: [
             VideoCardAction(
               label: 'Watch Later',
@@ -598,7 +608,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
       type: PlayDataType.mv,
       bvid: video.bvid,
       aid: video.aid.toString(),
-      title: video.title.stripHtml(),
+      title: video.titlePlain,
       cover: video.pic,
       ownerName: video.author,
       ownerMid: video.mid,

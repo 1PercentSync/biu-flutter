@@ -1,4 +1,8 @@
-/// Search video item from search results
+/// Search video item from search results.
+///
+/// Note: [title] contains the original title with HTML highlight tags (`<em>`).
+/// Use [titlePlain] for display without highlights, or pass [title] to
+/// [HighlightedText] widget with search highlight rendering.
 class SearchVideoItem {
   const SearchVideoItem({
     required this.aid,
@@ -21,7 +25,9 @@ class SearchVideoItem {
     return SearchVideoItem(
       aid: json['aid'] as int? ?? json['id'] as int? ?? 0,
       bvid: json['bvid'] as String? ?? '',
-      title: _stripHtmlTags(json['title'] as String? ?? ''),
+      // Keep original title with HTML tags for search highlighting
+      // Source: biu/src/components/mv-card/index.tsx#isTitleIncludeHtmlTag
+      title: json['title'] as String? ?? '',
       author: json['author'] as String? ?? '',
       mid: json['mid'] as int? ?? 0,
       pic: _normalizePicUrl(json['pic'] as String? ?? ''),
@@ -38,10 +44,15 @@ class SearchVideoItem {
 
   final int aid;
   final String bvid;
+
+  /// Title with HTML highlight tags (use [titlePlain] for plain text)
   final String title;
   final String author;
   final int mid;
   final String pic;
+
+  /// Get plain title without HTML tags
+  String get titlePlain => _stripHtmlTags(title);
   final int? pubdate;
   final int? play;
   final int? danmaku;

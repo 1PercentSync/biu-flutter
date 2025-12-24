@@ -140,6 +140,15 @@ All feature module datasources and key components have been documented with sour
 | `dio_client.dart` | Missing biliDio | Added biliDio getter |
 | `playlist_notifier.dart` | addToNext didn't move existing items | Added move logic |
 | `later_remote_datasource.dart` | Missing useCSRF for add/remove | Added CSRF option |
+| `empty_state.dart` | Default message was "No content" | Changed to "暂无内容" |
+| `cached_image.dart` | Inline `_formatUrl` duplicate | Use `UrlUtils.formatProtocol` |
+| `track_list_item.dart` | Inline `_formatPlayCount` duplicate | Use `NumberUtils.formatCompact` |
+| `track_list_item.dart` | Missing search highlight support | Added `highlightTitle` param |
+| `track_list_item.dart` | Missing artist tap navigation | Added `artistMid` + `onArtistTap` |
+| `video_card.dart` | Missing search highlight support | Added `highlightTitle` param |
+| `video_card.dart` | Missing owner tap navigation | Added `ownerMid` + `onOwnerTap` |
+| `search_result.dart` | Title stripped HTML in fromJson | Keep raw title, add `titlePlain` getter |
+| - | New `highlighted_text.dart` | Parse `<em>` tags for search highlight |
 
 ### Documented Simplifications
 

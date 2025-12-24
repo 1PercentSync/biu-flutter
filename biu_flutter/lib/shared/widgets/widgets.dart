@@ -1,10 +1,14 @@
-/// Shared widgets exports
+/// Shared widgets exports.
+///
+/// Contains reusable UI components that map to biu/src/components/*.
+/// See FILE_MAPPING.md "10. Shared Components" for full mapping.
 library;
 
 export 'async_value_widget.dart';
 export 'cached_image.dart';
 export 'empty_state.dart';
 export 'error_state.dart';
+export 'highlighted_text.dart';
 export 'loading_state.dart';
 export 'playbar/playbar.dart';
 export 'track_list_item.dart';

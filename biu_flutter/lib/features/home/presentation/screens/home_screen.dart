@@ -10,6 +10,8 @@ import '../../../../shared/widgets/error_state.dart';
 import '../../../../shared/widgets/loading_state.dart';
 import '../../../music_rank/music_rank.dart';
 import '../../../player/player.dart';
+import '../../../settings/domain/entities/app_settings.dart';
+import '../../../settings/presentation/providers/settings_notifier.dart';
 
 /// Home screen displaying music hot rank.
 class HomeScreen extends ConsumerWidget {
@@ -84,6 +86,32 @@ class HomeScreen extends ConsumerWidget {
       );
     }
 
+    final displayMode = ref.watch(displayModeProvider);
+
+    if (displayMode == DisplayMode.list) {
+      // List view mode
+      return SliverPadding(
+        padding: const EdgeInsets.all(16),
+        sliver: SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (context, index) {
+              final song = state.songs[index];
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: HotSongListTile(
+                  song: song,
+                  rank: index + 1,
+                  onTap: () => _playSong(ref, song),
+                ),
+              );
+            },
+            childCount: state.songs.length,
+          ),
+        ),
+      );
+    }
+
+    // Grid view mode (default)
     return SliverPadding(
       padding: const EdgeInsets.all(16),
       sliver: SliverGrid(

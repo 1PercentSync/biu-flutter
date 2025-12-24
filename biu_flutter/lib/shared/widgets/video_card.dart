@@ -288,3 +288,247 @@ class VideoCard extends StatelessWidget {
     return count.toString();
   }
 }
+
+/// A list tile variant for video display.
+class VideoListTile extends StatelessWidget {
+  const VideoListTile({
+    required this.title,
+    super.key,
+    this.coverUrl,
+    this.ownerName,
+    this.ownerAvatar,
+    this.duration,
+    this.viewCount,
+    this.danmakuCount,
+    this.pubDate,
+    this.isActive = false,
+    this.onTap,
+    this.onLongPress,
+    this.actions,
+  });
+
+  /// Video title
+  final String title;
+
+  /// Cover image URL
+  final String? coverUrl;
+
+  /// Owner/author name
+  final String? ownerName;
+
+  /// Owner avatar URL
+  final String? ownerAvatar;
+
+  /// Video duration in seconds
+  final int? duration;
+
+  /// View count
+  final int? viewCount;
+
+  /// Danmaku (bullet comments) count
+  final int? danmakuCount;
+
+  /// Publish date (timestamp in seconds)
+  final int? pubDate;
+
+  /// Whether this video is currently active/selected
+  final bool isActive;
+
+  /// Callback when tapped
+  final VoidCallback? onTap;
+
+  /// Callback when long pressed
+  final VoidCallback? onLongPress;
+
+  /// Actions to show in popup menu
+  final List<VideoCardAction>? actions;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        onLongPress: onLongPress,
+        borderRadius: BorderRadius.circular(AppTheme.borderRadius),
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: AppColors.contentBackground,
+            borderRadius: BorderRadius.circular(AppTheme.borderRadius),
+            border: isActive
+                ? Border.all(color: AppColors.primary, width: 2)
+                : null,
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Cover image with duration
+              _buildCover(context),
+              const SizedBox(width: 12),
+              // Info section
+              Expanded(child: _buildInfo(context)),
+              // Actions menu button
+              if (actions != null && actions!.isNotEmpty)
+                _buildActionsButton(context),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCover(BuildContext context) {
+    return SizedBox(
+      width: 120,
+      height: 68,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          // Cover image
+          ClipRRect(
+            borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
+            child: AppCachedImage(
+              imageUrl: coverUrl,
+              fit: BoxFit.cover,
+              fileType: FileType.video,
+            ),
+          ),
+          // Duration badge
+          if (duration != null)
+            Positioned(
+              right: 4,
+              bottom: 4,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 4,
+                  vertical: 2,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.75),
+                  borderRadius:
+                      BorderRadius.circular(AppTheme.borderRadiusSmall),
+                ),
+                child: Text(
+                  Duration(seconds: duration!).formatted,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontFeatures: [FontFeature.tabularFigures()],
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionsButton(BuildContext context) {
+    return PopupMenuButton<VideoCardAction>(
+      icon: Icon(
+        Icons.more_vert,
+        color: AppColors.textTertiary,
+        size: 20,
+      ),
+      padding: EdgeInsets.zero,
+      iconSize: 24,
+      position: PopupMenuPosition.under,
+      onSelected: (action) => action.onTap(),
+      itemBuilder: (context) => actions!
+          .map(
+            (action) => PopupMenuItem<VideoCardAction>(
+              value: action,
+              child: Row(
+                children: [
+                  Icon(action.icon, size: 20),
+                  const SizedBox(width: 12),
+                  Text(action.label),
+                ],
+              ),
+            ),
+          )
+          .toList(),
+    );
+  }
+
+  Widget _buildInfo(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        // Title
+        Text(
+          title,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w500,
+                height: 1.3,
+              ),
+        ),
+        const SizedBox(height: 6),
+        // Owner
+        if (ownerName != null)
+          Text(
+            ownerName!,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+          ),
+        const SizedBox(height: 4),
+        // Stats row
+        _buildStatsRow(context),
+      ],
+    );
+  }
+
+  Widget _buildStatsRow(BuildContext context) {
+    final statStyle = Theme.of(context).textTheme.labelSmall?.copyWith(
+          color: AppColors.textTertiary,
+        );
+
+    return Row(
+      children: [
+        // View count
+        if (viewCount != null) ...[
+          Icon(
+            Icons.play_arrow,
+            size: 12,
+            color: AppColors.textTertiary,
+          ),
+          const SizedBox(width: 2),
+          Text(
+            _formatCount(viewCount!),
+            style: statStyle,
+          ),
+          const SizedBox(width: 12),
+        ],
+        // Danmaku count
+        if (danmakuCount != null) ...[
+          Icon(
+            Icons.comment,
+            size: 12,
+            color: AppColors.textTertiary,
+          ),
+          const SizedBox(width: 2),
+          Text(
+            _formatCount(danmakuCount!),
+            style: statStyle,
+          ),
+        ],
+      ],
+    );
+  }
+
+  String _formatCount(int count) {
+    if (count >= 100000000) {
+      return '${(count / 100000000).toStringAsFixed(1)}亿';
+    } else if (count >= 10000) {
+      return '${(count / 10000).toStringAsFixed(1)}万';
+    }
+    return count.toString();
+  }
+}

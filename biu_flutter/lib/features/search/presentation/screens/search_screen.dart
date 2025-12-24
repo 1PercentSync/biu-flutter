@@ -10,6 +10,8 @@ import '../../../../shared/widgets/video_card.dart';
 import '../../../later/presentation/providers/later_notifier.dart';
 import '../../../player/domain/entities/play_item.dart';
 import '../../../player/presentation/providers/playlist_notifier.dart';
+import '../../../settings/domain/entities/app_settings.dart';
+import '../../../settings/presentation/providers/settings_notifier.dart';
 import '../../data/datasources/search_remote_datasource.dart';
 import '../../data/models/search_result.dart';
 import '../providers/search_history_notifier.dart';
@@ -461,6 +463,50 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
       );
     }
 
+    final displayMode = ref.watch(displayModeProvider);
+
+    if (displayMode == DisplayMode.list) {
+      // List view mode
+      return ListView.builder(
+        controller: _scrollController,
+        padding: const EdgeInsets.all(16),
+        itemCount: results.length + (searchState.hasMore ? 1 : 0),
+        itemBuilder: (context, index) {
+          if (index >= results.length) {
+            // Loading more indicator
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: searchState.isLoadingMore
+                    ? const CircularProgressIndicator()
+                    : const SizedBox.shrink(),
+              ),
+            );
+          }
+          final video = results[index];
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: VideoListTile(
+              title: video.title.stripHtml(),
+              coverUrl: video.pic,
+              ownerName: video.author,
+              duration: video.duration,
+              viewCount: video.play,
+              onTap: () => _playVideo(video),
+              actions: [
+                VideoCardAction(
+                  label: 'Watch Later',
+                  icon: Icons.watch_later_outlined,
+                  onTap: () => _addToWatchLater(video),
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    }
+
+    // Grid view mode (default)
     return GridView.builder(
       controller: _scrollController,
       padding: const EdgeInsets.all(16),

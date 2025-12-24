@@ -451,10 +451,11 @@ This task list is designed for autonomous agent implementation. After completing
   - Location: `lib/features/settings/presentation/screens/settings_screen.dart`
   - Reference: `biu/src/pages/settings/index.tsx`
 
-- [ ] C.2.1.3 Apply display mode to list screens
-  - Favorites, search results, etc.
+- [x] C.2.1.3 Apply display mode to list screens
+  - Applied to search results screen (VideoCard/VideoListTile switch)
+  - Applied to home screen music rank (HotSongCard/HotSongListTile switch)
+  - Location: `lib/features/search/presentation/screens/search_screen.dart`, `lib/features/home/presentation/screens/home_screen.dart`
   - Reference: Source applies `displayMode` to GridList
-  - Note: Display mode setting added; UI application deferred to future work
 
 #### C.2.2 Menu Customization [P2]
 - [x] C.2.2.1 Add hiddenMenuKeys to AppSettings

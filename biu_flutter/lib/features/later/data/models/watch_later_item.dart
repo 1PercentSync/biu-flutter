@@ -19,7 +19,7 @@ class WatchLaterItem {
     this.progress = 0,
     this.owner,
     this.stat,
-    this.dynamic,
+    this.dynamicContent,
     this.dimension,
   });
 
@@ -47,7 +47,7 @@ class WatchLaterItem {
       stat: json['stat'] != null
           ? WatchLaterStat.fromJson(json['stat'] as Map<String, dynamic>)
           : null,
-      dynamic: json['dynamic'] as String?,
+      dynamicContent: json['dynamic'] as String?,
       dimension: json['dimension'] != null
           ? WatchLaterDimension.fromJson(
               json['dimension'] as Map<String, dynamic>,
@@ -74,7 +74,7 @@ class WatchLaterItem {
   final int progress;
   final WatchLaterOwner? owner;
   final WatchLaterStat? stat;
-  final String? dynamic;
+  final String? dynamicContent;
   final WatchLaterDimension? dimension;
 
   /// Get unique key for list
@@ -133,7 +133,7 @@ class WatchLaterItem {
         'progress': progress,
         'owner': owner?.toJson(),
         'stat': stat?.toJson(),
-        'dynamic': dynamic,
+        'dynamic': dynamicContent,
         'dimension': dimension?.toJson(),
       };
 

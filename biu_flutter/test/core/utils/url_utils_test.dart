@@ -142,5 +142,82 @@ void main() {
         );
       });
     });
+
+    group('isUrlValid (deadline-based)', () {
+      test('returns false for null or empty input', () {
+        expect(UrlUtils.isUrlValid(null), false);
+        expect(UrlUtils.isUrlValid(''), false);
+      });
+
+      test('returns true for URL without deadline parameter', () {
+        expect(
+          UrlUtils.isUrlValid('https://example.com/audio.mp3'),
+          true,
+        );
+        expect(
+          UrlUtils.isUrlValid('https://example.com/audio.mp3?quality=high'),
+          true,
+        );
+      });
+
+      test('returns true for URL with future deadline', () {
+        // Set deadline to 1 hour from now
+        final futureDeadline =
+            (DateTime.now().millisecondsSinceEpoch ~/ 1000) + 3600;
+        expect(
+          UrlUtils.isUrlValid(
+            'https://example.com/audio.mp3?deadline=$futureDeadline',
+          ),
+          true,
+        );
+      });
+
+      test('returns false for URL with past deadline', () {
+        // Set deadline to 1 hour ago
+        final pastDeadline =
+            (DateTime.now().millisecondsSinceEpoch ~/ 1000) - 3600;
+        expect(
+          UrlUtils.isUrlValid(
+            'https://example.com/audio.mp3?deadline=$pastDeadline',
+          ),
+          false,
+        );
+      });
+
+      test('returns true for URL with invalid deadline value', () {
+        // Non-numeric deadline should be treated as valid
+        expect(
+          UrlUtils.isUrlValid(
+            'https://example.com/audio.mp3?deadline=invalid',
+          ),
+          true,
+        );
+      });
+
+      test('returns true for URL with empty deadline value', () {
+        expect(
+          UrlUtils.isUrlValid('https://example.com/audio.mp3?deadline='),
+          true,
+        );
+      });
+
+      test('returns true for string without deadline (permissive parsing)', () {
+        // Note: Dart's Uri.parse is very permissive and doesn't throw for most strings
+        // The function returns true for URLs without a deadline parameter
+        expect(
+          UrlUtils.isUrlValid('not a valid url'),
+          true, // No deadline parameter = considered valid
+        );
+      });
+
+      test('handles Bilibili-style audio URL with deadline', () {
+        // Simulates real Bilibili audio URL format
+        final validDeadline =
+            (DateTime.now().millisecondsSinceEpoch ~/ 1000) + 7200;
+        final url =
+            'https://upos-sz-mirrorhw.bilivideo.com/upgcxcode/audio.m4s?deadline=$validDeadline&gen=playurlv2';
+        expect(UrlUtils.isUrlValid(url), true);
+      });
+    });
   });
 }

@@ -7,6 +7,7 @@ import 'loading_state.dart';
 /// A wrapper widget that handles AsyncValue states uniformly.
 ///
 /// Displays loading, error, or data content based on the AsyncValue state.
+/// Flutter-only: Provides Riverpod AsyncValue integration (no source equivalent).
 class AsyncValueWidget<T> extends StatelessWidget {
   const AsyncValueWidget({
     required this.value,
@@ -52,7 +53,9 @@ class AsyncValueWidget<T> extends StatelessWidget {
   }
 }
 
-/// A Sliver version of AsyncValueWidget for use in CustomScrollView
+/// A Sliver version of AsyncValueWidget for use in CustomScrollView.
+///
+/// Flutter-only: Provides Riverpod AsyncValue integration for slivers.
 class AsyncValueSliverWidget<T> extends StatelessWidget {
   const AsyncValueSliverWidget({
     required this.value,
@@ -86,7 +89,9 @@ class AsyncValueSliverWidget<T> extends StatelessWidget {
   }
 }
 
-/// A widget that shows content with an optional loading overlay
+/// A widget that shows content with an optional loading overlay.
+///
+/// Flutter-only: Provides loading overlay pattern for modal loading states.
 class LoadingOverlay extends StatelessWidget {
   const LoadingOverlay({
     required this.isLoading,
@@ -114,7 +119,9 @@ class LoadingOverlay extends StatelessWidget {
   }
 }
 
-/// A pull-to-refresh wrapper with consistent styling
+/// A pull-to-refresh wrapper with consistent styling.
+///
+/// Flutter-only: Mobile-specific pull-to-refresh pattern.
 class RefreshableContent extends StatelessWidget {
   const RefreshableContent({
     required this.onRefresh,

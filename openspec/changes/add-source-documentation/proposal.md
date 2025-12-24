@@ -178,6 +178,15 @@ biu-flutter 是从 biu (Electron) 迁移而来的项目。迁移不是一次性�
 - [x] `features/video/` - 行为一致（WBI 签名正确使用）
 - [x] `shared/widgets/playbar/` - 源引用已添加
 
+### Shared Widgets ✅ Completed
+- [x] `shared/widgets/empty_state.dart` - 源引用已添加，修复默认文本（"暂无内容"）
+- [x] `shared/widgets/error_state.dart` - 源引用已添加（移动端适配版）
+- [x] `shared/widgets/cached_image.dart` - 源引用已添加，使用 UrlUtils.formatProtocol
+- [x] `shared/widgets/track_list_item.dart` - 源引用已添加，使用 NumberUtils.formatCompact
+- [x] `shared/widgets/video_card.dart` - 源引用已添加（移动端适配版）
+- [x] `shared/widgets/async_value_widget.dart` - Flutter-only 标记已添加
+- [x] `shared/widgets/loading_state.dart` - Flutter-only 标记已添加
+
 ---
 
 ## Success Criteria

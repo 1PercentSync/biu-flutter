@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 
 /// A widget to display when there's no content to show.
+///
+/// Source: biu/src/components/empty/index.tsx#Empty
 class EmptyState extends StatelessWidget {
   const EmptyState({
     super.key,
@@ -51,7 +53,7 @@ class EmptyState extends StatelessWidget {
               const SizedBox(height: 8),
             ],
             Text(
-              message ?? 'No content',
+              message ?? '暂无内容',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: AppColors.textTertiary,
                   ),

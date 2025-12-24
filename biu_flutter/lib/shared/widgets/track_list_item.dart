@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 
 import '../../core/extensions/duration_extensions.dart';
+import '../../core/utils/number_utils.dart';
 import '../theme/theme.dart';
 import 'cached_image.dart';
 
 /// A list item widget for displaying music/audio tracks.
 ///
 /// Shows cover image, title, artist name, duration, and optional actions.
+///
+/// Source: biu/src/components/music-list-item/index.tsx#MusicListItem
 class TrackListItem extends StatelessWidget {
   const TrackListItem({
     required this.title,
@@ -165,9 +168,10 @@ class TrackListItem extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         // Play count
+        // Source: biu/src/common/utils/number.ts#formatNumber
         if (playCount != null && playCount! > 0) ...[
           Text(
-            _formatPlayCount(playCount!),
+            NumberUtils.formatCompact(playCount),
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: AppColors.textTertiary,
                 ),
@@ -204,14 +208,5 @@ class TrackListItem extends StatelessWidget {
         ],
       ],
     );
-  }
-
-  String _formatPlayCount(int count) {
-    if (count >= 100000000) {
-      return '${(count / 100000000).toStringAsFixed(1)}亿';
-    } else if (count >= 10000) {
-      return '${(count / 10000).toStringAsFixed(1)}万';
-    }
-    return count.toString();
   }
 }

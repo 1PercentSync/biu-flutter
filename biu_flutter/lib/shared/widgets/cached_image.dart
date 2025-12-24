@@ -1,11 +1,15 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
+import '../../core/utils/url_utils.dart';
 import '../theme/app_colors.dart';
 
 /// A cached network image widget with loading and error states.
 ///
 /// Supports both audio and video placeholder icons for error states.
+/// Uses CachedNetworkImage for efficient caching.
+///
+/// Source: biu/src/components/image/index.tsx#Image
 class AppCachedImage extends StatelessWidget {
   const AppCachedImage({
     required this.imageUrl,
@@ -46,12 +50,14 @@ class AppCachedImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Handle empty or null URL
-    if (imageUrl == null || imageUrl!.isEmpty) {
+    final rawUrl = imageUrl;
+    if (rawUrl == null || rawUrl.isEmpty) {
       return _buildErrorWidget();
     }
 
     // Ensure URL has proper protocol
-    final url = _formatUrl(imageUrl!);
+    // Source: biu/src/common/utils/url.ts#formatUrlProtocal
+    final url = UrlUtils.formatProtocol(rawUrl);
 
     Widget imageWidget = CachedNetworkImage(
       imageUrl: url,
@@ -71,17 +77,6 @@ class AppCachedImage extends StatelessWidget {
     }
 
     return imageWidget;
-  }
-
-  /// Format URL to ensure proper protocol
-  String _formatUrl(String url) {
-    if (url.startsWith('//')) {
-      return 'https:$url';
-    }
-    if (!url.startsWith('http://') && !url.startsWith('https://')) {
-      return 'https://$url';
-    }
-    return url;
   }
 
   /// Build loading placeholder

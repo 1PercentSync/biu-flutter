@@ -5,7 +5,9 @@ import '../../core/utils/number_utils.dart';
 import '../theme/theme.dart';
 import 'cached_image.dart';
 
-/// Action item for video card popup menu
+/// Action item for video card popup menu.
+///
+/// Used by [VideoCard] and [VideoListTile] for context menu actions.
 class VideoCardAction {
   const VideoCardAction({
     required this.label,
@@ -21,6 +23,10 @@ class VideoCardAction {
 /// A card widget for displaying video content.
 ///
 /// Shows cover image, title, author, view count, duration, etc.
+/// Mobile-adapted version with additional stats (danmaku count) and popup menu actions.
+///
+/// Source: biu/src/components/mv-card/index.tsx#MVCard
+/// Source: biu/src/components/image-card/index.tsx#ImageCard
 class VideoCard extends StatelessWidget {
   const VideoCard({
     required this.title,
@@ -282,6 +288,9 @@ class VideoCard extends StatelessWidget {
 }
 
 /// A list tile variant for video display.
+///
+/// Horizontal layout suitable for lists, showing video info in a row format.
+/// Flutter-only: provides an alternative layout to VideoCard for list views.
 class VideoListTile extends StatelessWidget {
   const VideoListTile({
     required this.title,

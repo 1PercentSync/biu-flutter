@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 
 /// A widget to display a loading indicator.
+///
+/// Flutter-only: Provides full-screen loading state for async operations.
 class LoadingState extends StatelessWidget {
   const LoadingState({
     super.key,
@@ -50,7 +52,9 @@ class LoadingState extends StatelessWidget {
   }
 }
 
-/// A compact loading indicator for inline use
+/// A compact loading indicator for inline use.
+///
+/// Flutter-only: Smaller variant for inline loading states.
 class LoadingIndicator extends StatelessWidget {
   const LoadingIndicator({
     super.key,
@@ -76,7 +80,9 @@ class LoadingIndicator extends StatelessWidget {
   }
 }
 
-/// A shimmer loading placeholder for list items
+/// A shimmer loading placeholder for list items.
+///
+/// Flutter-only: Provides skeleton loading animation for list items.
 class ShimmerLoadingItem extends StatefulWidget {
   const ShimmerLoadingItem({
     super.key,
@@ -190,7 +196,9 @@ class _ShimmerLoadingItemState extends State<ShimmerLoadingItem>
   }
 }
 
-/// A list of shimmer loading placeholders
+/// A list of shimmer loading placeholders.
+///
+/// Flutter-only: Provides skeleton loading list for better UX.
 class ShimmerLoadingList extends StatelessWidget {
   const ShimmerLoadingList({
     super.key,

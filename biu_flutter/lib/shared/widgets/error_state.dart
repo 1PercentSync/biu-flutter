@@ -3,6 +3,11 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 
 /// A widget to display error state with retry option.
+///
+/// This is a mobile-adapted version that provides flexible error display patterns
+/// including full-screen states, snackbars, and banners.
+///
+/// Source: biu/src/components/error-fallback/index.tsx#Fallback (adapted for mobile)
 class ErrorState extends StatelessWidget {
 
   /// Create an error state for network errors

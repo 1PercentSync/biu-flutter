@@ -349,19 +349,22 @@ This task list is designed for autonomous agent implementation. After completing
 ### B.5 Following List [P1]
 
 #### B.5.1 Relation API
-- [ ] B.5.1.1 Implement followings API
+- [x] B.5.1.1 Implement followings API
   - GET `/x/relation/followings`
-  - Location: `lib/features/follow/data/datasources/relation_remote_datasource.dart`
+  - Created FollowingUser model with VIP, verification, and relation attributes
+  - Location: `lib/features/follow/data/datasources/follow_remote_datasource.dart`
   - Reference: `biu/src/service/relation-followings.ts`
 
-- [ ] B.5.1.2 Implement follow/unfollow API
+- [x] B.5.1.2 Implement follow/unfollow API
   - POST `/x/relation/modify`
+  - Added UserRelationAction enum and modifyRelation method
   - Reference: `biu/src/service/relation-modify.ts`
 
 #### B.5.2 Following UI
-- [ ] B.5.2.1 Create FollowListScreen
-  - Grid of followed users
-  - Tap to view user's content
+- [x] B.5.2.1 Create FollowListScreen
+  - Grid of followed users with infinite scroll
+  - FollowingCard and FollowingListTile widgets
+  - Added route and navigation from Profile screen
   - Location: `lib/features/follow/presentation/screens/follow_list_screen.dart`
   - Reference: `biu/src/pages/follow-list/index.tsx`
 

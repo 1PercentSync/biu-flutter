@@ -7,6 +7,7 @@ import '../../../../shared/theme/theme.dart';
 import '../../../../shared/widgets/cached_image.dart';
 import '../../../auth/domain/entities/user.dart';
 import '../../../auth/presentation/providers/auth_notifier.dart';
+import '../../../favorites/presentation/providers/favorites_notifier.dart';
 import '../../domain/entities/app_settings.dart';
 import '../providers/settings_notifier.dart';
 import '../widgets/audio_quality_picker.dart';
@@ -53,6 +54,12 @@ class SettingsScreen extends ConsumerWidget {
           _buildSectionHeader(context, 'Appearance'),
           _buildSettingTile(
             context,
+            title: 'Display Mode',
+            subtitle: settings.displayMode.label,
+            onTap: () => _showDisplayModePicker(context, ref, settings),
+          ),
+          _buildSettingTile(
+            context,
             title: 'Primary Color',
             trailing: Container(
               width: 24,
@@ -72,6 +79,20 @@ class SettingsScreen extends ConsumerWidget {
             onTap: () => _showResetThemeDialog(context, ref),
           ),
           const SizedBox(height: 24),
+
+          // Menu customization (only show when logged in)
+          if (isLoggedIn) ...[
+            _buildSectionHeader(context, 'Menu Customization'),
+            _buildSettingTile(
+              context,
+              title: 'Hidden Folders',
+              subtitle: settings.hiddenFolderIds.isEmpty
+                  ? 'No folders hidden'
+                  : '${settings.hiddenFolderIds.length} folder(s) hidden',
+              onTap: () => _showHiddenFoldersDialog(context, ref),
+            ),
+            const SizedBox(height: 24),
+          ],
 
           // Storage settings
           _buildSectionHeader(context, 'Storage'),
@@ -331,5 +352,122 @@ class SettingsScreen extends ConsumerWidget {
         );
       }
     }
+  }
+
+  Future<void> _showDisplayModePicker(
+    BuildContext context,
+    WidgetRef ref,
+    AppSettings settings,
+  ) async {
+    final selected = await showDialog<DisplayMode>(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: const Text('Display Mode'),
+        children: DisplayMode.values.map((mode) {
+          return SimpleDialogOption(
+            onPressed: () => Navigator.pop(context, mode),
+            child: Row(
+              children: [
+                Icon(
+                  mode == DisplayMode.card ? Icons.grid_view : Icons.list,
+                  size: 20,
+                ),
+                const SizedBox(width: 12),
+                Expanded(child: Text(mode.label)),
+                if (mode == settings.displayMode)
+                  const Icon(Icons.check, size: 20),
+              ],
+            ),
+          );
+        }).toList(),
+      ),
+    );
+
+    if (selected != null) {
+      ref.read(settingsNotifierProvider.notifier).setDisplayMode(selected);
+    }
+  }
+
+  Future<void> _showHiddenFoldersDialog(
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
+    await showDialog(
+      context: context,
+      builder: (context) => _HiddenFoldersDialog(),
+    );
+  }
+}
+
+/// Dialog for managing hidden folders
+class _HiddenFoldersDialog extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final favoritesState = ref.watch(favoritesListProvider);
+    final settings = ref.watch(settingsNotifierProvider);
+    final folders = favoritesState.createdFolders;
+
+    return AlertDialog(
+      title: const Text('Hidden Folders'),
+      content: SizedBox(
+        width: double.maxFinite,
+        child: folders.isEmpty
+            ? const Padding(
+                padding: EdgeInsets.all(16),
+                child: Text('No folders available'),
+              )
+            : ListView.builder(
+                shrinkWrap: true,
+                itemCount: folders.length,
+                itemBuilder: (context, index) {
+                  final folder = folders[index];
+                  final isHidden = settings.isFolderHidden(folder.id);
+
+                  return CheckboxListTile(
+                    value: !isHidden,
+                    onChanged: (visible) {
+                      ref
+                          .read(settingsNotifierProvider.notifier)
+                          .setFolderHidden(folder.id, !visible!);
+                    },
+                    title: Text(folder.title),
+                    subtitle: Text('${folder.mediaCount} items'),
+                    secondary: folder.cover.isNotEmpty
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(4),
+                            child: AppCachedImage(
+                              imageUrl: folder.cover,
+                              width: 40,
+                              height: 40,
+                              fit: BoxFit.cover,
+                            ),
+                          )
+                        : Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: AppColors.contentBackground,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: const Icon(Icons.folder, size: 20),
+                          ),
+                  );
+                },
+              ),
+      ),
+      actions: [
+        if (settings.hiddenFolderIds.isNotEmpty)
+          TextButton(
+            onPressed: () {
+              ref.read(settingsNotifierProvider.notifier).clearHiddenFolders();
+            },
+            child: const Text('Show All'),
+          ),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Done'),
+        ),
+      ],
+    );
   }
 }

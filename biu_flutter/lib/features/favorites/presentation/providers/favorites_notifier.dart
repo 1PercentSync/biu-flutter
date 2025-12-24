@@ -227,6 +227,8 @@ class FolderDetailNotifier extends StateNotifier<FolderDetailState> {
       final result = await _repository.getFolderResources(
         mediaId: _folderId.toString(),
         pageNum: refresh ? 1 : state.pageNum,
+        order: state.order.value,
+        keyword: state.keyword,
       );
 
       state = state.copyWith(
@@ -254,6 +256,8 @@ class FolderDetailNotifier extends StateNotifier<FolderDetailState> {
       final result = await _repository.getFolderResources(
         mediaId: _folderId.toString(),
         pageNum: state.pageNum,
+        order: state.order.value,
+        keyword: state.keyword,
       );
 
       state = state.copyWith(
@@ -272,6 +276,165 @@ class FolderDetailNotifier extends StateNotifier<FolderDetailState> {
 
   /// Refresh folder resources.
   Future<void> refresh() => load(refresh: true);
+
+  /// Set search keyword and reload.
+  Future<void> setKeyword(String keyword) async {
+    if (state.keyword == keyword) return;
+    state = state.copyWith(keyword: keyword, medias: [], pageNum: 1);
+    await load(refresh: true);
+  }
+
+  /// Set sort order and reload.
+  Future<void> setOrder(FolderSortOrder order) async {
+    if (state.order == order) return;
+    state = state.copyWith(order: order, medias: [], pageNum: 1);
+    await load(refresh: true);
+  }
+
+  /// Enter selection mode.
+  void enterSelectionMode() {
+    state = state.copyWith(isSelectionMode: true, selectedIds: {});
+  }
+
+  /// Exit selection mode.
+  void exitSelectionMode() {
+    state = state.copyWith(isSelectionMode: false, selectedIds: {});
+  }
+
+  /// Toggle selection of a media item.
+  void toggleSelection(int mediaId) {
+    final selectedIds = Set<int>.from(state.selectedIds);
+    if (selectedIds.contains(mediaId)) {
+      selectedIds.remove(mediaId);
+    } else {
+      selectedIds.add(mediaId);
+    }
+    state = state.copyWith(selectedIds: selectedIds);
+  }
+
+  /// Select all valid (non-invalid) items.
+  void selectAll() {
+    final selectedIds = state.medias
+        .where((m) => !m.isInvalid)
+        .map((m) => m.id)
+        .toSet();
+    state = state.copyWith(selectedIds: selectedIds);
+  }
+
+  /// Deselect all items.
+  void deselectAll() {
+    state = state.copyWith(selectedIds: {});
+  }
+
+  /// Build resource string for batch operations.
+  String _buildResourceString(Set<int> mediaIds) {
+    return state.medias
+        .where((m) => mediaIds.contains(m.id))
+        .map((m) => '${m.id}:${m.type}')
+        .join(',');
+  }
+
+  /// Batch delete selected resources.
+  Future<bool> batchDeleteSelected() async {
+    if (!state.hasSelection) return false;
+
+    try {
+      final resources = _buildResourceString(state.selectedIds);
+      await _repository.batchDeleteResources(
+        mediaId: _folderId,
+        resources: resources,
+      );
+
+      // Remove deleted items from local list
+      final deletedIds = Set<int>.from(state.selectedIds);
+      state = state.copyWith(
+        medias: state.medias.where((m) => !deletedIds.contains(m.id)).toList(),
+        selectedIds: {},
+        isSelectionMode: false,
+      );
+
+      return true;
+    } catch (e) {
+      state = state.copyWith(errorMessage: e.toString());
+      return false;
+    }
+  }
+
+  /// Batch move selected resources to another folder.
+  Future<bool> batchMoveSelected({
+    required int targetFolderId,
+    required int userMid,
+  }) async {
+    if (!state.hasSelection) return false;
+
+    try {
+      final resources = _buildResourceString(state.selectedIds);
+      await _repository.batchMoveResources(
+        srcMediaId: _folderId,
+        tarMediaId: targetFolderId,
+        mid: userMid,
+        resources: resources,
+      );
+
+      // Remove moved items from local list
+      final movedIds = Set<int>.from(state.selectedIds);
+      state = state.copyWith(
+        medias: state.medias.where((m) => !movedIds.contains(m.id)).toList(),
+        selectedIds: {},
+        isSelectionMode: false,
+      );
+
+      return true;
+    } catch (e) {
+      state = state.copyWith(errorMessage: e.toString());
+      return false;
+    }
+  }
+
+  /// Batch copy selected resources to another folder.
+  Future<bool> batchCopySelected({
+    required int targetFolderId,
+    required int userMid,
+  }) async {
+    if (!state.hasSelection) return false;
+
+    try {
+      final resources = _buildResourceString(state.selectedIds);
+      await _repository.batchCopyResources(
+        srcMediaId: _folderId,
+        tarMediaId: targetFolderId,
+        mid: userMid,
+        resources: resources,
+      );
+
+      // Exit selection mode (items stay in current folder)
+      state = state.copyWith(
+        selectedIds: {},
+        isSelectionMode: false,
+      );
+
+      return true;
+    } catch (e) {
+      state = state.copyWith(errorMessage: e.toString());
+      return false;
+    }
+  }
+
+  /// Clean invalid resources from the folder.
+  Future<bool> cleanInvalidResources() async {
+    try {
+      await _repository.cleanInvalidResources(_folderId);
+      await refresh();
+      return true;
+    } catch (e) {
+      state = state.copyWith(errorMessage: e.toString());
+      return false;
+    }
+  }
+
+  /// Get all medias from this folder (for play all).
+  List<FavMedia> get allValidMedias =>
+      state.medias.where((m) => !m.isInvalid).toList();
 }
 
 /// Notifier for folder selection.

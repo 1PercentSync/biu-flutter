@@ -104,16 +104,23 @@ class FavoritesRemoteDataSource extends BaseApiService {
     int pageSize = 20,
     int pageNum = 1,
     String order = 'mtime',
+    String keyword = '',
   }) async {
+    final queryParameters = <String, dynamic>{
+      'media_id': mediaId,
+      'ps': pageSize,
+      'pn': pageNum,
+      'order': order,
+      'platform': 'web',
+    };
+
+    if (keyword.isNotEmpty) {
+      queryParameters['keyword'] = keyword;
+    }
+
     final data = await get<Map<String, dynamic>>(
       '/x/v3/fav/resource/list',
-      queryParameters: {
-        'media_id': mediaId,
-        'ps': pageSize,
-        'pn': pageNum,
-        'order': order,
-        'platform': 'web',
-      },
+      queryParameters: queryParameters,
     );
 
     final responseData = data['data'];
@@ -222,6 +229,82 @@ class FavoritesRemoteDataSource extends BaseApiService {
   Future<void> uncollectFolder(int mediaId) async {
     await post<Map<String, dynamic>>(
       '/x/v3/fav/folder/unfav',
+      data: {
+        'media_id': mediaId,
+      },
+      options: const BiliRequestOptions(useCSRF: true),
+    );
+  }
+
+  /// Batch delete resources from a folder.
+  ///
+  /// [resources] is a comma-separated string of "id:type" pairs, e.g., "123:2,456:2"
+  /// Types: 2=video, 12=audio, 21=video collection
+  Future<void> batchDeleteResources({
+    required int mediaId,
+    required String resources,
+  }) async {
+    await post<Map<String, dynamic>>(
+      '/x/v3/fav/resource/batch-del',
+      data: {
+        'media_id': mediaId,
+        'resources': resources,
+        'platform': 'web',
+      },
+      options: const BiliRequestOptions(useCSRF: true),
+    );
+  }
+
+  /// Batch move resources from one folder to another.
+  ///
+  /// [resources] is a comma-separated string of "id:type" pairs, e.g., "123:2,456:2"
+  /// Types: 2=video, 12=audio, 21=video collection
+  Future<void> batchMoveResources({
+    required int srcMediaId,
+    required int tarMediaId,
+    required int mid,
+    required String resources,
+  }) async {
+    await post<Map<String, dynamic>>(
+      '/x/v3/fav/resource/move',
+      data: {
+        'src_media_id': srcMediaId,
+        'tar_media_id': tarMediaId,
+        'mid': mid,
+        'resources': resources,
+        'platform': 'web',
+      },
+      options: const BiliRequestOptions(useCSRF: true),
+    );
+  }
+
+  /// Batch copy resources from one folder to another.
+  ///
+  /// [resources] is a comma-separated string of "id:type" pairs, e.g., "123:2,456:2"
+  /// Types: 2=video, 12=audio, 21=video collection
+  Future<void> batchCopyResources({
+    required int srcMediaId,
+    required int tarMediaId,
+    required int mid,
+    required String resources,
+  }) async {
+    await post<Map<String, dynamic>>(
+      '/x/v3/fav/resource/copy',
+      data: {
+        'src_media_id': srcMediaId,
+        'tar_media_id': tarMediaId,
+        'mid': mid,
+        'resources': resources,
+        'platform': 'web',
+      },
+      options: const BiliRequestOptions(useCSRF: true),
+    );
+  }
+
+  /// Clean (remove) all invalid/deleted resources from a folder.
+  Future<void> cleanInvalidResources(int mediaId) async {
+    await post<Map<String, dynamic>>(
+      '/x/v3/fav/resource/clean',
       data: {
         'media_id': mediaId,
       },

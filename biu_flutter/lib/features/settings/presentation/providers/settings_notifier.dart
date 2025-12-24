@@ -23,6 +23,14 @@ final primaryColorProvider = Provider<Color>((ref) {
   return ref.watch(settingsNotifierProvider).primaryColor;
 });
 
+final displayModeProvider = Provider<DisplayMode>((ref) {
+  return ref.watch(settingsNotifierProvider).displayMode;
+});
+
+final hiddenFolderIdsProvider = Provider<List<int>>((ref) {
+  return ref.watch(settingsNotifierProvider).hiddenFolderIds;
+});
+
 /// Settings state notifier
 class SettingsNotifier extends StateNotifier<AppSettings> {
   final StorageService _storage;
@@ -80,6 +88,42 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
   /// Update border radius
   Future<void> setBorderRadius(double radius) async {
     state = state.copyWith(borderRadius: radius);
+    await _saveSettings();
+  }
+
+  /// Update display mode
+  Future<void> setDisplayMode(DisplayMode mode) async {
+    state = state.copyWith(displayMode: mode);
+    await _saveSettings();
+  }
+
+  /// Toggle folder visibility
+  Future<void> toggleFolderVisibility(int folderId) async {
+    final currentHidden = List<int>.from(state.hiddenFolderIds);
+    if (currentHidden.contains(folderId)) {
+      currentHidden.remove(folderId);
+    } else {
+      currentHidden.add(folderId);
+    }
+    state = state.copyWith(hiddenFolderIds: currentHidden);
+    await _saveSettings();
+  }
+
+  /// Set folder hidden
+  Future<void> setFolderHidden(int folderId, bool hidden) async {
+    final currentHidden = List<int>.from(state.hiddenFolderIds);
+    if (hidden && !currentHidden.contains(folderId)) {
+      currentHidden.add(folderId);
+    } else if (!hidden && currentHidden.contains(folderId)) {
+      currentHidden.remove(folderId);
+    }
+    state = state.copyWith(hiddenFolderIds: currentHidden);
+    await _saveSettings();
+  }
+
+  /// Clear all hidden folders
+  Future<void> clearHiddenFolders() async {
+    state = state.copyWith(hiddenFolderIds: []);
     await _saveSettings();
   }
 

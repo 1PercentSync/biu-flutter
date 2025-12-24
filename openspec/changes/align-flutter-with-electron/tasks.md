@@ -392,75 +392,76 @@ This task list is designed for autonomous agent implementation. After completing
 ### C.1 Favorites Enhancement
 
 #### C.1.1 Folder Search/Filter [P1]
-- [ ] C.1.1.1 Add search input to folder detail screen
+- [x] C.1.1.1 Add search input to folder detail screen
   - Filter by keyword parameter
   - Location: `lib/features/favorites/presentation/screens/folder_detail_screen.dart`
   - Reference: `biu/src/pages/video-collection/favorites.tsx:25-35`
 
-- [ ] C.1.1.2 Add sort options dropdown
+- [x] C.1.1.2 Add sort options dropdown
   - Options: mtime (default), view, pubtime
   - Reference: `biu/src/pages/video-collection/favorites.tsx:70-80`
 
 #### C.1.2 Batch Operations [P1]
-- [ ] C.1.2.1 Implement batch delete API
+- [x] C.1.2.1 Implement batch delete API
   - POST `/x/v3/fav/resource/batch-del`
   - Location: `lib/features/favorites/data/datasources/favorites_remote_datasource.dart`
   - Reference: `biu/src/service/fav-resource-batch-del.ts`
 
-- [ ] C.1.2.2 Implement batch move API
+- [x] C.1.2.2 Implement batch move API
   - POST `/x/v3/fav/resource/move`
   - Reference: `biu/src/service/fav-resource-move.ts`
 
-- [ ] C.1.2.3 Implement batch copy API
+- [x] C.1.2.3 Implement batch copy API
   - POST `/x/v3/fav/resource/copy`
   - Reference: `biu/src/service/fav-resource-copy.ts`
 
-- [ ] C.1.2.4 Add multi-select mode to folder detail
+- [x] C.1.2.4 Add multi-select mode to folder detail
   - Long press to enter selection mode
   - Bottom action bar with batch actions
   - Reference: Source has checkbox selection
 
 #### C.1.3 Play All [P1]
-- [ ] C.1.3.1 Add "Play All" button to folder detail header
+- [x] C.1.3.1 Add "Play All" button to folder detail header
   - Replaces current playlist with folder contents
   - Location: `lib/features/favorites/presentation/screens/folder_detail_screen.dart`
   - Reference: `biu/src/pages/video-collection/info/index.tsx`
 
-- [ ] C.1.3.2 Add "Add All to Queue" option
+- [x] C.1.3.2 Add "Add All to Queue" option
   - Appends to current playlist
   - Reference: Same as above
 
 #### C.1.4 Clean Invalid Items [P2]
-- [ ] C.1.4.1 Implement clean invalid API
+- [x] C.1.4.1 Implement clean invalid API
   - POST `/x/v3/fav/resource/clean`
   - Reference: `biu/src/service/fav-resource-clean.ts`
 
-- [ ] C.1.4.2 Add "Clean Invalid" menu option
+- [x] C.1.4.2 Add "Clean Invalid" menu option
   - In folder detail more menu
   - Reference: Source has this in folder menu
 
 ### C.2 Settings Enhancement
 
 #### C.2.1 Display Mode [P2]
-- [ ] C.2.1.1 Add displayMode to AppSettings
+- [x] C.2.1.1 Add displayMode to AppSettings
   - Values: 'card' | 'list'
   - Location: `lib/features/settings/domain/entities/app_settings.dart`
   - Reference: `biu/shared/types/app-setting.d.ts:14`
 
-- [ ] C.2.1.2 Add display mode toggle to settings
+- [x] C.2.1.2 Add display mode toggle to settings
   - Location: `lib/features/settings/presentation/screens/settings_screen.dart`
   - Reference: `biu/src/pages/settings/index.tsx`
 
 - [ ] C.2.1.3 Apply display mode to list screens
   - Favorites, search results, etc.
   - Reference: Source applies `displayMode` to GridList
+  - Note: Display mode setting added; UI application deferred to future work
 
 #### C.2.2 Menu Customization [P2]
-- [ ] C.2.2.1 Add hiddenMenuKeys to AppSettings
+- [x] C.2.2.1 Add hiddenMenuKeys to AppSettings
   - Store IDs of hidden favorites folders
   - Reference: `biu/shared/types/app-setting.d.ts:13`
 
-- [ ] C.2.2.2 Add menu settings section
+- [x] C.2.2.2 Add menu settings section
   - Toggle visibility of individual folders
   - Reference: `biu/src/pages/settings/index.tsx` (menu tab)
 

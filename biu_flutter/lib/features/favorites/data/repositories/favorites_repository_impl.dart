@@ -87,12 +87,14 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
     int pageSize = 20,
     int pageNum = 1,
     String order = 'mtime',
+    String keyword = '',
   }) async {
     final response = await _remoteDataSource.getFolderResources(
       mediaId: mediaId,
       pageSize: pageSize,
       pageNum: pageNum,
       order: order,
+      keyword: keyword,
     );
 
     return FolderResourceResult(
@@ -178,5 +180,51 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
         .where((e) => e.isFavorited)
         .map((e) => e.id)
         .toList();
+  }
+
+  @override
+  Future<void> batchDeleteResources({
+    required int mediaId,
+    required String resources,
+  }) async {
+    await _remoteDataSource.batchDeleteResources(
+      mediaId: mediaId,
+      resources: resources,
+    );
+  }
+
+  @override
+  Future<void> batchMoveResources({
+    required int srcMediaId,
+    required int tarMediaId,
+    required int mid,
+    required String resources,
+  }) async {
+    await _remoteDataSource.batchMoveResources(
+      srcMediaId: srcMediaId,
+      tarMediaId: tarMediaId,
+      mid: mid,
+      resources: resources,
+    );
+  }
+
+  @override
+  Future<void> batchCopyResources({
+    required int srcMediaId,
+    required int tarMediaId,
+    required int mid,
+    required String resources,
+  }) async {
+    await _remoteDataSource.batchCopyResources(
+      srcMediaId: srcMediaId,
+      tarMediaId: tarMediaId,
+      mid: mid,
+      resources: resources,
+    );
+  }
+
+  @override
+  Future<void> cleanInvalidResources(int mediaId) async {
+    await _remoteDataSource.cleanInvalidResources(mediaId);
   }
 }

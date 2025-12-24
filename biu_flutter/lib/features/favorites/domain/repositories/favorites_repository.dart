@@ -33,6 +33,7 @@ abstract class FavoritesRepository {
     int pageSize = 20,
     int pageNum = 1,
     String order = 'mtime',
+    String keyword = '',
   });
 
   /// Create a new folder.
@@ -73,6 +74,31 @@ abstract class FavoritesRepository {
     required int upMid,
     int resourceType = 2,
   });
+
+  /// Batch delete resources from a folder.
+  Future<void> batchDeleteResources({
+    required int mediaId,
+    required String resources,
+  });
+
+  /// Batch move resources from one folder to another.
+  Future<void> batchMoveResources({
+    required int srcMediaId,
+    required int tarMediaId,
+    required int mid,
+    required String resources,
+  });
+
+  /// Batch copy resources from one folder to another.
+  Future<void> batchCopyResources({
+    required int srcMediaId,
+    required int tarMediaId,
+    required int mid,
+    required String resources,
+  });
+
+  /// Clean (remove) all invalid/deleted resources from a folder.
+  Future<void> cleanInvalidResources(int mediaId);
 }
 
 /// Result for folder list queries.

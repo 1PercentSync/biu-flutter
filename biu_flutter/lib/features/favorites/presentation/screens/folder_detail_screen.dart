@@ -1,20 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/audio.dart';
 import '../../../../core/extensions/duration_extensions.dart';
 import '../../../../shared/theme/theme.dart';
 import '../../../../shared/widgets/cached_image.dart';
 import '../../../../shared/widgets/empty_state.dart';
+import '../../../auth/auth.dart';
 import '../../../later/presentation/providers/later_notifier.dart';
 import '../../../player/domain/entities/play_item.dart';
 import '../../../player/presentation/providers/playlist_notifier.dart';
 import '../../domain/entities/fav_media.dart';
+import '../../domain/entities/favorites_folder.dart';
 import '../providers/favorites_notifier.dart';
 import '../providers/favorites_state.dart';
 
 /// Folder detail screen showing folder resources.
-class FolderDetailScreen extends ConsumerWidget {
+class FolderDetailScreen extends ConsumerStatefulWidget {
   const FolderDetailScreen({
     required this.folderId,
     super.key,
@@ -23,8 +26,24 @@ class FolderDetailScreen extends ConsumerWidget {
   final int folderId;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(folderDetailProvider(folderId));
+  ConsumerState<FolderDetailScreen> createState() => _FolderDetailScreenState();
+}
+
+class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
+  final _searchController = TextEditingController();
+  final _searchFocusNode = FocusNode();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _searchFocusNode.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final state = ref.watch(folderDetailProvider(widget.folderId));
+    final user = ref.watch(currentUserProvider);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -32,7 +51,9 @@ class FolderDetailScreen extends ConsumerWidget {
           ? const Center(child: CircularProgressIndicator())
           : state.hasError && state.folder == null
               ? _buildError(context, ref, state.errorMessage!)
-              : _buildContent(context, ref, state),
+              : _buildContent(context, ref, state, user),
+      bottomNavigationBar:
+          state.isSelectionMode ? _buildSelectionBar(context, ref, state) : null,
     );
   }
 
@@ -54,7 +75,7 @@ class FolderDetailScreen extends ConsumerWidget {
           const SizedBox(height: 8),
           ElevatedButton(
             onPressed: () =>
-                ref.read(folderDetailProvider(folderId).notifier).refresh(),
+                ref.read(folderDetailProvider(widget.folderId).notifier).refresh(),
             child: const Text('Retry'),
           ),
         ],
@@ -63,12 +84,17 @@ class FolderDetailScreen extends ConsumerWidget {
   }
 
   Widget _buildContent(
-      BuildContext context, WidgetRef ref, FolderDetailState state) {
+    BuildContext context,
+    WidgetRef ref,
+    FolderDetailState state,
+    User? user,
+  ) {
     final folder = state.folder!;
+    final isOwner = user?.mid == folder.upper.mid;
 
     return RefreshIndicator(
       onRefresh: () =>
-          ref.read(folderDetailProvider(folderId).notifier).refresh(),
+          ref.read(folderDetailProvider(widget.folderId).notifier).refresh(),
       child: CustomScrollView(
         slivers: [
           // App bar with folder cover
@@ -76,6 +102,61 @@ class FolderDetailScreen extends ConsumerWidget {
             expandedHeight: 200,
             pinned: true,
             backgroundColor: AppColors.background,
+            leading: state.isSelectionMode
+                ? IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => ref
+                        .read(folderDetailProvider(widget.folderId).notifier)
+                        .exitSelectionMode(),
+                  )
+                : null,
+            title: state.isSelectionMode
+                ? Text('${state.selectedCount} selected')
+                : null,
+            actions: state.isSelectionMode
+                ? [
+                    TextButton(
+                      onPressed: state.hasSelection
+                          ? () => ref
+                              .read(folderDetailProvider(widget.folderId).notifier)
+                              .deselectAll()
+                          : () => ref
+                              .read(folderDetailProvider(widget.folderId).notifier)
+                              .selectAll(),
+                      child: Text(state.hasSelection ? 'Deselect All' : 'Select All'),
+                    ),
+                  ]
+                : [
+                    // More menu
+                    PopupMenuButton<String>(
+                      icon: const Icon(Icons.more_vert),
+                      onSelected: (value) => _handleMenuAction(context, ref, value, isOwner),
+                      itemBuilder: (context) => [
+                        if (isOwner) ...[
+                          const PopupMenuItem(
+                            value: 'select',
+                            child: Row(
+                              children: [
+                                Icon(Icons.check_circle_outline, size: 20),
+                                SizedBox(width: 12),
+                                Text('Select'),
+                              ],
+                            ),
+                          ),
+                          const PopupMenuItem(
+                            value: 'clean',
+                            child: Row(
+                              children: [
+                                Icon(Icons.cleaning_services, size: 20),
+                                SizedBox(width: 12),
+                                Text('Clean Invalid'),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ],
             flexibleSpace: FlexibleSpaceBar(
               background: Stack(
                 fit: StackFit.expand,
@@ -107,80 +188,11 @@ class FolderDetailScreen extends ConsumerWidget {
           ),
           // Folder info
           SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          folder.title,
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      if (folder.isPrivate)
-                        Chip(
-                          label: const Text('Private'),
-                          avatar: const Icon(Icons.lock, size: 14),
-                          labelStyle: const TextStyle(fontSize: 12),
-                          visualDensity: VisualDensity.compact,
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      if (folder.upper.face.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: CircleAvatar(
-                            radius: 12,
-                            backgroundImage: NetworkImage(folder.upper.face),
-                          ),
-                        ),
-                      Text(
-                        folder.upper.name,
-                        style: TextStyle(
-                          color: AppColors.textSecondary,
-                          fontSize: 14,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Icon(
-                        Icons.video_library_outlined,
-                        size: 14,
-                        color: AppColors.textTertiary,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${folder.mediaCount} items',
-                        style: TextStyle(
-                          color: AppColors.textSecondary,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (folder.intro.isNotEmpty) ...[
-                    const SizedBox(height: 12),
-                    Text(
-                      folder.intro,
-                      style: TextStyle(
-                        color: AppColors.textSecondary,
-                        fontSize: 13,
-                      ),
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ],
-              ),
-            ),
+            child: _buildFolderInfo(context, ref, folder, state, isOwner),
+          ),
+          // Search and filter bar
+          SliverToBoxAdapter(
+            child: _buildSearchFilterBar(context, ref, state),
           ),
           // Divider
           const SliverToBoxAdapter(
@@ -195,8 +207,10 @@ class FolderDetailScreen extends ConsumerWidget {
                   size: 48,
                   color: AppColors.textTertiary,
                 ),
-                title: 'No Items',
-                message: 'This folder is empty',
+                title: state.keyword.isNotEmpty ? 'No Results' : 'No Items',
+                message: state.keyword.isNotEmpty
+                    ? 'No items match your search'
+                    : 'This folder is empty',
               ),
             )
           else
@@ -208,7 +222,7 @@ class FolderDetailScreen extends ConsumerWidget {
                     if (state.hasMore && !state.isLoadingMore) {
                       WidgetsBinding.instance.addPostFrameCallback((_) {
                         ref
-                            .read(folderDetailProvider(folderId).notifier)
+                            .read(folderDetailProvider(widget.folderId).notifier)
                             .loadMore();
                       });
                     }
@@ -221,17 +235,419 @@ class FolderDetailScreen extends ConsumerWidget {
                   final media = state.medias[index];
                   return _MediaListItem(
                     media: media,
-                    onTap: () => _playMedia(context, ref, media),
-                    onAddToLater: () => _addToWatchLater(context, ref, media),
+                    isSelectionMode: state.isSelectionMode,
+                    isSelected: state.selectedIds.contains(media.id),
+                    onTap: () {
+                      if (state.isSelectionMode) {
+                        ref
+                            .read(folderDetailProvider(widget.folderId).notifier)
+                            .toggleSelection(media.id);
+                      } else {
+                        _playMedia(context, ref, media);
+                      }
+                    },
+                    onLongPress: () {
+                      if (!state.isSelectionMode) {
+                        ref
+                            .read(folderDetailProvider(widget.folderId).notifier)
+                            .enterSelectionMode();
+                        ref
+                            .read(folderDetailProvider(widget.folderId).notifier)
+                            .toggleSelection(media.id);
+                      }
+                    },
+                    onAddToLater: state.isSelectionMode
+                        ? null
+                        : () => _addToWatchLater(context, ref, media),
                   );
                 },
                 childCount:
                     state.medias.length + (state.hasMore || state.isLoadingMore ? 1 : 0),
               ),
             ),
+          // Bottom padding
+          const SliverToBoxAdapter(
+            child: SizedBox(height: 80),
+          ),
         ],
       ),
     );
+  }
+
+  Widget _buildFolderInfo(
+    BuildContext context,
+    WidgetRef ref,
+    FavoritesFolder folder,
+    FolderDetailState state,
+    bool isOwner,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  folder.title,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              if (folder.isPrivate)
+                Chip(
+                  label: const Text('Private'),
+                  avatar: const Icon(Icons.lock, size: 14),
+                  labelStyle: const TextStyle(fontSize: 12),
+                  visualDensity: VisualDensity.compact,
+                ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              if (folder.upper.face.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: GestureDetector(
+                    onTap: () => context.push('/user/${folder.upper.mid}'),
+                    child: CircleAvatar(
+                      radius: 12,
+                      backgroundImage: NetworkImage(folder.upper.face),
+                    ),
+                  ),
+                ),
+              GestureDetector(
+                onTap: () => context.push('/user/${folder.upper.mid}'),
+                child: Text(
+                  folder.upper.name,
+                  style: TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Icon(
+                Icons.video_library_outlined,
+                size: 14,
+                color: AppColors.textTertiary,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                '${folder.mediaCount} items',
+                style: TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
+          if (folder.intro.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Text(
+              folder.intro,
+              style: TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 13,
+              ),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+          // Play buttons
+          if (state.medias.isNotEmpty && !state.isSelectionMode) ...[
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: FilledButton.icon(
+                    onPressed: () => _playAll(context, ref, state),
+                    icon: const Icon(Icons.play_arrow),
+                    label: const Text('Play All'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => _addAllToQueue(context, ref, state),
+                    icon: const Icon(Icons.playlist_add),
+                    label: const Text('Add to Queue'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSearchFilterBar(
+    BuildContext context,
+    WidgetRef ref,
+    FolderDetailState state,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        children: [
+          // Search input
+          Expanded(
+            child: TextField(
+              controller: _searchController,
+              focusNode: _searchFocusNode,
+              decoration: InputDecoration(
+                hintText: 'Search...',
+                prefixIcon: const Icon(Icons.search, size: 20),
+                suffixIcon: state.keyword.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear, size: 18),
+                        onPressed: () {
+                          _searchController.clear();
+                          ref
+                              .read(folderDetailProvider(widget.folderId).notifier)
+                              .setKeyword('');
+                        },
+                      )
+                    : null,
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: AppColors.border),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: AppColors.border),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Theme.of(context).primaryColor),
+                ),
+                filled: true,
+                fillColor: AppColors.contentBackground,
+                isDense: true,
+              ),
+              onSubmitted: (value) {
+                ref
+                    .read(folderDetailProvider(widget.folderId).notifier)
+                    .setKeyword(value.trim());
+              },
+            ),
+          ),
+          const SizedBox(width: 12),
+          // Sort dropdown
+          PopupMenuButton<FolderSortOrder>(
+            initialValue: state.order,
+            onSelected: (order) {
+              ref
+                  .read(folderDetailProvider(widget.folderId).notifier)
+                  .setOrder(order);
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                border: Border.all(color: AppColors.border),
+                borderRadius: BorderRadius.circular(8),
+                color: AppColors.contentBackground,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    state.order.label,
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                  const SizedBox(width: 4),
+                  const Icon(Icons.arrow_drop_down, size: 20),
+                ],
+              ),
+            ),
+            itemBuilder: (context) => FolderSortOrder.values
+                .map(
+                  (order) => PopupMenuItem(
+                    value: order,
+                    child: Row(
+                      children: [
+                        if (order == state.order)
+                          const Icon(Icons.check, size: 18)
+                        else
+                          const SizedBox(width: 18),
+                        const SizedBox(width: 8),
+                        Text(order.label),
+                      ],
+                    ),
+                  ),
+                )
+                .toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSelectionBar(
+    BuildContext context,
+    WidgetRef ref,
+    FolderDetailState state,
+  ) {
+    final user = ref.watch(currentUserProvider);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: AppColors.contentBackground,
+        border: Border(
+          top: BorderSide(color: AppColors.border),
+        ),
+      ),
+      child: SafeArea(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            // Delete
+            _SelectionActionButton(
+              icon: Icons.delete_outline,
+              label: 'Delete',
+              enabled: state.hasSelection,
+              onPressed: () => _confirmBatchDelete(context, ref, state),
+            ),
+            // Move
+            _SelectionActionButton(
+              icon: Icons.drive_file_move_outline,
+              label: 'Move',
+              enabled: state.hasSelection,
+              onPressed: () => _showFolderPicker(
+                context,
+                ref,
+                'Move to',
+                (folderId) async {
+                  if (user == null) return;
+                  final success = await ref
+                      .read(folderDetailProvider(widget.folderId).notifier)
+                      .batchMoveSelected(
+                        targetFolderId: folderId,
+                        userMid: user.mid,
+                      );
+                  if (success && context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Moved successfully')),
+                    );
+                  }
+                },
+              ),
+            ),
+            // Copy
+            _SelectionActionButton(
+              icon: Icons.copy_outlined,
+              label: 'Copy',
+              enabled: state.hasSelection,
+              onPressed: () => _showFolderPicker(
+                context,
+                ref,
+                'Copy to',
+                (folderId) async {
+                  if (user == null) return;
+                  final success = await ref
+                      .read(folderDetailProvider(widget.folderId).notifier)
+                      .batchCopySelected(
+                        targetFolderId: folderId,
+                        userMid: user.mid,
+                      );
+                  if (success && context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Copied successfully')),
+                    );
+                  }
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _handleMenuAction(
+    BuildContext context,
+    WidgetRef ref,
+    String action,
+    bool isOwner,
+  ) {
+    switch (action) {
+      case 'select':
+        ref
+            .read(folderDetailProvider(widget.folderId).notifier)
+            .enterSelectionMode();
+        break;
+      case 'clean':
+        _confirmCleanInvalid(context, ref);
+        break;
+    }
+  }
+
+  void _playAll(BuildContext context, WidgetRef ref, FolderDetailState state) {
+    final validMedias = state.medias.where((m) => !m.isInvalid).toList();
+    if (validMedias.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No valid items to play')),
+      );
+      return;
+    }
+
+    // Convert to PlayItems and play
+    final playItems = validMedias.map((media) => _mediaToPlayItem(media)).toList();
+    ref.read(playlistProvider.notifier).playList(playItems);
+  }
+
+  void _addAllToQueue(BuildContext context, WidgetRef ref, FolderDetailState state) {
+    final validMedias = state.medias.where((m) => !m.isInvalid).toList();
+    if (validMedias.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No valid items to add')),
+      );
+      return;
+    }
+
+    // Convert to PlayItems and add to queue
+    final playItems = validMedias.map((media) => _mediaToPlayItem(media)).toList();
+    ref.read(playlistProvider.notifier).addList(playItems);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Added ${playItems.length} items to queue')),
+    );
+  }
+
+  PlayItem _mediaToPlayItem(FavMedia media) {
+    if (media.isAudio) {
+      return PlayItem(
+        id: 'audio_${media.id}',
+        type: PlayDataType.audio,
+        sid: media.id,
+        title: media.title,
+        ownerName: media.upper.name,
+        ownerMid: media.upper.mid,
+        cover: media.cover,
+        duration: media.duration,
+      );
+    } else {
+      return PlayItem(
+        id: '${media.bvid}_1',
+        type: PlayDataType.mv,
+        bvid: media.bvid,
+        aid: media.id.toString(),
+        title: media.title,
+        ownerName: media.upper.name,
+        ownerMid: media.upper.mid,
+        cover: media.cover,
+        duration: media.duration,
+      );
+    }
   }
 
   void _playMedia(BuildContext context, WidgetRef ref, FavMedia media) {
@@ -242,46 +658,7 @@ class FolderDetailScreen extends ConsumerWidget {
       return;
     }
 
-    // Play the media using playlist notifier
-    // Differentiate between audio (type=12) and video (type=2)
-    if (media.isAudio) {
-      // Audio type - use sid (which is media.id)
-      ref.read(playlistProvider.notifier).play(
-            PlayItem(
-              id: 'audio_${media.id}',
-              type: PlayDataType.audio,
-              sid: media.id,
-              title: media.title,
-              ownerName: media.upper.name,
-              ownerMid: media.upper.mid,
-              cover: media.cover,
-              duration: media.duration,
-            ),
-          );
-    } else {
-      // Video type - use bvid (cid will be fetched by playlist notifier)
-      // Check if bvid is available
-      if (media.bvid.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Video ID not available')),
-        );
-        return;
-      }
-
-      ref.read(playlistProvider.notifier).play(
-            PlayItem(
-              id: '${media.bvid}_1',
-              type: PlayDataType.mv,
-              bvid: media.bvid,
-              aid: media.id.toString(),
-              title: media.title,
-              ownerName: media.upper.name,
-              ownerMid: media.upper.mid,
-              cover: media.cover,
-              duration: media.duration,
-            ),
-          );
-    }
+    ref.read(playlistProvider.notifier).play(_mediaToPlayItem(media));
   }
 
   Future<void> _addToWatchLater(
@@ -325,82 +702,252 @@ class FolderDetailScreen extends ConsumerWidget {
       }
     }
   }
+
+  void _confirmBatchDelete(
+    BuildContext context,
+    WidgetRef ref,
+    FolderDetailState state,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Items'),
+        content: Text(
+          'Are you sure you want to delete ${state.selectedCount} items from this folder?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              final success = await ref
+                  .read(folderDetailProvider(widget.folderId).notifier)
+                  .batchDeleteSelected();
+              if (success && context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Deleted successfully')),
+                );
+              }
+            },
+            style: FilledButton.styleFrom(
+              backgroundColor: Colors.red,
+            ),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmCleanInvalid(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Clean Invalid Items'),
+        content: const Text(
+          'This will remove all invalid/deleted items from this folder. This action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              final success = await ref
+                  .read(folderDetailProvider(widget.folderId).notifier)
+                  .cleanInvalidResources();
+              if (success && context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Invalid items cleaned')),
+                );
+              }
+            },
+            child: const Text('Clean'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showFolderPicker(
+    BuildContext context,
+    WidgetRef ref,
+    String title,
+    Future<void> Function(int folderId) onSelect,
+  ) {
+    final user = ref.read(currentUserProvider);
+    if (user == null) return;
+
+    final foldersState = ref.read(favoritesListProvider);
+    final folders = foldersState.createdFolders
+        .where((f) => f.id != widget.folderId)
+        .toList();
+
+    if (folders.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No other folders available')),
+      );
+      return;
+    }
+
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            const Divider(height: 1),
+            Flexible(
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: folders.length,
+                itemBuilder: (context, index) {
+                  final folder = folders[index];
+                  return ListTile(
+                    leading: folder.cover.isNotEmpty
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(4),
+                            child: AppCachedImage(
+                              imageUrl: folder.cover,
+                              width: 48,
+                              height: 48,
+                              fit: BoxFit.cover,
+                            ),
+                          )
+                        : Container(
+                            width: 48,
+                            height: 48,
+                            decoration: BoxDecoration(
+                              color: AppColors.contentBackground,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: const Icon(Icons.folder),
+                          ),
+                    title: Text(folder.title),
+                    subtitle: Text('${folder.mediaCount} items'),
+                    onTap: () {
+                      Navigator.pop(context);
+                      onSelect(folder.id);
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class _MediaListItem extends StatelessWidget {
   const _MediaListItem({
     required this.media,
     required this.onTap,
+    required this.isSelectionMode,
+    required this.isSelected,
+    this.onLongPress,
     this.onAddToLater,
   });
 
   final FavMedia media;
   final VoidCallback onTap;
+  final bool isSelectionMode;
+  final bool isSelected;
+  final VoidCallback? onLongPress;
   final VoidCallback? onAddToLater;
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      leading: Stack(
+      leading: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: SizedBox(
-              width: 120,
-              height: 68,
-              child: media.cover.isNotEmpty
-                  ? AppCachedImage(
-                      imageUrl: media.cover,
-                      fit: BoxFit.cover,
-                    )
-                  : Container(
-                      color: AppColors.contentBackground,
-                      child: const Icon(
-                        Icons.video_library,
-                        color: AppColors.textTertiary,
+          if (isSelectionMode)
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: Checkbox(
+                value: isSelected,
+                onChanged: (_) => onTap(),
+              ),
+            ),
+          Stack(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: SizedBox(
+                  width: 120,
+                  height: 68,
+                  child: media.cover.isNotEmpty
+                      ? AppCachedImage(
+                          imageUrl: media.cover,
+                          fit: BoxFit.cover,
+                        )
+                      : Container(
+                          color: AppColors.contentBackground,
+                          child: const Icon(
+                            Icons.video_library,
+                            color: AppColors.textTertiary,
+                          ),
+                        ),
+                ),
+              ),
+              // Duration badge
+              if (media.duration > 0)
+                Positioned(
+                  right: 4,
+                  bottom: 4,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: Colors.black54,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      Duration(seconds: media.duration).formatted,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
-            ),
+                  ),
+                ),
+              // Invalid overlay
+              if (media.isInvalid)
+                Positioned.fill(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black54,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Center(
+                      child: Icon(
+                        Icons.block,
+                        color: Colors.white54,
+                        size: 24,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
           ),
-          // Duration badge
-          if (media.duration > 0)
-            Positioned(
-              right: 4,
-              bottom: 4,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                decoration: BoxDecoration(
-                  color: Colors.black54,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  Duration(seconds: media.duration).formatted,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ),
-          // Invalid overlay
-          if (media.isInvalid)
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.black54,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Center(
-                  child: Icon(
-                    Icons.block,
-                    color: Colors.white54,
-                    size: 24,
-                  ),
-                ),
-              ),
-            ),
         ],
       ),
       title: Text(
@@ -433,7 +980,7 @@ class _MediaListItem extends StatelessWidget {
             ),
         ],
       ),
-      trailing: onAddToLater != null && !media.isInvalid
+      trailing: !isSelectionMode && onAddToLater != null && !media.isInvalid
           ? IconButton(
               icon: const Icon(
                 Icons.watch_later_outlined,
@@ -443,7 +990,8 @@ class _MediaListItem extends StatelessWidget {
               onPressed: onAddToLater,
             )
           : null,
-      onTap: media.isInvalid ? null : onTap,
+      onTap: media.isInvalid && !isSelectionMode ? null : onTap,
+      onLongPress: onLongPress,
     );
   }
 
@@ -454,5 +1002,48 @@ class _MediaListItem extends StatelessWidget {
       return '${(count / 10000).toStringAsFixed(1)}万';
     }
     return count.toString();
+  }
+}
+
+class _SelectionActionButton extends StatelessWidget {
+  const _SelectionActionButton({
+    required this.icon,
+    required this.label,
+    required this.enabled,
+    required this.onPressed,
+  });
+
+  final IconData icon;
+  final String label;
+  final bool enabled;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: enabled ? onPressed : null,
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 24,
+              color: enabled ? null : AppColors.textTertiary,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                color: enabled ? null : AppColors.textTertiary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

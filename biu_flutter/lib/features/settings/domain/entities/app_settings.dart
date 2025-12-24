@@ -1,5 +1,25 @@
 import 'package:flutter/material.dart';
 
+/// Display mode for list screens
+enum DisplayMode {
+  /// Card/grid display mode
+  card('card', 'Card'),
+
+  /// List display mode
+  list('list', 'List');
+
+  const DisplayMode(this.value, this.label);
+  final String value;
+  final String label;
+
+  static DisplayMode fromValue(String value) {
+    return DisplayMode.values.firstWhere(
+      (m) => m.value == value,
+      orElse: () => DisplayMode.card,
+    );
+  }
+}
+
 /// Audio quality settings for playback
 enum AudioQualitySetting {
   /// Automatically select best available quality
@@ -39,6 +59,8 @@ class AppSettings {
     this.backgroundColor = const Color(0xFF18181B),
     this.contentBackgroundColor = const Color(0xFF1F1F1F),
     this.borderRadius = 8.0,
+    this.displayMode = DisplayMode.card,
+    this.hiddenFolderIds = const [],
   });
 
   /// Audio quality preference
@@ -55,6 +77,12 @@ class AppSettings {
 
   /// Border radius for UI elements
   final double borderRadius;
+
+  /// Display mode for list screens (card or list)
+  final DisplayMode displayMode;
+
+  /// List of hidden folder IDs
+  final List<int> hiddenFolderIds;
 
   /// Default settings
   static const AppSettings defaults = AppSettings();
@@ -77,6 +105,8 @@ class AppSettings {
     Color? backgroundColor,
     Color? contentBackgroundColor,
     double? borderRadius,
+    DisplayMode? displayMode,
+    List<int>? hiddenFolderIds,
   }) {
     return AppSettings(
       audioQuality: audioQuality ?? this.audioQuality,
@@ -85,6 +115,8 @@ class AppSettings {
       contentBackgroundColor:
           contentBackgroundColor ?? this.contentBackgroundColor,
       borderRadius: borderRadius ?? this.borderRadius,
+      displayMode: displayMode ?? this.displayMode,
+      hiddenFolderIds: hiddenFolderIds ?? this.hiddenFolderIds,
     );
   }
 
@@ -95,6 +127,8 @@ class AppSettings {
       'backgroundColor': backgroundColor.toARGB32(),
       'contentBackgroundColor': contentBackgroundColor.toARGB32(),
       'borderRadius': borderRadius,
+      'displayMode': displayMode.value,
+      'hiddenFolderIds': hiddenFolderIds,
     };
   }
 
@@ -108,18 +142,33 @@ class AppSettings {
       contentBackgroundColor:
           Color(json['contentBackgroundColor'] as int? ?? 0xFF1F1F1F),
       borderRadius: (json['borderRadius'] as num?)?.toDouble() ?? 8.0,
+      displayMode: DisplayMode.fromValue(
+        json['displayMode'] as String? ?? 'card',
+      ),
+      hiddenFolderIds: (json['hiddenFolderIds'] as List<dynamic>?)
+              ?.map((e) => e as int)
+              .toList() ??
+          [],
     );
   }
+
+  /// Check if a folder is hidden
+  bool isFolderHidden(int folderId) => hiddenFolderIds.contains(folderId);
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is AppSettings &&
-        other.audioQuality == audioQuality &&
+    if (other is! AppSettings) return false;
+    if (hiddenFolderIds.length != other.hiddenFolderIds.length) return false;
+    for (int i = 0; i < hiddenFolderIds.length; i++) {
+      if (hiddenFolderIds[i] != other.hiddenFolderIds[i]) return false;
+    }
+    return other.audioQuality == audioQuality &&
         other.primaryColor == primaryColor &&
         other.backgroundColor == backgroundColor &&
         other.contentBackgroundColor == contentBackgroundColor &&
-        other.borderRadius == borderRadius;
+        other.borderRadius == borderRadius &&
+        other.displayMode == displayMode;
   }
 
   @override
@@ -130,6 +179,8 @@ class AppSettings {
       backgroundColor,
       contentBackgroundColor,
       borderRadius,
+      displayMode,
+      Object.hashAll(hiddenFolderIds),
     );
   }
 }

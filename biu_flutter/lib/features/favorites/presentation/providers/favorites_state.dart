@@ -65,6 +65,22 @@ class FavoritesListState {
   }
 }
 
+/// Sort order for folder resources.
+enum FolderSortOrder {
+  /// Sort by favorite time (most recent first)
+  mtime('mtime', 'Favorite Time'),
+
+  /// Sort by view count (most viewed first)
+  view('view', 'View Count'),
+
+  /// Sort by publish time (most recent first)
+  pubtime('pubtime', 'Publish Time');
+
+  const FolderSortOrder(this.value, this.label);
+  final String value;
+  final String label;
+}
+
 /// State for folder detail screen.
 class FolderDetailState {
   const FolderDetailState({
@@ -75,6 +91,10 @@ class FolderDetailState {
     this.isLoading = false,
     this.isLoadingMore = false,
     this.errorMessage,
+    this.keyword = '',
+    this.order = FolderSortOrder.mtime,
+    this.isSelectionMode = false,
+    this.selectedIds = const {},
   });
 
   final FavoritesFolder? folder;
@@ -85,7 +105,25 @@ class FolderDetailState {
   final bool isLoadingMore;
   final String? errorMessage;
 
+  /// Search keyword for filtering
+  final String keyword;
+
+  /// Sort order for resources
+  final FolderSortOrder order;
+
+  /// Whether multi-select mode is active
+  final bool isSelectionMode;
+
+  /// Selected media IDs in selection mode
+  final Set<int> selectedIds;
+
   bool get hasError => errorMessage != null;
+
+  /// Whether any items are selected
+  bool get hasSelection => selectedIds.isNotEmpty;
+
+  /// Number of selected items
+  int get selectedCount => selectedIds.length;
 
   FolderDetailState copyWith({
     FavoritesFolder? folder,
@@ -95,6 +133,10 @@ class FolderDetailState {
     bool? isLoading,
     bool? isLoadingMore,
     String? errorMessage,
+    String? keyword,
+    FolderSortOrder? order,
+    bool? isSelectionMode,
+    Set<int>? selectedIds,
     bool clearError = false,
     bool clearFolder = false,
   }) {
@@ -106,6 +148,10 @@ class FolderDetailState {
       isLoading: isLoading ?? this.isLoading,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
+      keyword: keyword ?? this.keyword,
+      order: order ?? this.order,
+      isSelectionMode: isSelectionMode ?? this.isSelectionMode,
+      selectedIds: selectedIds ?? this.selectedIds,
     );
   }
 }

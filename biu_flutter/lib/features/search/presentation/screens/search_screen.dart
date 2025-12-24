@@ -1,21 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/constants/audio.dart';
+import '../../../../core/extensions/string_extensions.dart';
 import '../../../../shared/theme/theme.dart';
 import '../../../../shared/widgets/empty_state.dart';
+import '../../../../shared/widgets/loading_state.dart';
+import '../../../../shared/widgets/video_card.dart';
+import '../../../player/domain/entities/play_item.dart';
+import '../../../player/presentation/providers/playlist_notifier.dart';
+import '../../data/datasources/search_remote_datasource.dart';
+import '../../data/models/search_result.dart';
 
-/// Search state notifier
-class SearchNotifier extends StateNotifier<SearchState> {
-  SearchNotifier() : super(const SearchState());
+/// Provider for search data source
+final searchDataSourceProvider = Provider<SearchRemoteDataSource>((ref) {
+  return SearchRemoteDataSource();
+});
 
-  void setQuery(String query) {
-    state = state.copyWith(query: query);
-  }
-
-  void clearQuery() {
-    state = const SearchState();
-  }
-}
+/// Provider for hot search keywords
+final hotSearchKeywordsProvider = FutureProvider<List<String>>((ref) async {
+  final dataSource = ref.watch(searchDataSourceProvider);
+  return dataSource.getHotSearchKeywords();
+});
 
 /// Search state
 class SearchState {
@@ -23,28 +29,78 @@ class SearchState {
     this.query = '',
     this.isSearching = false,
     this.hasSearched = false,
+    this.results = const [],
+    this.error,
   });
 
   final String query;
   final bool isSearching;
   final bool hasSearched;
+  final List<SearchVideoItem> results;
+  final String? error;
 
   SearchState copyWith({
     String? query,
     bool? isSearching,
     bool? hasSearched,
+    List<SearchVideoItem>? results,
+    String? error,
+    bool clearError = false,
   }) {
     return SearchState(
       query: query ?? this.query,
       isSearching: isSearching ?? this.isSearching,
       hasSearched: hasSearched ?? this.hasSearched,
+      results: results ?? this.results,
+      error: clearError ? null : (error ?? this.error),
     );
+  }
+}
+
+/// Search state notifier
+class SearchNotifier extends StateNotifier<SearchState> {
+  SearchNotifier(this._dataSource) : super(const SearchState());
+
+  final SearchRemoteDataSource _dataSource;
+
+  void setQuery(String query) {
+    state = state.copyWith(query: query, clearError: true);
+  }
+
+  void clearQuery() {
+    state = const SearchState();
+  }
+
+  Future<void> search(String query) async {
+    if (query.isEmpty) return;
+
+    state = state.copyWith(
+      query: query,
+      isSearching: true,
+      clearError: true,
+    );
+
+    try {
+      final result = await _dataSource.searchVideo(keyword: query);
+      state = state.copyWith(
+        isSearching: false,
+        hasSearched: true,
+        results: result.result,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isSearching: false,
+        hasSearched: true,
+        error: e.toString(),
+      );
+    }
   }
 }
 
 final searchNotifierProvider =
     StateNotifierProvider<SearchNotifier, SearchState>((ref) {
-  return SearchNotifier();
+  final dataSource = ref.watch(searchDataSourceProvider);
+  return SearchNotifier(dataSource);
 });
 
 /// Search screen for finding content.
@@ -136,75 +192,136 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   }
 
   Widget _buildContent(BuildContext context, SearchState searchState) {
+    if (searchState.isSearching) {
+      return const LoadingState(message: 'Searching...');
+    }
+
+    if (searchState.error != null) {
+      return EmptyState(
+        icon: const Icon(
+          Icons.error_outline,
+          size: 48,
+          color: AppColors.error,
+        ),
+        title: 'Search Error',
+        message: searchState.error,
+        action: ElevatedButton(
+          onPressed: () => _performSearch(searchState.query),
+          child: const Text('Retry'),
+        ),
+      );
+    }
+
+    if (searchState.hasSearched) {
+      return _buildSearchResults(context, searchState.results);
+    }
+
     if (searchState.query.isEmpty) {
       return _buildSearchSuggestions(context);
     }
 
-    // TODO: Implement actual search results
     return const EmptyState(
       icon: Icon(
-        Icons.search_off,
+        Icons.search,
         size: 48,
         color: AppColors.textTertiary,
       ),
       title: 'Search',
-      message: 'Enter keywords to search for content',
+      message: 'Press enter to search',
     );
   }
 
+  Widget _buildSearchResults(BuildContext context, List<SearchVideoItem> results) {
+    if (results.isEmpty) {
+      return const EmptyState(
+        icon: Icon(
+          Icons.search_off,
+          size: 48,
+          color: AppColors.textTertiary,
+        ),
+        title: 'No Results',
+        message: 'No videos found for your search',
+      );
+    }
+
+    return GridView.builder(
+      padding: const EdgeInsets.all(16),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: 0.75,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+      ),
+      itemCount: results.length,
+      itemBuilder: (context, index) {
+        final video = results[index];
+        return VideoCard(
+          title: video.title.stripHtml(),
+          coverUrl: video.pic,
+          ownerName: video.author,
+          duration: video.duration,
+          viewCount: video.play,
+          onTap: () => _playVideo(video),
+        );
+      },
+    );
+  }
+
+  void _playVideo(SearchVideoItem video) {
+    final playItem = PlayItem(
+      id: '${video.bvid}_1',
+      type: PlayDataType.mv,
+      bvid: video.bvid,
+      cid: video.aid.toString(),
+      title: video.title.stripHtml(),
+      cover: video.pic,
+      ownerName: video.author,
+      ownerMid: video.mid,
+      duration: video.duration,
+    );
+    ref.read(playlistProvider.notifier).play(playItem);
+  }
+
   Widget _buildSearchSuggestions(BuildContext context) {
+    final hotSearches = ref.watch(hotSearchKeywordsProvider);
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Search history section
-          _buildSectionHeader(context, 'Search History'),
-          const SizedBox(height: 12),
-          const EmptyState(
-            message: 'No search history',
-          ),
-          const SizedBox(height: 24),
           // Hot searches section
           _buildSectionHeader(context, 'Hot Searches'),
           const SizedBox(height: 12),
-          _buildHotSearches(),
+          hotSearches.when(
+            data: _buildHotSearches,
+            loading: () => const LoadingIndicator(),
+            error: (_, _) => _buildHotSearches(_fallbackHotSearches),
+          ),
         ],
       ),
     );
   }
 
+  static const _fallbackHotSearches = [
+    'Popular Music',
+    'Trending Videos',
+    'Game Soundtracks',
+    'Anime Music',
+    'Live Performances',
+  ];
+
   Widget _buildSectionHeader(BuildContext context, String title) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          title,
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-        if (title == 'Search History')
-          TextButton(
-            onPressed: () {
-              // TODO: Clear history
-            },
-            child: const Text(
-              'Clear',
-              style: TextStyle(color: AppColors.textTertiary),
-            ),
-          ),
-      ],
+    return Text(
+      title,
+      style: Theme.of(context).textTheme.titleMedium,
     );
   }
 
-  Widget _buildHotSearches() {
-    // Placeholder hot searches
-    final hotSearches = [
-      'Popular Music',
-      'Trending Videos',
-      'Game Soundtracks',
-      'Anime Music',
-      'Live Performances',
-    ];
+  Widget _buildHotSearches(List<String> hotSearches) {
+    if (hotSearches.isEmpty) {
+      return const EmptyState(message: 'No hot searches available');
+    }
 
     return Wrap(
       spacing: 8,
@@ -230,6 +347,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   void _performSearch(String query) {
     if (query.isEmpty) return;
     _searchFocusNode.unfocus();
-    // TODO: Implement actual search
+    ref.read(searchNotifierProvider.notifier).search(query);
   }
 }

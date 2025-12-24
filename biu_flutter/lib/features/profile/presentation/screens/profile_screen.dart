@@ -154,17 +154,13 @@ class ProfileScreen extends ConsumerWidget {
             'Dark',
             style: TextStyle(color: AppColors.textSecondary),
           ),
-          onTap: () {
-            // TODO: Show theme selector
-          },
+          onTap: () => context.push(AppRoutes.settings),
         ),
         _buildMenuItem(
           context,
           icon: Icons.info_outline,
           title: 'About',
-          onTap: () {
-            // TODO: Show about dialog
-          },
+          onTap: () => context.push(AppRoutes.about),
         ),
       ],
     );

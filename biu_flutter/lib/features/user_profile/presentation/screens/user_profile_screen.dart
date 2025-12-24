@@ -10,9 +10,23 @@ import '../../data/models/space_arc_search.dart';
 import '../providers/user_profile_notifier.dart';
 import '../providers/user_profile_state.dart';
 import '../widgets/space_info_header.dart';
+import '../widgets/user_favorites_tab.dart';
 import '../widgets/video_post_card.dart';
 
 const _uuid = Uuid();
+
+/// Tab definition for user profile
+class _ProfileTab {
+  const _ProfileTab({
+    required this.key,
+    required this.label,
+    this.hidden = false,
+  });
+
+  final String key;
+  final String label;
+  final bool hidden;
+}
 
 /// User profile screen
 /// Reference: biu/src/pages/user-profile/index.tsx
@@ -29,21 +43,22 @@ class UserProfileScreen extends ConsumerStatefulWidget {
 }
 
 class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+    with TickerProviderStateMixin {
+  TabController? _tabController;
   final _scrollController = ScrollController();
   final _keywordController = TextEditingController();
+  int _currentTabIndex = 0;
+  List<_ProfileTab> _visibleTabs = [];
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 1, vsync: this);
     _scrollController.addListener(_onScroll);
   }
 
   @override
   void dispose() {
-    _tabController.dispose();
+    _tabController?.dispose();
     _scrollController.dispose();
     _keywordController.dispose();
     super.dispose();
@@ -52,7 +67,44 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
   void _onScroll() {
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
-      ref.read(userProfileProvider(widget.mid).notifier).loadMoreVideos();
+      // Load more based on current tab
+      if (_currentTabIndex == 0) {
+        ref.read(userProfileProvider(widget.mid).notifier).loadMoreVideos();
+      } else if (_currentTabIndex == 1 && _visibleTabs.length > 1) {
+        ref.read(userProfileProvider(widget.mid).notifier).loadMoreFolders();
+      }
+    }
+  }
+
+  void _updateTabs(UserProfileState state, int? currentUserId, bool isSelf) {
+    // Build tabs based on privacy settings
+    // Source: biu/src/pages/user-profile/index.tsx - tabs array
+    final newTabs = <_ProfileTab>[
+      const _ProfileTab(key: 'video', label: 'Videos'),
+      _ProfileTab(
+        key: 'favorites',
+        label: 'Favorites',
+        hidden: !isSelf && !state.shouldShowFavoritesTab(currentUserId),
+      ),
+    ].where((tab) => !tab.hidden).toList();
+
+    // Only update if tabs changed
+    if (_visibleTabs.length != newTabs.length ||
+        _tabController == null ||
+        _tabController!.length != newTabs.length) {
+      setState(() {
+        _visibleTabs = newTabs;
+        _tabController?.dispose();
+        _tabController = TabController(
+          length: newTabs.length,
+          vsync: this,
+        );
+        _tabController!.addListener(() {
+          setState(() {
+            _currentTabIndex = _tabController!.index;
+          });
+        });
+      });
     }
   }
 
@@ -61,6 +113,14 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
     final state = ref.watch(userProfileProvider(widget.mid));
     final authState = ref.watch(authNotifierProvider);
     final isSelf = authState.user?.mid == widget.mid;
+    final currentUserId = authState.user?.mid;
+
+    // Update tabs when privacy settings are loaded
+    if (state.spacePrivacy != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _updateTabs(state, currentUserId, isSelf);
+      });
+    }
 
     return Scaffold(
       body: RefreshIndicator(
@@ -113,17 +173,27 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                   child: Text('This user is blocked'),
                 ),
               )
-            else ...[
+            else if (_tabController != null && _visibleTabs.isNotEmpty) ...[
               // Tab bar
               SliverToBoxAdapter(
                 child: _buildTabBar(context),
               ),
-              // Search and filter
-              SliverToBoxAdapter(
-                child: _buildSearchFilter(context, state),
+              // Tab content
+              SliverFillRemaining(
+                child: TabBarView(
+                  controller: _tabController,
+                  children: _visibleTabs.map((tab) {
+                    switch (tab.key) {
+                      case 'video':
+                        return _buildVideosContent(context, state);
+                      case 'favorites':
+                        return UserFavoritesTab(mid: widget.mid);
+                      default:
+                        return const SizedBox.shrink();
+                    }
+                  }).toList(),
+                ),
               ),
-              // Videos grid
-              _buildVideosGrid(context, state),
             ],
           ],
         ),
@@ -136,13 +206,22 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
       color: AppColors.contentBackground,
       child: TabBar(
         controller: _tabController,
-        tabs: const [
-          Tab(text: 'Videos'),
-        ],
+        tabs: _visibleTabs.map((tab) => Tab(text: tab.label)).toList(),
         indicatorColor: Theme.of(context).primaryColor,
         labelColor: Theme.of(context).primaryColor,
         unselectedLabelColor: AppColors.textSecondary,
       ),
+    );
+  }
+
+  Widget _buildVideosContent(BuildContext context, UserProfileState state) {
+    return Column(
+      children: [
+        _buildSearchFilter(context, state),
+        Expanded(
+          child: _buildVideosGrid(context, state),
+        ),
+      ],
     );
   }
 
@@ -230,68 +309,60 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
 
   Widget _buildVideosGrid(BuildContext context, UserProfileState state) {
     if (state.isLoadingVideos && (state.videos?.isEmpty ?? true)) {
-      return const SliverFillRemaining(
-        child: Center(child: CircularProgressIndicator()),
-      );
+      return const Center(child: CircularProgressIndicator());
     }
 
     final videos = state.videos ?? [];
 
     if (videos.isEmpty) {
-      return const SliverFillRemaining(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.video_library_outlined,
-                size: 64,
-                color: AppColors.textSecondary,
-              ),
-              SizedBox(height: 16),
-              Text(
-                'No videos found',
-                style: TextStyle(color: AppColors.textSecondary),
-              ),
-            ],
-          ),
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.video_library_outlined,
+              size: 64,
+              color: AppColors.textSecondary,
+            ),
+            SizedBox(height: 16),
+            Text(
+              'No videos found',
+              style: TextStyle(color: AppColors.textSecondary),
+            ),
+          ],
         ),
       );
     }
 
-    return SliverPadding(
+    return GridView.builder(
       padding: const EdgeInsets.all(12),
-      sliver: SliverGrid(
-        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: 300,
-          childAspectRatio: 0.75,
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
-        ),
-        delegate: SliverChildBuilderDelegate(
-          (context, index) {
-            // Loading indicator at the end
-            if (index == videos.length) {
-              if (state.isLoadingMore) {
-                return const Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(16),
-                    child: CircularProgressIndicator(),
-                  ),
-                );
-              }
-              return const SizedBox.shrink();
-            }
-
-            final video = videos[index];
-            return VideoPostCard(
-              video: video,
-              onTap: () => _playVideo(video),
-            );
-          },
-          childCount: videos.length + (state.hasMoreVideos ? 1 : 0),
-        ),
+      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+        maxCrossAxisExtent: 300,
+        childAspectRatio: 0.75,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
       ),
+      itemCount: videos.length + (state.hasMoreVideos ? 1 : 0),
+      itemBuilder: (context, index) {
+        // Loading indicator at the end
+        if (index == videos.length) {
+          if (state.isLoadingMore) {
+            return const Center(
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: CircularProgressIndicator(),
+              ),
+            );
+          }
+          return const SizedBox.shrink();
+        }
+
+        final video = videos[index];
+        return VideoPostCard(
+          video: video,
+          onTap: () => _playVideo(video),
+        );
+      },
     );
   }
 

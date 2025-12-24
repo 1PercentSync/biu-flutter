@@ -287,3 +287,78 @@ Document any changes that affect upper layers:
 - Updated Layout/Routing section: documented mobile adaptations with menu coverage
 - Updated Missing Features section: removed implemented items
 - Updated File Mapping Summary table
+
+---
+
+## Phase 6: User Profile/Follow + Remaining Features Consistency Check ✅ Completed
+
+### User Profile/Follow Module Evaluation
+
+| Source File | Status | Reason |
+|-------------|--------|--------|
+| `service/space-setting.ts` | ✅ Implemented | Privacy settings for favorites tab visibility |
+| `service/space-navnum.ts` | ➖ Not needed | Nav badge counts not used in mobile music player UI |
+| `service/space-masterpiece.ts` | ➖ Not needed | B站特有功能，网易云/QQ音乐都没有代表作功能 |
+| `service/space-top-arc.ts` | ➖ Not needed | B站特有功能，置顶视频不适用于音乐播放器 |
+| `service/space-seasons-series-list.ts` | ➖ Not needed | B站特有功能，视频合集不适用于音乐播放器 |
+| `service/web-dynamic.ts` | ➖ Not needed | Source code only filters video dynamics, overlaps with video posts |
+| `service/web-dynamic-feed-thumb.ts` | ➖ Not needed | Depends on dynamic feature |
+| `pages/user-profile/favorites.tsx` | ✅ Implemented | User's public folders grid |
+| `pages/user-profile/video-series.tsx` | ➖ Not needed | B站特有功能 |
+| `pages/user-profile/dynamic-list/` | ➖ Not needed | Overlaps with video posts |
+| `components/dynamic-feed/` | ➖ Not needed | Overlaps with video posts |
+
+### Remaining Missing Features Evaluation
+
+| Feature | Status | Reason |
+|---------|--------|--------|
+| Video Page List UI | ✅ Implemented | `_VideoPageListSheet` in full_player_screen.dart |
+| Volume Slider | ✅ Implemented | `_buildVolumeControl` with popup vertical slider |
+| Quick Favorite | ✅ Implemented | `_showFavoriteSheet` in full_player_screen.dart AppBar |
+| Video Series Support | ➖ Not needed | B站特有功能 |
+| Dynamic Feed | ➖ Not needed | Overlaps with video posts |
+| User Masterpiece/Top Videos | ➖ Not needed | B站特有功能 |
+| Gaia VGate Verification | ⚠️ Deferred | Needs WebView implementation |
+| Download Feature | 🖥️ Desktop-only | Requires FFmpeg |
+
+### Files Created
+
+| File | Source | Notes |
+|------|--------|-------|
+| `data/models/space_setting.dart` | `service/space-setting.ts` | Privacy settings model |
+| `widgets/user_favorites_tab.dart` | `pages/user-profile/favorites.tsx` | User folders grid with navigation |
+
+### Files Modified
+
+| File | Change |
+|------|--------|
+| `user_profile_remote_datasource.dart` | Added `getSpaceSetting` API method |
+| `user_profile_state.dart` | Added `spacePrivacy`, `userFolders` fields and loading states |
+| `user_profile_notifier.dart` | Added `loadUserFolders`, `loadMoreFolders` methods + favorites datasource |
+| `user_profile_screen.dart` | Dynamic tabs (Videos, Favorites) based on privacy settings |
+| `full_player_screen.dart` | Added volume slider popup, quick favorite button, video page list sheet |
+
+### Player Module Enhancements
+
+**Volume Slider** (`full_player_screen.dart:388-462`):
+- Vertical slider in popup menu
+- Volume percentage display
+- Mute button at bottom
+
+**Quick Favorite** (`full_player_screen.dart:89-125`):
+- Star button in AppBar
+- Opens FolderSelectSheet
+- Supports both MV and audio types
+
+**Video Page List** (`full_player_screen.dart:703-863`):
+- List button in AppBar (only shown for multi-part videos)
+- Shows current part tooltip
+- Search filter for parts
+- Tap to switch parts
+
+### FILE_MAPPING.md Updates
+
+- Updated User Profile/Follow section: 15 fully mapped, 9 not needed (with reasons)
+- Updated Player Module section: volume, quick-favorite, video-page-list now ✅
+- Updated Missing Features section: reorganized with "Not Needed" table
+- Updated File Mapping Summary: Player 20/20, User Profile 15/24 mapped

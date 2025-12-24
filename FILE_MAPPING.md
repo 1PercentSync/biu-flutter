@@ -96,17 +96,17 @@ biu_flutter/lib/
 | Network/Service | 6 | 6 | 0 | 0 |
 | Auth | 17 | 14 | 0 | 3 |
 | Favorites | 18 | 14 | 0 | 4 |
-| Player | 20 | 17 | 1 | 2 |
+| Player | 20 | 20 | 0 | 0 |
 | Search/History/Later | 12 | 12 | 0 | 0 |
-| User Profile/Follow | 15 | 10 | 0 | 5 |
+| User Profile/Follow | 24 | 15 | 0 | 9 |
 | Music/Artist Rank | 6 | 6 | 0 | 0 |
 | Settings | 7 | 6 | 1 | 0 |
 | Shared Components | 26 | 12 | 6 | 8 |
 | Layout | 10 | 4 | 5 | 1 |
 | Video/Download | 9 | 1 | 0 | 8 |
-| **Total** | **166** | **106** | **17** | **43** |
+| **Total** | **175** | **114** | **16** | **45** |
 
-**Overall Migration Rate: ~64% fully mapped, ~10% mobile adapted, ~26% desktop-only or not needed**
+**Overall Migration Rate: ~65% fully mapped, ~9% mobile adapted, ~26% desktop-only or not needed**
 
 *Note: "Mobile Adapted" includes Flutter native alternatives and mobile UI adaptations.*
 
@@ -239,29 +239,29 @@ biu_flutter/lib/
 
 ### 5. Player Module
 
-| Electron Source | Flutter Target | Status |
-|-----------------|----------------|--------|
-| `store/play-list.ts` | `features/player/presentation/providers/playlist_notifier.dart` + `playlist_state.dart` | ✅ |
-| `store/play-progress.ts` | (integrated into playlist_notifier.dart) | ✅ |
-| `service/player-playurl.ts` | `features/video/data/datasources/video_remote_datasource.dart` | ✅ |
-| `service/player-pagelist.ts` | (integrated into video_remote_datasource.dart) | ✅ |
-| `service/audio-web-url.ts` | `features/audio/data/datasources/audio_remote_datasource.dart` | ✅ |
-| `service/audio-song-info.ts` | - | ❌ Missing |
-| `service/audio-rank.ts` | - | ❌ Missing |
-| `layout/playbar/index.tsx` | `shared/widgets/playbar/playbar.dart` (barrel) | ✅ |
-| `layout/playbar/left/index.tsx` | `shared/widgets/playbar/mini_playbar.dart` | ✅ |
-| `layout/playbar/center/index.tsx` | ↳ + `full_player_screen.dart` | ✅ |
-| `layout/playbar/center/progress.tsx` | ↳ (integrated) | ✅ |
-| `layout/playbar/right/index.tsx` | `shared/widgets/playbar/full_player_screen.dart` | ✅ |
-| `layout/playbar/right/play-mode.tsx` | ↳ (integrated) | ✅ |
-| `layout/playbar/right/rate.tsx` | ↳ (_RateDialog) | ✅ |
-| `layout/playbar/right/volume.tsx` | ↳ (mute only, no slider) | ⚠️ Partial |
-| `layout/playbar/right/play-list-drawer/` | ↳ (_PlaylistSheet) | ✅ |
-| `layout/playbar/right/download.tsx` | - | ❌ Missing |
-| `layout/playbar/right/mv-fav-folder-select.tsx` | - | ❌ Missing |
-| `layout/playbar/left/video-page-list/` | - | ❌ Missing |
-| `pages/mini-player/*` | - | ❌ Desktop-only |
-| - | `shared/widgets/playbar/full_player_screen.dart` | 🆕 Flutter-only |
+| Electron Source | Flutter Target | Status | Notes |
+|-----------------|----------------|--------|-------|
+| `store/play-list.ts` | `features/player/presentation/providers/playlist_notifier.dart` + `playlist_state.dart` | ✅ | |
+| `store/play-progress.ts` | (integrated into playlist_notifier.dart) | ✅ | |
+| `service/player-playurl.ts` | `features/video/data/datasources/video_remote_datasource.dart` | ✅ | |
+| `service/player-pagelist.ts` | (integrated into video_remote_datasource.dart) | ✅ | |
+| `service/audio-web-url.ts` | `features/audio/data/datasources/audio_remote_datasource.dart` | ✅ | |
+| `service/audio-song-info.ts` | - | ❌ Missing | |
+| `service/audio-rank.ts` | - | ❌ Missing | |
+| `layout/playbar/index.tsx` | `shared/widgets/playbar/playbar.dart` (barrel) | ✅ | |
+| `layout/playbar/left/index.tsx` | `shared/widgets/playbar/mini_playbar.dart` | ✅ | |
+| `layout/playbar/center/index.tsx` | ↳ + `full_player_screen.dart` | ✅ | |
+| `layout/playbar/center/progress.tsx` | ↳ (integrated) | ✅ | |
+| `layout/playbar/right/index.tsx` | `shared/widgets/playbar/full_player_screen.dart` | ✅ | |
+| `layout/playbar/right/play-mode.tsx` | ↳ (integrated) | ✅ | |
+| `layout/playbar/right/rate.tsx` | ↳ (_RateDialog) | ✅ | |
+| `layout/playbar/right/volume.tsx` | ↳ (_buildVolumeControl with popup slider) | ✅ | Vertical slider popup with mute button |
+| `layout/playbar/right/play-list-drawer/` | ↳ (_PlaylistSheet) | ✅ | |
+| `layout/playbar/right/download.tsx` | - | 🖥️ Desktop-only | Requires FFmpeg |
+| `layout/playbar/right/mv-fav-folder-select.tsx` | ↳ (_showFavoriteSheet) | ✅ | Quick add-to-favorites in AppBar |
+| `layout/playbar/left/video-page-list/` | ↳ (_VideoPageListSheet) | ✅ | Multi-part video switcher with search |
+| `pages/mini-player/*` | - | 🖥️ Desktop-only | |
+| - | `shared/widgets/playbar/full_player_screen.dart` | 🆕 Flutter-only | |
 
 **Domain/Data:**
 - `features/player/domain/entities/play_item.dart`
@@ -309,30 +309,30 @@ biu_flutter/lib/
 
 ### 7. User Profile / Follow Modules
 
-| Electron Source | Flutter Target | Status |
-|-----------------|----------------|--------|
-| `service/space-wbi-acc-info.ts` | `features/user_profile/data/datasources/user_profile_remote_datasource.dart` | ✅ |
-| `service/space-wbi-acc-relation.ts` | ↳ (getSpaceRelation) | ✅ |
-| `service/space-wbi-arc-search.ts` | ↳ (getSpaceVideos) | ✅ |
-| `service/relation-stat.ts` | ↳ (getRelationStat) | ✅ |
-| `service/space-navnum.ts` | - | ❌ Missing |
-| `service/space-masterpiece.ts` | - | ❌ Missing |
-| `service/space-top-arc.ts` | - | ❌ Missing |
-| `service/space-setting.ts` | - | ❌ Missing |
-| `service/space-seasons-series-list.ts` | - | ❌ Missing |
-| `service/relation-followings.ts` | `features/follow/data/datasources/follow_remote_datasource.dart` | ✅ |
-| `service/relation-modify.ts` | ↳ (modifyRelation, followUser, unfollowUser) | ✅ |
-| `service/web-dynamic.ts` | - | ❌ Missing |
-| `service/web-dynamic-feed-thumb.ts` | - | ❌ Missing |
-| `pages/user-profile/index.tsx` | `features/user_profile/presentation/screens/user_profile_screen.dart` | ✅ |
-| `pages/user-profile/space-info.tsx` | `features/user_profile/presentation/widgets/space_info_header.dart` | ✅ |
-| `pages/user-profile/video-post.tsx` | `features/user_profile/presentation/widgets/video_post_card.dart` | ✅ |
-| `pages/user-profile/favorites.tsx` | - | ❌ Missing |
-| `pages/user-profile/video-series.tsx` | - | ❌ Missing |
-| `pages/user-profile/dynamic-list/` | - | ❌ Missing |
-| `pages/follow-list/index.tsx` | `features/follow/presentation/screens/follow_list_screen.dart` | ✅ |
-| `pages/follow-list/user-card.tsx` | `features/follow/presentation/widgets/following_card.dart` | ✅ |
-| `components/dynamic-feed/` | - | ❌ Missing |
+| Electron Source | Flutter Target | Status | Notes |
+|-----------------|----------------|--------|-------|
+| `service/space-wbi-acc-info.ts` | `features/user_profile/data/datasources/user_profile_remote_datasource.dart` | ✅ | |
+| `service/space-wbi-acc-relation.ts` | ↳ (getSpaceRelation) | ✅ | |
+| `service/space-wbi-arc-search.ts` | ↳ (getSpaceVideos) | ✅ | |
+| `service/relation-stat.ts` | ↳ (getRelationStat) | ✅ | |
+| `service/space-setting.ts` | ↳ (getSpaceSetting) + `data/models/space_setting.dart` | ✅ | Privacy settings for favorites tab visibility |
+| `service/space-navnum.ts` | - | ➖ Not needed | Nav badge counts, not used in mobile music player |
+| `service/space-masterpiece.ts` | - | ➖ Not needed | B站特有功能，网易云/QQ音乐都没有 |
+| `service/space-top-arc.ts` | - | ➖ Not needed | B站特有功能，网易云/QQ音乐都没有 |
+| `service/space-seasons-series-list.ts` | - | ➖ Not needed | B站特有功能，视频合集不适用于音乐播放器 |
+| `service/relation-followings.ts` | `features/follow/data/datasources/follow_remote_datasource.dart` | ✅ | |
+| `service/relation-modify.ts` | ↳ (modifyRelation, followUser, unfollowUser) | ✅ | |
+| `service/web-dynamic.ts` | - | ➖ Not needed | Source code only filters video dynamics, overlaps with video posts |
+| `service/web-dynamic-feed-thumb.ts` | - | ➖ Not needed | Depends on dynamic feature |
+| `pages/user-profile/index.tsx` | `features/user_profile/presentation/screens/user_profile_screen.dart` | ✅ | With tabs (Videos, Favorites) |
+| `pages/user-profile/space-info.tsx` | `features/user_profile/presentation/widgets/space_info_header.dart` | ✅ | |
+| `pages/user-profile/video-post.tsx` | `features/user_profile/presentation/widgets/video_post_card.dart` | ✅ | |
+| `pages/user-profile/favorites.tsx` | `features/user_profile/presentation/widgets/user_favorites_tab.dart` | ✅ | User's public folders grid |
+| `pages/user-profile/video-series.tsx` | - | ➖ Not needed | B站特有功能 |
+| `pages/user-profile/dynamic-list/` | - | ➖ Not needed | Overlaps with video posts |
+| `pages/follow-list/index.tsx` | `features/follow/presentation/screens/follow_list_screen.dart` | ✅ | |
+| `pages/follow-list/user-card.tsx` | `features/follow/presentation/widgets/following_card.dart` | ✅ | |
+| `components/dynamic-feed/` | - | ➖ Not needed | Overlaps with video posts |
 
 ---
 
@@ -539,17 +539,13 @@ Several Electron files map to multiple Flutter files due to different patterns:
 
 ### High Priority (Core Functionality)
 
-1. **Video Page List UI** - Cannot browse/switch video parts during playback
-2. **Download Feature** - No audio/video download capability (Desktop-only, requires FFmpeg)
-3. **Gaia VGate Verification** - Missing risk control verification
-4. **Video Series Support** - No season/series collection support
+1. **Download Feature** - No audio/video download capability (Desktop-only, requires FFmpeg)
+2. **Gaia VGate Verification** - Missing risk control verification (WebView-based on mobile)
 
 ### Medium Priority (Enhanced Features)
 
-1. **Dynamic Feed** - User dynamics not implemented
-2. **Volume Slider** - Only mute toggle, no precise control
-3. **Quick Favorite** - No quick add-to-favorites from playbar
-4. **User Masterpiece/Top Videos** - User profile incomplete
+1. **Audio Song Info** - `audio-song-info.ts` not implemented
+2. **Audio Rank** - `audio-rank.ts` not implemented
 
 ### Low Priority (Desktop-Specific)
 
@@ -560,19 +556,40 @@ Several Electron files map to multiple Flutter files due to different patterns:
 5. **Auto Start** - System startup option
 6. **FFmpeg Integration** - Video/audio processing
 
+### Not Needed (Evaluated and Determined Unnecessary)
+
+| Feature | Reason |
+|---------|--------|
+| `space-navnum.ts` | Nav badge counts not used in mobile music player UI |
+| `space-masterpiece.ts` | B站特有功能, 网易云/QQ音乐都没有代表作功能 |
+| `space-top-arc.ts` | B站特有功能, 置顶视频不适用于音乐播放器 |
+| `space-seasons-series-list.ts` | B站特有功能, 视频合集不适用于音乐播放器 |
+| `web-dynamic.ts` | Source code filters to video dynamics only, overlaps with video posts |
+| `web-dynamic-feed-thumb.ts` | Depends on dynamic feature |
+| `video-series.tsx` | B站特有功能 |
+| `dynamic-list/` | Overlaps with video posts |
+| `components/dynamic-feed/` | Overlaps with video posts |
+| `web-interface-view-detail.ts` | Tags/Comments/Related are for video detail page, not needed for music player |
+| `web-interface-archive-desc.ts` | Description already in view API response |
+| `web-interface-ranking.ts` | Video ranking, not music ranking. Music uses music-hot-rank |
+
 ### Already Implemented (Removed from Missing)
 
 - ~~Music Rank Screen~~ → Home screen displays hot songs
 - ~~Music Recommend Feature~~ → `/music-recommend` route with infinite scroll
 - ~~Country List API~~ → Dynamic country list in SMS login
-- ~~Video Detail API~~ → Not needed for music player (Tags/Comments/Related)
+- ~~Video Detail API~~ → Not needed for music player
+- ~~Video Page List UI~~ → `_VideoPageListSheet` in full_player_screen.dart
+- ~~Volume Slider~~ → `_buildVolumeControl` with popup vertical slider
+- ~~Quick Favorite~~ → `_showFavoriteSheet` in full_player_screen.dart AppBar
+- ~~User Favorites Tab~~ → `user_favorites_tab.dart` with space-setting API
 
 
 ---
 
 ## Version Information
 
-- **Document Generated:** 2024-12-24
+- **Document Updated:** 2025-12-24
 - **Source Project:** biu (Electron + React + TypeScript)
 - **Target Project:** biu_flutter (Flutter + Dart)
 - **Analysis Method:** Automated subagent file-by-file comparison with source code reading

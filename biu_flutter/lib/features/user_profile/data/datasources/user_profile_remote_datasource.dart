@@ -4,6 +4,7 @@ import '../../../../core/network/dio_client.dart';
 import '../models/space_acc_info.dart';
 import '../models/space_arc_search.dart';
 import '../models/space_relation.dart';
+import '../models/space_setting.dart';
 
 /// Remote data source for user profile API calls
 ///
@@ -11,6 +12,7 @@ import '../models/space_relation.dart';
 /// Source: biu/src/service/space-wbi-acc-relation.ts#getSpaceWbiAccRelation
 /// Source: biu/src/service/space-wbi-arc-search.ts#getSpaceWbiArcSearch
 /// Source: biu/src/service/relation-stat.ts#getRelationStat
+/// Source: biu/src/service/space-setting.ts#getXSpaceSettings
 class UserProfileRemoteDataSource {
   UserProfileRemoteDataSource({Dio? dio})
       : _dio = dio ?? DioClient.instance.dio;
@@ -195,6 +197,44 @@ class UserProfileRemoteDataSource {
     }
 
     return SpaceArcSearchData.fromJson(responseData);
+  }
+
+  /// Get user space privacy settings
+  /// GET /x/space/setting
+  ///
+  /// [mid] - Target user mid (required)
+  /// Source: biu/src/service/space-setting.ts#getXSpaceSettings
+  Future<SpacePrivacy> getSpaceSetting({required int mid}) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/x/space/setting',
+      queryParameters: {
+        'mid': mid,
+        'web_location': '333.1387',
+      },
+    );
+
+    final data = response.data;
+    if (data == null) {
+      throw Exception('Failed to fetch space settings');
+    }
+
+    final code = data['code'] as int?;
+    if (code != 0) {
+      final message = data['message'] as String? ?? 'Unknown error';
+      throw Exception('API error: $message (code: $code)');
+    }
+
+    final responseData = data['data'] as Map<String, dynamic>?;
+    if (responseData == null) {
+      return const SpacePrivacy();
+    }
+
+    final privacy = responseData['privacy'] as Map<String, dynamic>?;
+    if (privacy == null) {
+      return const SpacePrivacy();
+    }
+
+    return SpacePrivacy.fromJson(privacy);
   }
 }
 

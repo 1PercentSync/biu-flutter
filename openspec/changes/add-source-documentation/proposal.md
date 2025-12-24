@@ -264,6 +264,15 @@ biu-flutter 是从 biu (Electron) 迁移而来的项目。迁移不是一次性�
 - [x] 菜单功能覆盖验证完成 - 所有功能可通过路由访问
 - [x] `features/music_recommend/` - **新增**，实现缺失的推荐音乐功能
 
+### User Profile/Follow + Remaining Features ✅ Completed
+- [x] User Profile 模块评估完成 - space-setting 已实现，其他功能评估为不需要（B站特有）
+- [x] User Favorites Tab - **新增** `user_favorites_tab.dart`，用户收藏夹网格
+- [x] Volume Slider - **新增** `_buildVolumeControl` 垂直滑块弹出菜单
+- [x] Quick Favorite - **新增** `_showFavoriteSheet` 一键收藏按钮
+- [x] Video Page List UI - **新增** `_VideoPageListSheet` 多P视频切换
+- [x] 动态功能评估为不需要（源码只过滤视频动态，与投稿列表重叠）
+- [x] 代表作/置顶视频/合集功能评估为不需要（B站特有，网易云/QQ音乐都没有）
+
 ---
 
 ## Success Criteria

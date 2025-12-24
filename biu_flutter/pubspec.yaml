@@ -63,6 +63,12 @@ dependencies:
   crypto: ^3.0.6
   intl: ^0.20.1
 
+  # RSA Encryption for password login
+  pointycastle: ^3.9.1
+
+  # QR Code display
+  qr_flutter: ^4.1.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

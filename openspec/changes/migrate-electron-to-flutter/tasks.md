@@ -100,53 +100,55 @@ After completing each phase or major task:
   - Search all, search by type
   - Reference: `biu/src/service/web-interface-search-*.ts`
 
-## Phase 3: Authentication
+## Phase 3: Authentication ✅
 
 ### 3.1 Auth State Management
-- [ ] 3.1.1 Create `lib/features/auth/` structure
+- [x] 3.1.1 Create `lib/features/auth/` structure
   - domain/, data/, presentation/ folders
-- [ ] 3.1.2 Create User entity and repository interface
+- [x] 3.1.2 Create User entity and repository interface
   - Reference: `biu/src/store/user.ts`
-- [ ] 3.1.3 Create AuthNotifier (Riverpod)
+- [x] 3.1.3 Create AuthNotifier (Riverpod)
   - States: unauthenticated, authenticating, authenticated
   - Reference: `biu/src/store/user.ts`
 
 ### 3.2 QR Code Login
-- [ ] 3.2.1 Implement QR code generation API
+- [x] 3.2.1 Implement QR code generation API
   - Reference: `biu/src/service/passport-login-web-qrcode-generate.ts`
-- [ ] 3.2.2 Implement QR code polling API
+- [x] 3.2.2 Implement QR code polling API
   - Reference: `biu/src/service/passport-login-web-qrcode-poll.ts`
-- [ ] 3.2.3 Create QR login UI screen
+- [x] 3.2.3 Create QR login UI screen
   - QR display, status text, refresh button
   - Reference: `biu/src/layout/navbar/login/qrcode-login.tsx`
 
 ### 3.3 Password Login
-- [ ] 3.3.1 Implement RSA key fetch API
+- [x] 3.3.1 Implement RSA key fetch API
   - Reference: `biu/src/service/passport-login-web-key.ts`
-- [ ] 3.3.2 Implement RSA password encryption
+- [x] 3.3.2 Implement RSA password encryption
   - Reference: `biu/src/layout/navbar/login/password-login.tsx`
-- [ ] 3.3.3 Implement password login API
+- [x] 3.3.3 Implement password login API
   - Reference: `biu/src/service/passport-login-web-login-passport.ts`
-- [ ] 3.3.4 Create password login UI screen
+- [x] 3.3.4 Create password login UI screen
   - Username, password fields, captcha handling
+  - Note: GeeTest captcha integration not implemented (shows info dialog)
   - Reference: `biu/src/layout/navbar/login/password-login.tsx`
 
 ### 3.4 SMS Login
-- [ ] 3.4.1 Implement SMS send API
+- [x] 3.4.1 Implement SMS send API
   - Reference: `biu/src/service/passport-login-web-sms-send.ts`
-- [ ] 3.4.2 Implement SMS login API
+- [x] 3.4.2 Implement SMS login API
   - Reference: `biu/src/service/passport-login-web-login-sms.ts`
-- [ ] 3.4.3 Create SMS login UI screen
+- [x] 3.4.3 Create SMS login UI screen
   - Phone input, code input, country selector
+  - Note: GeeTest captcha integration not implemented (shows info dialog)
   - Reference: `biu/src/layout/navbar/login/code-login.tsx`
 
 ### 3.5 Session Management
-- [ ] 3.5.1 Implement session validation
+- [x] 3.5.1 Implement session validation
   - Check cookie validity on app start
   - Reference: `biu/src/service/passport-login-web-cookie-info.ts`
-- [ ] 3.5.2 Implement session refresh
+- [x] 3.5.2 Implement session refresh
   - Reference: `biu/src/service/passport-login-web-cookie-refresh.ts`
-- [ ] 3.5.3 Implement logout
+- [x] 3.5.3 Implement logout
   - Clear all stored credentials
   - Reference: `biu/src/service/passport-login-exit.ts`
 

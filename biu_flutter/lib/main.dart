@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/constants/app.dart';
+import 'core/network/dio_client.dart';
 import 'core/router/app_router.dart';
 import 'core/storage/secure_storage_service.dart';
 
@@ -10,6 +11,9 @@ void main() async {
 
   // Initialize secure storage
   await SecureStorageService.instance.initialize();
+
+  // Initialize Dio client for network requests
+  await DioClient.instance.initialize();
 
   runApp(
     const ProviderScope(

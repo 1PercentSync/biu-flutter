@@ -52,51 +52,51 @@ After completing each phase or major task:
   - Cookies, tokens using flutter_secure_storage
   - Reference: `biu/src/store/token.ts`
 
-## Phase 2: Bilibili API Client
+## Phase 2: Bilibili API Client ✅
 
 ### 2.1 HTTP Client
-- [ ] 2.1.1 Create Dio instance in `lib/core/network/`
+- [x] 2.1.1 Create Dio instance in `lib/core/network/`
   - Base configuration, timeouts, headers
   - Reference: `biu/src/service/request/index.ts`
-- [ ] 2.1.2 Create logging interceptor
+- [x] 2.1.2 Create logging interceptor
   - Log requests and responses in debug mode
   - Reference: `biu/src/service/request/request-interceptors.ts`
-- [ ] 2.1.3 Create auth interceptor
+- [x] 2.1.3 Create auth interceptor
   - Inject cookies and tokens
   - Reference: `biu/src/service/request/request-interceptors.ts`
-- [ ] 2.1.4 Create response interceptor
+- [x] 2.1.4 Create response interceptor
   - Parse Bilibili response format, handle error codes
   - Reference: `biu/src/service/request/response-interceptors.ts`
 
 ### 2.2 WBI Signature
-- [ ] 2.2.1 Implement WBI key fetch and cache
+- [x] 2.2.1 Implement WBI key fetch and cache
   - Fetch from nav API, cache with expiry
   - Reference: `biu/src/service/request/wbi-sign.ts`
-- [ ] 2.2.2 Implement WBI signature generation
+- [x] 2.2.2 Implement WBI signature generation
   - MD5 hash of sorted params + mixin key
   - Reference: `biu/src/service/request/wbi-sign.ts`
-- [ ] 2.2.3 Create WBI request helper
+- [x] 2.2.3 Create WBI request helper
   - Auto-sign requests that need WBI
   - Reference: `biu/electron/ipc/api/wbi.ts`
 
 ### 2.3 BUVID and Ticket
-- [ ] 2.3.1 Implement BUVID3 generation
+- [x] 2.3.1 Implement BUVID3 generation
   - Generate and persist BUVID3
   - Reference: `biu/electron/network/web-buvid.ts`
-- [ ] 2.3.2 Implement bili_ticket fetch
+- [x] 2.3.2 Implement bili_ticket fetch
   - Fetch and cache with auto-refresh
   - Reference: `biu/electron/network/web-bili-ticket.ts`
 
 ### 2.4 API Services
-- [ ] 2.4.1 Create `lib/features/*/data/datasources/` structure
+- [x] 2.4.1 Create `lib/features/*/data/datasources/` structure
   - Remote data sources for each feature
-- [ ] 2.4.2 Implement video info API
+- [x] 2.4.2 Implement video info API
   - `GET /x/web-interface/view`
   - Reference: `biu/src/service/web-interface-view.ts`
-- [ ] 2.4.3 Implement audio stream URL API
+- [x] 2.4.3 Implement audio stream URL API
   - DASH URL for videos, audio URL for music
   - Reference: `biu/electron/ipc/api/dash-url.ts`, `audio-stream-url.ts`
-- [ ] 2.4.4 Implement search APIs
+- [x] 2.4.4 Implement search APIs
   - Search all, search by type
   - Reference: `biu/src/service/web-interface-search-*.ts`
 

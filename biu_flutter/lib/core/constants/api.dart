@@ -17,7 +17,10 @@ class ApiConstants {
   /// Default user agent for web requests
   static const String webUserAgent =
       'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
-      '(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+      '(KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36';
+
+  /// Search API base URL
+  static const String searchUrl = 'https://s.search.bilibili.com';
 
   /// Bilibili API response success code
   static const int successCode = 0;

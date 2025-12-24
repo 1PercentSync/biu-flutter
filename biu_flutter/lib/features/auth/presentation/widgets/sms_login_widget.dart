@@ -194,7 +194,7 @@ class _SmsLoginWidgetState extends ConsumerState<SmsLoginWidget> {
   }
 
   void _showCountryCodePicker() {
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       builder: (context) => SafeArea(
         child: Column(
@@ -242,8 +242,7 @@ class _SmsLoginWidgetState extends ConsumerState<SmsLoginWidget> {
   }
 
   void _handleLogin() {
-    final notifier = ref.read(smsLoginNotifierProvider.notifier);
-    notifier.login(
+    ref.read(smsLoginNotifierProvider.notifier).login(
       phone: _phoneController.text,
       code: _codeController.text,
     );

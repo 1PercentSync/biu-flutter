@@ -19,7 +19,7 @@ import '../../errors/app_exception.dart';
 /// 3. Throws [BilibiliApiException] if code != 0
 class BiliResponseInterceptor extends Interceptor {
   @override
-  void onResponse(Response response, ResponseInterceptorHandler handler) {
+  void onResponse(Response<dynamic> response, ResponseInterceptorHandler handler) {
     final data = response.data;
 
     // Skip processing if not a JSON response

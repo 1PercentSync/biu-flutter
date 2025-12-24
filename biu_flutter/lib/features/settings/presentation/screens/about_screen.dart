@@ -236,7 +236,7 @@ class AboutScreen extends StatelessWidget {
     required String title,
     required String content,
   }) {
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(title),

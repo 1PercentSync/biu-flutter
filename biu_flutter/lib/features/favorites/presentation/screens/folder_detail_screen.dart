@@ -707,7 +707,7 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
     WidgetRef ref,
     FolderDetailState state,
   ) {
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Items'),
@@ -742,7 +742,7 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
   }
 
   void _confirmCleanInvalid(BuildContext context, WidgetRef ref) {
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Clean Invalid Items'),
@@ -794,7 +794,7 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
       return;
     }
 
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       builder: (context) => SafeArea(
         child: Column(

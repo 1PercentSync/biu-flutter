@@ -86,9 +86,8 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
 
   /// Initialize the audio handler for background playback.
   /// Must be called after AudioService.init()
-  void setAudioHandler(BiuAudioHandler handler) {
-    _audioHandler = handler;
-  }
+  BiuAudioHandler get audioHandler => _audioHandler;
+  set audioHandler(BiuAudioHandler handler) => _audioHandler = handler;
 
   /// Initialize player and restore state
   Future<void> initialize() async {
@@ -168,48 +167,48 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
   /// Toggle mute
   void toggleMute() {
     final newMuted = !state.isMuted;
-    _playerService.setVolume(newMuted ? 0.0 : state.volume);
+    unawaited(_playerService.setVolume(newMuted ? 0.0 : state.volume));
     state = state.copyWith(isMuted: newMuted);
-    _saveState();
+    unawaited(_saveState());
   }
 
   /// Set volume (0.0 to 1.0)
   void setVolume(double volume) {
     final clampedVolume = volume.clamp(0.0, 1.0);
-    _playerService.setVolume(state.isMuted ? 0.0 : clampedVolume);
+    unawaited(_playerService.setVolume(state.isMuted ? 0.0 : clampedVolume));
     state = state.copyWith(volume: clampedVolume);
-    _saveState();
+    unawaited(_saveState());
   }
 
   /// Toggle play mode (cycle through modes)
   void togglePlayMode() {
     final newMode = state.playMode.next;
-    _playerService.setLoopMode(
+    unawaited(_playerService.setLoopMode(
       newMode == PlayMode.single ? LoopMode.one : LoopMode.off,
-    );
+    ));
     state = state.copyWith(playMode: newMode);
-    _saveState();
+    unawaited(_saveState());
   }
 
   /// Set playback rate (0.5 to 2.0)
   void setRate(double rate) {
     final clampedRate = rate.clamp(0.5, 2.0);
-    _playerService.setSpeed(clampedRate);
+    unawaited(_playerService.setSpeed(clampedRate));
     state = state.copyWith(rate: clampedRate);
-    _saveState();
+    unawaited(_saveState());
   }
 
   /// Seek to position (in seconds)
   Future<void> seek(double seconds) async {
     await _playerService.seek(Duration(milliseconds: (seconds * 1000).round()));
     state = state.copyWith(currentTime: seconds);
-    _saveCurrentTime();
+    unawaited(_saveCurrentTime());
   }
 
   /// Set whether to keep page order in random play mode
-  void setShouldKeepPagesOrderInRandomPlayMode(bool shouldKeep) {
+  void setShouldKeepPagesOrderInRandomPlayMode({required bool shouldKeep}) {
     state = state.copyWith(shouldKeepPagesOrderInRandomPlayMode: shouldKeep);
-    _saveState();
+    unawaited(_saveState());
   }
 
   // ============ Playlist Operations ============
@@ -315,7 +314,7 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
         state.list.indexWhere((i) => i.isSameContent(item));
     if (existingIndex != -1) {
       state = state.copyWith(nextId: state.list[existingIndex].id);
-      _saveState();
+      unawaited(_saveState());
       return;
     }
 
@@ -344,14 +343,13 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
       insertIndex = currentIndex == -1 ? 0 : currentIndex + 1;
     }
 
-    final newList = [...state.list];
-    newList.insert(insertIndex, item);
+    final newList = [...state.list]..insert(insertIndex, item);
 
     state = state.copyWith(
       list: newList,
       nextId: item.id,
     );
-    _saveState();
+    unawaited(_saveState());
   }
 
   /// Add multiple items to the end of playlist
@@ -376,7 +374,7 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
     state = state.copyWith(
       list: [...state.list, ...newItems],
     );
-    _saveState();
+    unawaited(_saveState());
   }
 
   /// Remove a single page/part from playlist
@@ -393,7 +391,7 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
 
     final newList = state.list.where((item) => item.id != id).toList();
     state = state.copyWith(list: newList);
-    _saveState();
+    unawaited(_saveState());
   }
 
   /// Remove all items with same content (all parts of a video)
@@ -429,7 +427,7 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
     final newList =
         state.list.where((item) => !item.isSameContent(removedItem)).toList();
     state = state.copyWith(list: newList);
-    _saveState();
+    unawaited(_saveState());
   }
 
   /// Clear the entire playlist
@@ -445,8 +443,8 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
       currentTime: 0,
     );
 
-    _saveState();
-    _saveCurrentTime();
+    unawaited(_saveState());
+    unawaited(_saveCurrentTime());
   }
 
   // ============ Navigation ============
@@ -590,8 +588,8 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
       debugPrint('[Playlist] Failed to start player: $e');
       state = state.copyWith(error: 'Failed to start playback: $e');
     }
-    _saveState();
-    _saveCurrentTime();
+    unawaited(_saveState());
+    unawaited(_saveCurrentTime());
   }
 
   /// Ensures audio URL is valid and loaded. Returns true if successful.
@@ -721,7 +719,7 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
     }).toList();
 
     state = state.copyWith(list: newList);
-    _saveState();
+    unawaited(_saveState());
   }
 
   void _onTrackCompleted() {
@@ -735,14 +733,14 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
       final currentIndex = state.currentIndex;
       if (currentIndex == state.length - 1) {
         // End of playlist - stop
-        seek(0);
-        _playerService.pause();
+        unawaited(seek(0));
+        unawaited(_playerService.pause());
         return;
       }
     }
 
     // Play next
-    next();
+    unawaited(next());
   }
 
   // ============ Persistence ============

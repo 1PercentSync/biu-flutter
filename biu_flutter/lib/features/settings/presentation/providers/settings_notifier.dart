@@ -110,7 +110,7 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
   }
 
   /// Set folder hidden
-  Future<void> setFolderHidden(int folderId, bool hidden) async {
+  Future<void> setFolderHidden(int folderId, {required bool hidden}) async {
     final currentHidden = List<int>.from(state.hiddenFolderIds);
     if (hidden && !currentHidden.contains(folderId)) {
       currentHidden.add(folderId);

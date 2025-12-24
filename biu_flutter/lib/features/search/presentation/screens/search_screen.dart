@@ -106,7 +106,7 @@ class SearchNotifier extends StateNotifier<SearchState> {
     state = const SearchState();
   }
 
-  void setMusicOnly(bool value) {
+  void setMusicOnly({required bool value}) {
     state = state.copyWith(musicOnly: value);
     // Re-search if we have a query
     if (state.query.isNotEmpty && state.hasSearched) {
@@ -236,7 +236,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
   final FocusNode _searchFocusNode = FocusNode();
   final ScrollController _scrollController = ScrollController();
   late TabController _tabController;
-  bool _showSearchHistory = false;
 
   @override
   void initState() {
@@ -252,8 +251,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
     _searchController.dispose();
     _searchFocusNode.dispose();
     _scrollController.dispose();
-    _tabController.removeListener(_onTabChanged);
-    _tabController.dispose();
+    _tabController
+      ..removeListener(_onTabChanged)
+      ..dispose();
     super.dispose();
   }
 
@@ -266,10 +266,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
   }
 
   void _onFocusChanged() {
-    setState(() {
-      _showSearchHistory =
-          _searchFocusNode.hasFocus && _searchController.text.isEmpty;
-    });
+    setState(() {});
   }
 
   void _onScroll() {
@@ -330,9 +327,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                                 ref
                                     .read(searchNotifierProvider.notifier)
                                     .clearQuery();
-                                setState(() {
-                                  _showSearchHistory = _searchFocusNode.hasFocus;
-                                });
+                                setState(() {});
                               },
                             )
                           : null,
@@ -346,10 +341,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                     ),
                     onChanged: (value) {
                       ref.read(searchNotifierProvider.notifier).setQuery(value);
-                      setState(() {
-                        _showSearchHistory =
-                            _searchFocusNode.hasFocus && value.isEmpty;
-                      });
+                      setState(() {});
                     },
                     onSubmitted: _performSearch,
                   ),
@@ -381,7 +373,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
           Switch(
             value: searchState.musicOnly,
             onChanged: (value) {
-              ref.read(searchNotifierProvider.notifier).setMusicOnly(value);
+              ref.read(searchNotifierProvider.notifier).setMusicOnly(value: value);
             },
             activeThumbColor: AppColors.primary,
           ),
@@ -674,7 +666,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
           hotSearches.when(
             data: _buildHotSearches,
             loading: () => const LoadingIndicator(),
-            error: (_, __) => _buildHotSearches(_fallbackHotSearches),
+            error: (_, _) => _buildHotSearches(_fallbackHotSearches),
           ),
         ],
       ),
@@ -725,9 +717,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
   void _performSearch(String query) {
     if (query.isEmpty) return;
     _searchFocusNode.unfocus();
-    setState(() {
-      _showSearchHistory = false;
-    });
     // Add to search history
     ref.read(searchHistoryProvider.notifier).add(query);
     // Perform search

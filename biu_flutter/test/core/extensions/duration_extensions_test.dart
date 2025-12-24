@@ -27,7 +27,7 @@ void main() {
       });
 
       test('handles zero duration', () {
-        expect(const Duration().toFormattedString(), '00:00');
+        expect(Duration.zero.toFormattedString(), '00:00');
       });
     });
 

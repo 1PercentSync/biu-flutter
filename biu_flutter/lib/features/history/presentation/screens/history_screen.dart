@@ -11,6 +11,7 @@ import '../../../../shared/widgets/loading_state.dart';
 import '../../../player/player.dart';
 import '../../data/models/history_item.dart';
 import '../providers/history_notifier.dart';
+import '../providers/history_state.dart';
 import '../widgets/history_item_card.dart';
 
 /// Screen displaying watch history with infinite scroll
@@ -37,8 +38,9 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
 
   @override
   void dispose() {
-    _scrollController.removeListener(_onScroll);
-    _scrollController.dispose();
+    _scrollController
+      ..removeListener(_onScroll)
+      ..dispose();
     super.dispose();
   }
 
@@ -83,7 +85,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
     );
   }
 
-  Widget _buildContent(BuildContext context, state) {
+  Widget _buildContent(BuildContext context, HistoryState state) {
     // Not logged in state
     if (state.isNotLoggedIn) {
       return SliverFillRemaining(
@@ -154,7 +156,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
     );
   }
 
-  Widget _buildLoadingIndicator(state) {
+  Widget _buildLoadingIndicator(HistoryState state) {
     if (state.isLoadingMore) {
       return const Padding(
         padding: EdgeInsets.symmetric(vertical: 16),

@@ -48,7 +48,7 @@ void main() {
     });
 
     test('isLoading returns true for initial status', () {
-      const state = AuthState();
+      const state = AuthState.initial;
       expect(state.isLoading, true);
     });
 

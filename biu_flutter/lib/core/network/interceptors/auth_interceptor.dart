@@ -89,12 +89,8 @@ class AuthInterceptor extends Interceptor {
 /// Extension on RequestOptions to add custom extra fields
 extension RequestOptionsExtra on RequestOptions {
   /// Set useCSRF flag
-  void setUseCSRF(bool value) {
-    extra['useCSRF'] = value;
-  }
+  set useCSRF(bool value) => extra['useCSRF'] = value;
 
   /// Set useWbi flag
-  void setUseWbi(bool value) {
-    extra['useWbi'] = value;
-  }
+  set useWbi(bool value) => extra['useWbi'] = value;
 }

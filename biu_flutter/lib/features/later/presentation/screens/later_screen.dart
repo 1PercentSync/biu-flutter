@@ -11,6 +11,7 @@ import '../../../../shared/widgets/loading_state.dart';
 import '../../../player/player.dart';
 import '../../data/models/watch_later_item.dart';
 import '../providers/later_notifier.dart';
+import '../providers/later_state.dart';
 import '../widgets/later_item_card.dart';
 
 /// Screen displaying watch later list with infinite scroll
@@ -37,8 +38,9 @@ class _LaterScreenState extends ConsumerState<LaterScreen> {
 
   @override
   void dispose() {
-    _scrollController.removeListener(_onScroll);
-    _scrollController.dispose();
+    _scrollController
+      ..removeListener(_onScroll)
+      ..dispose();
     super.dispose();
   }
 
@@ -83,7 +85,7 @@ class _LaterScreenState extends ConsumerState<LaterScreen> {
     );
   }
 
-  Widget _buildContent(BuildContext context, state) {
+  Widget _buildContent(BuildContext context, LaterState state) {
     // Not logged in state
     if (state.isNotLoggedIn) {
       return SliverFillRemaining(
@@ -155,7 +157,7 @@ class _LaterScreenState extends ConsumerState<LaterScreen> {
     );
   }
 
-  Widget _buildLoadingIndicator(state) {
+  Widget _buildLoadingIndicator(LaterState state) {
     if (state.isLoadingMore) {
       return const Padding(
         padding: EdgeInsets.symmetric(vertical: 16),
@@ -240,7 +242,7 @@ class _LaterScreenState extends ConsumerState<LaterScreen> {
       if (confirmed ?? false) {
         final success =
             await ref.read(laterProvider.notifier).removeItem(item);
-        if (mounted) {
+        if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(success ? 'Removed' : 'Failed to remove'),

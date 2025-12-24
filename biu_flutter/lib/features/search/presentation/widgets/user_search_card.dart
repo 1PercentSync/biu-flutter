@@ -146,7 +146,7 @@ class UserSearchCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
       decoration: BoxDecoration(
-        color: _getLevelColor(level).withOpacity(0.15),
+        color: _getLevelColor(level).withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(

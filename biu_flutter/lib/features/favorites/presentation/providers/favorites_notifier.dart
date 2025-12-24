@@ -188,7 +188,12 @@ class FavoritesListNotifier extends StateNotifier<FavoritesListState> {
   }
 
   /// Update a folder in the list.
-  void updateFolder(int folderId, String title, String intro, bool isPublic) {
+  void updateFolder({
+    required int folderId,
+    required String title,
+    required String intro,
+    required bool isPublic,
+  }) {
     state = state.copyWith(
       createdFolders: state.createdFolders.map((f) {
         if (f.id == folderId) {

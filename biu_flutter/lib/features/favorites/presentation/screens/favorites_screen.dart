@@ -60,10 +60,14 @@ class FavoritesScreen extends ConsumerWidget {
   }
 
   void _showCreateFolderDialog(BuildContext context, WidgetRef ref) {
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (context) => FolderEditDialog(
-        onSubmit: (title, intro, isPublic) async {
+        onSubmit: ({
+          required String title,
+          required String intro,
+          required bool isPublic,
+        }) async {
           final notifier = ref.read(favoritesListProvider.notifier);
           final success = await notifier.createFolder(
             title: title,
@@ -139,10 +143,14 @@ class _CreatedFoldersTab extends ConsumerWidget {
   }
 
   void _showCreateFolderDialog(BuildContext context, WidgetRef ref) {
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (context) => FolderEditDialog(
-        onSubmit: (title, intro, isPublic) async {
+        onSubmit: ({
+          required String title,
+          required String intro,
+          required bool isPublic,
+        }) async {
           final notifier = ref.read(favoritesListProvider.notifier);
           final success = await notifier.createFolder(
             title: title,
@@ -288,7 +296,7 @@ class _FolderListItem extends StatelessWidget {
   }
 
   void _showFolderMenu(BuildContext context) {
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       backgroundColor: AppColors.contentBackground,
       builder: (context) => SafeArea(
@@ -319,7 +327,7 @@ class _FolderListItem extends StatelessWidget {
   }
 
   void _showEditDialog(BuildContext context) {
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (dialogContext) => Consumer(
         builder: (context, ref, child) => FolderEditDialog(
@@ -327,7 +335,11 @@ class _FolderListItem extends StatelessWidget {
           initialTitle: folder.title,
           initialIntro: folder.intro,
           initialIsPublic: !folder.isPrivate,
-          onSubmit: (title, intro, isPublic) async {
+          onSubmit: ({
+            required String title,
+            required String intro,
+            required bool isPublic,
+          }) async {
             final repository = ref.read(favoritesRepositoryProvider);
             try {
               await repository.editFolder(
@@ -337,10 +349,10 @@ class _FolderListItem extends StatelessWidget {
                 isPublic: isPublic,
               );
               ref.read(favoritesListProvider.notifier).updateFolder(
-                    folder.id,
-                    title,
-                    intro,
-                    isPublic,
+                    folderId: folder.id,
+                    title: title,
+                    intro: intro,
+                    isPublic: isPublic,
                   );
               if (dialogContext.mounted) {
                 Navigator.of(dialogContext).pop();
@@ -364,7 +376,7 @@ class _FolderListItem extends StatelessWidget {
   }
 
   void _showDeleteConfirmation(BuildContext context) {
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (dialogContext) => Consumer(
         builder: (context, ref, child) => AlertDialog(

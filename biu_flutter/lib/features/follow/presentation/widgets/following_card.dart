@@ -121,14 +121,14 @@ class FollowingCard extends StatelessWidget {
                     _buildBadge(
                       context,
                       'Mutual',
-                      Colors.green.withOpacity(0.2),
+                      Colors.green.withValues(alpha: 0.2),
                       Colors.green,
                     ),
                   if (user.isSpecial)
                     _buildBadge(
                       context,
                       'Special',
-                      Colors.orange.withOpacity(0.2),
+                      Colors.orange.withValues(alpha: 0.2),
                       Colors.orange,
                     ),
                 ],
@@ -270,7 +270,7 @@ class FollowingListTile extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
                   decoration: BoxDecoration(
-                    color: Colors.green.withOpacity(0.2),
+                    color: Colors.green.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: const Text(

@@ -15,7 +15,8 @@
       "Bash(flutter build:*)",
       "Bash(pushd:*)",
       "Bash(dir:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(flutter run:*)"
     ]
   }
 }

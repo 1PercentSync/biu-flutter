@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -237,7 +239,7 @@ class SettingsScreen extends ConsumerWidget {
     );
 
     if (selected != null) {
-      ref.read(settingsNotifierProvider.notifier).setAudioQuality(selected);
+      unawaited(ref.read(settingsNotifierProvider.notifier).setAudioQuality(selected));
     }
   }
 
@@ -252,7 +254,7 @@ class SettingsScreen extends ConsumerWidget {
     );
 
     if (selected != null) {
-      ref.read(settingsNotifierProvider.notifier).setPrimaryColor(selected);
+      unawaited(ref.read(settingsNotifierProvider.notifier).setPrimaryColor(selected));
     }
   }
 
@@ -384,7 +386,7 @@ class SettingsScreen extends ConsumerWidget {
     );
 
     if (selected != null) {
-      ref.read(settingsNotifierProvider.notifier).setDisplayMode(selected);
+      unawaited(ref.read(settingsNotifierProvider.notifier).setDisplayMode(selected));
     }
   }
 
@@ -392,7 +394,7 @@ class SettingsScreen extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
   ) async {
-    await showDialog(
+    await showDialog<void>(
       context: context,
       builder: (context) => _HiddenFoldersDialog(),
     );
@@ -428,7 +430,7 @@ class _HiddenFoldersDialog extends ConsumerWidget {
                     onChanged: (visible) {
                       ref
                           .read(settingsNotifierProvider.notifier)
-                          .setFolderHidden(folder.id, !visible!);
+                          .setFolderHidden(folder.id, hidden: !visible!);
                     },
                     title: Text(folder.title),
                     subtitle: Text('${folder.mediaCount} items'),

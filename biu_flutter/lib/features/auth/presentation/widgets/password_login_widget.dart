@@ -174,7 +174,7 @@ class _PasswordLoginWidgetState extends ConsumerState<PasswordLoginWidget> {
   }
 
   void _showForgotPasswordHint() {
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('找回密码'),

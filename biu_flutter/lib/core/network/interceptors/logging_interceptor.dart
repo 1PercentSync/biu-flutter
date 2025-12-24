@@ -18,11 +18,11 @@ class LoggingInterceptor extends Interceptor {
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    final buffer = StringBuffer();
-    buffer.writeln('╔══════════════════════════════════════════════════════════');
-    buffer.writeln('║ REQUEST');
-    buffer.writeln('╟──────────────────────────────────────────────────────────');
-    buffer.writeln('║ ${options.method} ${options.uri}');
+    final buffer = StringBuffer()
+      ..writeln('╔══════════════════════════════════════════════════════════')
+      ..writeln('║ REQUEST')
+      ..writeln('╟──────────────────────────────────────────────────────────')
+      ..writeln('║ ${options.method} ${options.uri}');
 
     if (options.headers.isNotEmpty) {
       buffer.writeln('║ Headers:');
@@ -54,14 +54,14 @@ class LoggingInterceptor extends Interceptor {
   }
 
   @override
-  void onResponse(Response response, ResponseInterceptorHandler handler) {
-    final buffer = StringBuffer();
-    buffer.writeln('╔══════════════════════════════════════════════════════════');
-    buffer.writeln('║ RESPONSE');
-    buffer.writeln('╟──────────────────────────────────────────────────────────');
-    buffer.writeln('║ ${response.statusCode} ${response.requestOptions.uri}');
-    buffer.writeln('║ Data: ${_truncate(response.data.toString(), 500)}');
-    buffer.writeln('╚══════════════════════════════════════════════════════════');
+  void onResponse(Response<dynamic> response, ResponseInterceptorHandler handler) {
+    final buffer = StringBuffer()
+      ..writeln('╔══════════════════════════════════════════════════════════')
+      ..writeln('║ RESPONSE')
+      ..writeln('╟──────────────────────────────────────────────────────────')
+      ..writeln('║ ${response.statusCode} ${response.requestOptions.uri}')
+      ..writeln('║ Data: ${_truncate(response.data.toString(), 500)}')
+      ..writeln('╚══════════════════════════════════════════════════════════');
     _log(buffer.toString());
 
     handler.next(response);
@@ -69,15 +69,16 @@ class LoggingInterceptor extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    final buffer = StringBuffer();
-    buffer.writeln('╔══════════════════════════════════════════════════════════');
-    buffer.writeln('║ ERROR');
-    buffer.writeln('╟──────────────────────────────────────────────────────────');
-    buffer.writeln('║ ${err.type} ${err.requestOptions.uri}');
-    buffer.writeln('║ Message: ${err.message}');
+    final buffer = StringBuffer()
+      ..writeln('╔══════════════════════════════════════════════════════════')
+      ..writeln('║ ERROR')
+      ..writeln('╟──────────────────────────────────────────────────────────')
+      ..writeln('║ ${err.type} ${err.requestOptions.uri}')
+      ..writeln('║ Message: ${err.message}');
     if (err.response != null) {
-      buffer.writeln('║ Status: ${err.response?.statusCode}');
-      buffer.writeln('║ Data: ${_truncate(err.response?.data?.toString() ?? '', 500)}');
+      buffer
+        ..writeln('║ Status: ${err.response?.statusCode}')
+        ..writeln('║ Data: ${_truncate(err.response?.data?.toString() ?? '', 500)}');
     }
     buffer.writeln('╚══════════════════════════════════════════════════════════');
     _log(buffer.toString());

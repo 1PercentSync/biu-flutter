@@ -104,7 +104,8 @@ class WbiSign {
 
       final data = response.data;
       if (data != null) {
-        final wbiImg = data['data']?['wbi_img'] as Map<String, dynamic>?;
+        final dataMap = data['data'] as Map<String, dynamic>?;
+        final wbiImg = dataMap?['wbi_img'] as Map<String, dynamic>?;
         if (wbiImg != null) {
           final imgUrl = wbiImg['img_url'] as String?;
           final subUrl = wbiImg['sub_url'] as String?;

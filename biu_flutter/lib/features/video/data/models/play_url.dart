@@ -241,20 +241,20 @@ class DashInfo {
       30251, // Hi-Res
     ];
 
-    final sorted = List<DashAudio>.from(audio);
-    sorted.sort((a, b) {
-      // First sort by bandwidth (higher = better)
-      if (a.bandwidth != b.bandwidth) {
-        return b.bandwidth.compareTo(a.bandwidth);
-      }
+    final sorted = List<DashAudio>.from(audio)
+      ..sort((a, b) {
+        // First sort by bandwidth (higher = better)
+        if (a.bandwidth != b.bandwidth) {
+          return b.bandwidth.compareTo(a.bandwidth);
+        }
 
-      // Then sort by quality ID position
-      final indexA = qualitySort.indexOf(a.id);
-      final indexB = qualitySort.indexOf(b.id);
-      if (indexA == -1) return 1;
-      if (indexB == -1) return -1;
-      return indexB.compareTo(indexA);
-    });
+        // Then sort by quality ID position
+        final indexA = qualitySort.indexOf(a.id);
+        final indexB = qualitySort.indexOf(b.id);
+        if (indexA == -1) return 1;
+        if (indexB == -1) return -1;
+        return indexB.compareTo(indexA);
+      });
 
     return sorted;
   }

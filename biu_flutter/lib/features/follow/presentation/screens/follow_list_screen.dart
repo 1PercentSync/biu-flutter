@@ -8,6 +8,7 @@ import '../../../../shared/widgets/error_state.dart';
 import '../../../../shared/widgets/loading_state.dart';
 import '../../data/models/following_user.dart';
 import '../providers/follow_notifier.dart';
+import '../providers/follow_state.dart';
 import '../widgets/following_card.dart';
 
 /// Screen displaying user's followings list with grid layout
@@ -33,8 +34,9 @@ class _FollowListScreenState extends ConsumerState<FollowListScreen> {
 
   @override
   void dispose() {
-    _scrollController.removeListener(_onScroll);
-    _scrollController.dispose();
+    _scrollController
+      ..removeListener(_onScroll)
+      ..dispose();
     super.dispose();
   }
 
@@ -81,7 +83,7 @@ class _FollowListScreenState extends ConsumerState<FollowListScreen> {
     );
   }
 
-  Widget _buildContent(BuildContext context, state) {
+  Widget _buildContent(BuildContext context, FollowState state) {
     // Not logged in state
     if (state.isNotLoggedIn) {
       return SliverFillRemaining(
@@ -167,7 +169,7 @@ class _FollowListScreenState extends ConsumerState<FollowListScreen> {
     );
   }
 
-  Widget _buildLoadingIndicator(state) {
+  Widget _buildLoadingIndicator(FollowState state) {
     if (state.isLoadingMore) {
       return const Center(
         child: Padding(
@@ -217,7 +219,7 @@ class _FollowListScreenState extends ConsumerState<FollowListScreen> {
       if (confirmed ?? false) {
         final success =
             await ref.read(followProvider.notifier).unfollowUser(user);
-        if (mounted) {
+        if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(success ? 'Unfollowed' : 'Failed to unfollow'),

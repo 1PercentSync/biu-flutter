@@ -392,14 +392,14 @@ class _FullPlayerScreenState extends ConsumerState<FullPlayerScreen> {
   }
 
   void _showRateDialog() {
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (context) => _RateDialog(),
     );
   }
 
   void _showPlaylistSheet(BuildContext context) {
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,

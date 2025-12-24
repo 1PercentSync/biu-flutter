@@ -1,5 +1,12 @@
 import 'package:flutter/material.dart';
 
+/// Callback signature for folder submission.
+typedef FolderSubmitCallback = Future<bool> Function({
+  required String title,
+  required String intro,
+  required bool isPublic,
+});
+
 /// Dialog for creating or editing a favorites folder.
 class FolderEditDialog extends StatefulWidget {
   const FolderEditDialog({
@@ -24,8 +31,7 @@ class FolderEditDialog extends StatefulWidget {
   final bool initialIsPublic;
 
   /// Callback when submitting the form
-  final Future<bool> Function(String title, String intro, bool isPublic)
-      onSubmit;
+  final FolderSubmitCallback onSubmit;
 
   @override
   State<FolderEditDialog> createState() => _FolderEditDialogState();
@@ -77,9 +83,9 @@ class _FolderEditDialogState extends State<FolderEditDialog> {
     });
 
     final success = await widget.onSubmit(
-      _titleController.text.trim(),
-      _introController.text.trim(),
-      _isPublic,
+      title: _titleController.text.trim(),
+      intro: _introController.text.trim(),
+      isPublic: _isPublic,
     );
 
     if (mounted) {

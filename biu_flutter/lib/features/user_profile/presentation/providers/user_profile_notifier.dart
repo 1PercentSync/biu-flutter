@@ -17,8 +17,8 @@ final userProfileProvider =
   (ref, mid) => UserProfileNotifier(
     ref.watch(userProfileDataSourceProvider),
     ref.watch(followDataSourceProvider),
-    ref.watch(authNotifierProvider.select((s) => s.isAuthenticated)),
     mid,
+    isLoggedIn: ref.watch(authNotifierProvider.select((s) => s.isAuthenticated)),
   ),
 );
 
@@ -32,9 +32,10 @@ class UserProfileNotifier extends StateNotifier<UserProfileState> {
   UserProfileNotifier(
     this._dataSource,
     this._followDataSource,
-    this._isLoggedIn,
-    this._mid,
-  ) : super(UserProfileState(mid: _mid)) {
+    this._mid, {
+    required bool isLoggedIn,
+  })  : _isLoggedIn = isLoggedIn,
+        super(UserProfileState(mid: _mid)) {
     _init();
   }
 

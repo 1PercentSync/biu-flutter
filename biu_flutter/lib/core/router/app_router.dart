@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../features/artist_rank/artist_rank.dart';
 import '../../features/auth/auth.dart';
 import '../../features/favorites/favorites.dart';
+import '../../features/follow/follow.dart';
 import '../../features/history/history.dart';
 import '../../features/home/home.dart';
 import '../../features/later/later.dart';
@@ -96,6 +97,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.artistRank,
         name: 'artistRank',
         builder: (context, state) => const ArtistRankScreen(),
+      ),
+      // Follow List route
+      GoRoute(
+        path: AppRoutes.followList,
+        name: 'followList',
+        builder: (context, state) => const FollowListScreen(),
       ),
       // Watch Later route
       GoRoute(

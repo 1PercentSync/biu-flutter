@@ -32,6 +32,9 @@ class AppRoutes {
   /// Artist Rank page
   static const String artistRank = '/artists';
 
+  /// Follow List page
+  static const String followList = '/follow';
+
   /// Video detail page
   static const String videoDetail = '/video/:bvid';
 
@@ -62,6 +65,7 @@ const List<String> protectedRoutes = [
   AppRoutes.favorites,
   AppRoutes.history,
   AppRoutes.later,
+  AppRoutes.followList,
   AppRoutes.profile,
 ];
 

@@ -132,6 +132,12 @@ class ProfileScreen extends ConsumerWidget {
       children: [
         _buildMenuItem(
           context,
+          icon: Icons.people_outline,
+          title: 'My Followings',
+          onTap: () => context.push(AppRoutes.followList),
+        ),
+        _buildMenuItem(
+          context,
           icon: Icons.history,
           title: 'Watch History',
           onTap: () => context.push(AppRoutes.history),

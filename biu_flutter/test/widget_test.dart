@@ -21,9 +21,11 @@ void main() {
     await tester.pumpAndSettle();
 
     // Verify that navigation destinations are visible.
-    expect(find.text('Home'), findsOneWidget);
-    expect(find.text('Search'), findsOneWidget);
-    expect(find.text('Favorites'), findsOneWidget);
-    expect(find.text('Profile'), findsOneWidget);
+    // Note: NavigationBar may render multiple text widgets for animation,
+    // so we use findsWidgets instead of findsOneWidget.
+    expect(find.text('Home'), findsWidgets);
+    expect(find.text('Search'), findsWidgets);
+    expect(find.text('Favorites'), findsWidgets);
+    expect(find.text('Profile'), findsWidgets);
   });
 }

@@ -6,6 +6,7 @@ import '../../features/auth/auth.dart';
 import '../../features/favorites/favorites.dart';
 import '../../features/history/history.dart';
 import '../../features/home/home.dart';
+import '../../features/later/later.dart';
 import '../../features/profile/profile.dart';
 import '../../features/search/search.dart';
 import '../../features/settings/settings.dart';
@@ -88,6 +89,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.about,
         name: 'about',
         builder: (context, state) => const AboutScreen(),
+      ),
+      // Watch Later route
+      GoRoute(
+        path: AppRoutes.later,
+        name: 'later',
+        builder: (context, state) => const LaterScreen(),
       ),
       // Favorites folder detail route
       GoRoute(

@@ -309,25 +309,32 @@ This task list is designed for autonomous agent implementation. After completing
 ### B.4 Watch Later [P0]
 
 #### B.4.1 Watch Later API
-- [ ] B.4.1.1 Implement toview list API
-  - GET `/x/v2/history/toview`
+- [x] B.4.1.1 Implement toview list API
+  - GET `/x/v2/history/toview/web`
   - Location: `lib/features/later/data/datasources/later_remote_datasource.dart`
   - Reference: `biu/src/service/history-toview-list.ts`
 
-- [ ] B.4.1.2 Implement add to later API
+- [x] B.4.1.2 Implement add to later API
   - POST `/x/v2/history/toview/add`
   - Reference: `biu/src/service/history-toview-add.ts`
 
-- [ ] B.4.1.3 Implement remove from later API
+- [x] B.4.1.3 Implement remove from later API
   - POST `/x/v2/history/toview/del`
   - Reference: `biu/src/service/history-toview-del.ts`
 
 #### B.4.2 Watch Later UI
-- [ ] B.4.2.1 Create LaterScreen
+- [x] B.4.2.1 Create LaterScreen
+  - Infinite scroll with pagination
+  - LaterItemCard with progress bar, duration badge, delete button
   - Location: `lib/features/later/presentation/screens/later_screen.dart`
   - Reference: `biu/src/pages/later/index.tsx`
 
-- [ ] B.4.2.2 Add "Watch Later" button to video items
+- [x] B.4.2.2 Add Watch Later to navigation
+  - Added route in routes.dart and app_router.dart
+  - Added Watch Later link in Profile menu
+  - Location: `lib/core/router/`
+
+- [ ] B.4.2.3 Add "Watch Later" button to video items
   - In search results, favorites, etc.
   - Reference: Source has toview actions in menus
 

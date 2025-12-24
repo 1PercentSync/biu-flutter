@@ -134,9 +134,13 @@ class ProfileScreen extends ConsumerWidget {
           context,
           icon: Icons.history,
           title: 'Watch History',
-          onTap: () {
-            // TODO: Navigate to history
-          },
+          onTap: () => context.push(AppRoutes.history),
+        ),
+        _buildMenuItem(
+          context,
+          icon: Icons.watch_later_outlined,
+          title: 'Watch Later',
+          onTap: () => context.push(AppRoutes.later),
         ),
         _buildMenuItem(
           context,

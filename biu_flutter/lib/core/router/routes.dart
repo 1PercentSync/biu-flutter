@@ -14,6 +14,9 @@ class AppRoutes {
   /// History page
   static const String history = '/history';
 
+  /// Watch Later page
+  static const String later = '/later';
+
   /// Profile page
   static const String profile = '/profile';
 
@@ -55,6 +58,7 @@ class AppRoutes {
 const List<String> protectedRoutes = [
   AppRoutes.favorites,
   AppRoutes.history,
+  AppRoutes.later,
   AppRoutes.profile,
 ];
 

@@ -1,8 +1,13 @@
-import 'dart:convert';
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 import '../../data/models/captcha_response.dart';
+
+/// Check if current platform supports WebView
+bool get _isWebViewSupported =>
+    !kIsWeb && (Platform.isAndroid || Platform.isIOS);
 
 /// Dialog that displays Geetest captcha verification
 class GeetestDialog extends StatefulWidget {
@@ -29,6 +34,11 @@ class GeetestDialog extends StatefulWidget {
     required String gt,
     required String challenge,
   }) async {
+    // On unsupported platforms (Windows, Linux, Web), show alternative dialog
+    if (!_isWebViewSupported) {
+      return _showUnsupportedPlatformDialog(context);
+    }
+
     return showDialog<GeetestResult>(
       context: context,
       barrierDismissible: false,
@@ -40,14 +50,95 @@ class GeetestDialog extends StatefulWidget {
     );
   }
 
+  /// Show dialog for unsupported platforms
+  static Future<GeetestResult?> _showUnsupportedPlatformDialog(
+    BuildContext context,
+  ) async {
+    return showDialog<GeetestResult>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('不支持的平台'),
+        content: const Text(
+          '验证码功能在当前平台不可用。\n\n'
+          '请使用以下方式登录：\n'
+          '• 扫码登录（推荐）\n'
+          '• 在移动设备上使用密码/短信登录',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(null),
+            child: const Text('确定'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   State<GeetestDialog> createState() => _GeetestDialogState();
 }
 
 class _GeetestDialogState extends State<GeetestDialog> {
-  InAppWebViewController? _webViewController;
+  late final WebViewController _controller;
   bool _isLoading = true;
   String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _initWebView();
+  }
+
+  void _initWebView() {
+    _controller = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setBackgroundColor(Colors.white)
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onPageFinished: (url) {
+            setState(() {
+              _isLoading = false;
+            });
+          },
+          onWebResourceError: (error) {
+            setState(() {
+              _error = error.description;
+              _isLoading = false;
+            });
+          },
+        ),
+      )
+      ..addJavaScriptChannel(
+        'GeetestBridge',
+        onMessageReceived: _handleJavaScriptMessage,
+      )
+      ..loadHtmlString(_buildHtml());
+  }
+
+  void _handleJavaScriptMessage(JavaScriptMessage message) {
+    final data = message.message;
+
+    if (data.startsWith('success:')) {
+      // Parse success result: success:challenge|validate|seccode
+      final parts = data.substring(8).split('|');
+      if (parts.length >= 3) {
+        final result = GeetestResult(
+          token: widget.token,
+          gt: widget.gt,
+          challenge: parts[0],
+          validate: parts[1],
+          seccode: parts[2],
+        );
+        Navigator.of(context).pop(result);
+      }
+    } else if (data.startsWith('error:')) {
+      setState(() {
+        _error = data.substring(6);
+      });
+    } else if (data == 'close') {
+      Navigator.of(context).pop(null);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -88,34 +179,7 @@ class _GeetestDialogState extends State<GeetestDialog> {
             Expanded(
               child: Stack(
                 children: [
-                  InAppWebView(
-                    initialData: InAppWebViewInitialData(
-                      data: _buildHtml(),
-                      mimeType: 'text/html',
-                      encoding: 'utf-8',
-                    ),
-                    initialSettings: InAppWebViewSettings(
-                      javaScriptEnabled: true,
-                      transparentBackground: true,
-                      useShouldOverrideUrlLoading: true,
-                      mediaPlaybackRequiresUserGesture: false,
-                    ),
-                    onWebViewCreated: (controller) {
-                      _webViewController = controller;
-                      _addJavaScriptHandler(controller);
-                    },
-                    onLoadStop: (controller, url) {
-                      setState(() {
-                        _isLoading = false;
-                      });
-                    },
-                    onReceivedError: (controller, request, error) {
-                      setState(() {
-                        _error = error.description;
-                        _isLoading = false;
-                      });
-                    },
-                  ),
+                  WebViewWidget(controller: _controller),
                   if (_isLoading)
                     const Center(
                       child: CircularProgressIndicator(),
@@ -144,7 +208,7 @@ class _GeetestDialogState extends State<GeetestDialog> {
                                   _error = null;
                                   _isLoading = true;
                                 });
-                                _webViewController?.reload();
+                                _controller.reload();
                               },
                               child: const Text('重试'),
                             ),
@@ -158,44 +222,6 @@ class _GeetestDialogState extends State<GeetestDialog> {
           ],
         ),
       ),
-    );
-  }
-
-  void _addJavaScriptHandler(InAppWebViewController controller) {
-    // Handler for successful verification
-    controller.addJavaScriptHandler(
-      handlerName: 'onGeetestSuccess',
-      callback: (args) {
-        if (args.isNotEmpty && args[0] is Map) {
-          final result = args[0] as Map;
-          final geetestResult = GeetestResult(
-            token: widget.token,
-            gt: widget.gt,
-            challenge: result['geetest_challenge'] as String? ?? widget.challenge,
-            validate: result['geetest_validate'] as String? ?? '',
-            seccode: result['geetest_seccode'] as String? ?? '',
-          );
-          Navigator.of(context).pop(geetestResult);
-        }
-      },
-    );
-
-    // Handler for error
-    controller.addJavaScriptHandler(
-      handlerName: 'onGeetestError',
-      callback: (args) {
-        setState(() {
-          _error = args.isNotEmpty ? args[0].toString() : '验证出错';
-        });
-      },
-    );
-
-    // Handler for close/cancel
-    controller.addJavaScriptHandler(
-      handlerName: 'onGeetestClose',
-      callback: (args) {
-        Navigator.of(context).pop(null);
-      },
     );
   }
 
@@ -219,7 +245,7 @@ class _GeetestDialogState extends State<GeetestDialog> {
     html, body {
       width: 100%;
       height: 100%;
-      background: transparent;
+      background: #fff;
     }
     body {
       display: flex;
@@ -256,7 +282,7 @@ class _GeetestDialogState extends State<GeetestDialog> {
       if (typeof initGeetest !== 'function') {
         loadingEl.className = 'error';
         loadingEl.textContent = '极验组件加载失败';
-        window.flutter_inappwebview.callHandler('onGeetestError', '极验组件加载失败');
+        GeetestBridge.postMessage('error:极验组件加载失败');
         return;
       }
 
@@ -277,19 +303,20 @@ class _GeetestDialogState extends State<GeetestDialog> {
         captchaObj.onSuccess(function() {
           var result = captchaObj.getValidate();
           if (result && typeof result !== 'boolean') {
-            window.flutter_inappwebview.callHandler('onGeetestSuccess', result);
+            var msg = 'success:' + result.geetest_challenge + '|' + result.geetest_validate + '|' + result.geetest_seccode;
+            GeetestBridge.postMessage(msg);
           } else {
-            window.flutter_inappwebview.callHandler('onGeetestError', '验证结果无效');
+            GeetestBridge.postMessage('error:验证结果无效');
           }
         });
 
         captchaObj.onError(function(e) {
           var msg = e && e.error_code ? ('错误代码: ' + e.error_code) : '验证出错';
-          window.flutter_inappwebview.callHandler('onGeetestError', msg);
+          GeetestBridge.postMessage('error:' + msg);
         });
 
         captchaObj.onClose(function() {
-          window.flutter_inappwebview.callHandler('onGeetestClose');
+          GeetestBridge.postMessage('close');
         });
       });
     })();

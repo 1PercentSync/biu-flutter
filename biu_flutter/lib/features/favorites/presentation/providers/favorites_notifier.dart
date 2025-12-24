@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../auth/auth.dart';
+import '../../domain/entities/fav_media.dart';
 import '../../domain/repositories/favorites_repository.dart';
 import '../../data/repositories/favorites_repository_impl.dart';
 import 'favorites_state.dart';

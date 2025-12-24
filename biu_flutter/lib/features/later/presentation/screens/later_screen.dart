@@ -92,7 +92,7 @@ class _LaterScreenState extends ConsumerState<LaterScreen> {
           title: 'Login Required',
           message: 'Please login to view your watch later list',
           onRetry: () => context.go(AppRoutes.login),
-          retryLabel: 'Login',
+          retryText: 'Login',
         ),
       );
     }

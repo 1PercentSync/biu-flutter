@@ -90,7 +90,7 @@ class _FollowListScreenState extends ConsumerState<FollowListScreen> {
           title: 'Login Required',
           message: 'Please login to view your followings',
           onRetry: () => context.go(AppRoutes.login),
-          retryLabel: 'Login',
+          retryText: 'Login',
         ),
       );
     }

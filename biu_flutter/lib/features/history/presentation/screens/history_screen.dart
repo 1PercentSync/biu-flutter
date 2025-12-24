@@ -92,7 +92,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
           title: 'Login Required',
           message: 'Please login to view your watch history',
           onRetry: () => context.go(AppRoutes.login),
-          retryLabel: 'Login',
+          retryText: 'Login',
         ),
       );
     }

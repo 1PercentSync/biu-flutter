@@ -11,6 +11,9 @@ class AppRoutes {
   /// Favorites page
   static const String favorites = '/favorites';
 
+  /// History page
+  static const String history = '/history';
+
   /// Profile page
   static const String profile = '/profile';
 
@@ -51,6 +54,7 @@ class AppRoutes {
 /// Routes that require authentication
 const List<String> protectedRoutes = [
   AppRoutes.favorites,
+  AppRoutes.history,
   AppRoutes.profile,
 ];
 

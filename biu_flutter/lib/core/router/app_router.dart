@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/auth/auth.dart';
 import '../../features/favorites/favorites.dart';
+import '../../features/history/history.dart';
 import '../../features/home/home.dart';
 import '../../features/profile/profile.dart';
 import '../../features/search/search.dart';
@@ -50,6 +51,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             pageBuilder: (context, state) => NoTransitionPage(
               key: state.pageKey,
               child: const FavoritesScreen(),
+            ),
+          ),
+          GoRoute(
+            path: AppRoutes.history,
+            name: 'history',
+            pageBuilder: (context, state) => NoTransitionPage(
+              key: state.pageKey,
+              child: const HistoryScreen(),
             ),
           ),
           GoRoute(
@@ -174,6 +183,11 @@ class MainShell extends ConsumerWidget {
             label: 'Favorites',
           ),
           NavigationDestination(
+            icon: Icon(Icons.history_outlined),
+            selectedIcon: Icon(Icons.history),
+            label: 'History',
+          ),
+          NavigationDestination(
             icon: Icon(Icons.person_outline),
             selectedIcon: Icon(Icons.person),
             label: 'Profile',
@@ -192,7 +206,8 @@ class MainShell extends ConsumerWidget {
     }
     if (location.startsWith(AppRoutes.search)) return 1;
     if (location.startsWith(AppRoutes.favorites)) return 2;
-    if (location.startsWith(AppRoutes.profile)) return 3;
+    if (location.startsWith(AppRoutes.history)) return 3;
+    if (location.startsWith(AppRoutes.profile)) return 4;
     return 0;
   }
 
@@ -205,6 +220,8 @@ class MainShell extends ConsumerWidget {
       case 2:
         context.go(AppRoutes.favorites);
       case 3:
+        context.go(AppRoutes.history);
+      case 4:
         context.go(AppRoutes.profile);
     }
   }

@@ -283,27 +283,28 @@ This task list is designed for autonomous agent implementation. After completing
 ### B.3 Watch History [P0]
 
 #### B.3.1 History API
-- [ ] B.3.1.1 Create history data models
-  - HistoryItem, CursorInfo
-  - Location: `lib/features/history/data/models/`
+- [x] B.3.1.1 Create history data models
+  - HistoryItem, CursorInfo, HistoryDetail, HistoryBusinessType, HistoryFilterType
+  - Location: `lib/features/history/data/models/history_item.dart`
   - Reference: `biu/src/service/web-interface-history-cursor.ts`
 
-- [ ] B.3.1.2 Implement cursor-based history API
+- [x] B.3.1.2 Implement cursor-based history API
   - GET `/x/web-interface/history/cursor`
-  - Support cursor pagination
+  - Support cursor pagination with HistoryCursorResponse
   - Location: `lib/features/history/data/datasources/history_remote_datasource.dart`
   - Reference: `biu/src/service/web-interface-history-cursor.ts`
 
 #### B.3.2 History UI
-- [ ] B.3.2.1 Create HistoryScreen
+- [x] B.3.2.1 Create HistoryScreen
   - Infinite scroll with cursor pagination
-  - Group by date (optional)
+  - HistoryItemCard with progress bar, duration badge, view time
   - Location: `lib/features/history/presentation/screens/history_screen.dart`
   - Reference: `biu/src/pages/history/index.tsx`
 
-- [ ] B.3.2.2 Add History to navigation
-  - Add route and menu item
-  - Location: Update router and navigation
+- [x] B.3.2.2 Add History to navigation
+  - Added route in routes.dart and app_router.dart
+  - Added History tab in bottom navigation (5 tabs total)
+  - Location: `lib/core/router/`
 
 ### B.4 Watch Later [P0]
 

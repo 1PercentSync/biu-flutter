@@ -4,6 +4,19 @@ import '../../core/extensions/duration_extensions.dart';
 import '../theme/theme.dart';
 import 'cached_image.dart';
 
+/// Action item for video card popup menu
+class VideoCardAction {
+  const VideoCardAction({
+    required this.label,
+    required this.icon,
+    required this.onTap,
+  });
+
+  final String label;
+  final IconData icon;
+  final VoidCallback onTap;
+}
+
 /// A card widget for displaying video content.
 ///
 /// Shows cover image, title, author, view count, duration, etc.
@@ -21,6 +34,7 @@ class VideoCard extends StatelessWidget {
     this.isActive = false,
     this.onTap,
     this.onLongPress,
+    this.actions,
   });
 
   /// Video title
@@ -56,6 +70,9 @@ class VideoCard extends StatelessWidget {
   /// Callback when long pressed
   final VoidCallback? onLongPress;
 
+  /// Actions to show in popup menu
+  final List<VideoCardAction>? actions;
+
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -77,7 +94,7 @@ class VideoCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Cover image with duration overlay
-              _buildCoverSection(),
+              _buildCoverSection(context),
               // Info section
               Padding(
                 padding: const EdgeInsets.all(12),
@@ -90,7 +107,7 @@ class VideoCard extends StatelessWidget {
     );
   }
 
-  Widget _buildCoverSection() {
+  Widget _buildCoverSection(BuildContext context) {
     return AspectRatio(
       aspectRatio: 16 / 9,
       child: Stack(
@@ -127,8 +144,50 @@ class VideoCard extends StatelessWidget {
                 ),
               ),
             ),
+          // Actions menu button
+          if (actions != null && actions!.isNotEmpty)
+            Positioned(
+              right: 4,
+              top: 4,
+              child: _buildActionsButton(context),
+            ),
         ],
       ),
+    );
+  }
+
+  Widget _buildActionsButton(BuildContext context) {
+    return PopupMenuButton<VideoCardAction>(
+      icon: Container(
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: Colors.black.withValues(alpha: 0.5),
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: const Icon(
+          Icons.more_vert,
+          color: Colors.white,
+          size: 18,
+        ),
+      ),
+      padding: EdgeInsets.zero,
+      iconSize: 26,
+      position: PopupMenuPosition.under,
+      onSelected: (action) => action.onTap(),
+      itemBuilder: (context) => actions!
+          .map(
+            (action) => PopupMenuItem<VideoCardAction>(
+              value: action,
+              child: Row(
+                children: [
+                  Icon(action.icon, size: 20),
+                  const SizedBox(width: 12),
+                  Text(action.label),
+                ],
+              ),
+            ),
+          )
+          .toList(),
     );
   }
 

@@ -6,6 +6,7 @@ import '../../../../core/extensions/duration_extensions.dart';
 import '../../../../shared/theme/theme.dart';
 import '../../../../shared/widgets/cached_image.dart';
 import '../../../../shared/widgets/empty_state.dart';
+import '../../../later/presentation/providers/later_notifier.dart';
 import '../../../player/domain/entities/play_item.dart';
 import '../../../player/presentation/providers/playlist_notifier.dart';
 import '../../domain/entities/fav_media.dart';
@@ -221,6 +222,7 @@ class FolderDetailScreen extends ConsumerWidget {
                   return _MediaListItem(
                     media: media,
                     onTap: () => _playMedia(context, ref, media),
+                    onAddToLater: () => _addToWatchLater(context, ref, media),
                   );
                 },
                 childCount:
@@ -281,16 +283,60 @@ class FolderDetailScreen extends ConsumerWidget {
           );
     }
   }
+
+  Future<void> _addToWatchLater(
+      BuildContext context, WidgetRef ref, FavMedia media) async {
+    if (media.isInvalid) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('This content is no longer available')),
+      );
+      return;
+    }
+
+    try {
+      final success = await ref.read(laterProvider.notifier).addItem(
+            aid: media.id,
+            bvid: media.bvid.isNotEmpty ? media.bvid : null,
+          );
+      if (success && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Added to Watch Later'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      } else if (context.mounted) {
+        final error = ref.read(laterProvider).errorMessage;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(error ?? 'Failed to add to Watch Later'),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    }
+  }
 }
 
 class _MediaListItem extends StatelessWidget {
   const _MediaListItem({
     required this.media,
     required this.onTap,
+    this.onAddToLater,
   });
 
   final FavMedia media;
   final VoidCallback onTap;
+  final VoidCallback? onAddToLater;
 
   @override
   Widget build(BuildContext context) {
@@ -387,6 +433,16 @@ class _MediaListItem extends StatelessWidget {
             ),
         ],
       ),
+      trailing: onAddToLater != null && !media.isInvalid
+          ? IconButton(
+              icon: const Icon(
+                Icons.watch_later_outlined,
+                size: 20,
+              ),
+              tooltip: 'Watch Later',
+              onPressed: onAddToLater,
+            )
+          : null,
       onTap: media.isInvalid ? null : onTap,
     );
   }

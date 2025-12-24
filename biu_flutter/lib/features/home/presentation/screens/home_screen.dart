@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../../core/constants/audio.dart';
+import '../../../../core/router/routes.dart';
 import '../../../../shared/theme/theme.dart';
 import '../../../../shared/widgets/error_state.dart';
 import '../../../../shared/widgets/loading_state.dart';
@@ -31,6 +33,11 @@ class HomeScreen extends ConsumerWidget {
               backgroundColor: AppColors.background,
               title: const Text('Hot Songs'),
               actions: [
+                IconButton(
+                  icon: const Icon(Icons.people_outline),
+                  tooltip: 'Music Artists',
+                  onPressed: () => context.push(AppRoutes.artistRank),
+                ),
                 IconButton(
                   icon: const Icon(Icons.refresh),
                   onPressed: musicRankState.isLoading

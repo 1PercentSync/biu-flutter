@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/artist_rank/artist_rank.dart';
 import '../../features/auth/auth.dart';
 import '../../features/favorites/favorites.dart';
 import '../../features/history/history.dart';
@@ -89,6 +90,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.about,
         name: 'about',
         builder: (context, state) => const AboutScreen(),
+      ),
+      // Artist Rank route
+      GoRoute(
+        path: AppRoutes.artistRank,
+        name: 'artistRank',
+        builder: (context, state) => const ArtistRankScreen(),
       ),
       // Watch Later route
       GoRoute(

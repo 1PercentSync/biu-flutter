@@ -272,12 +272,17 @@ This task list is designed for autonomous agent implementation. After completing
 
 ### B.2 Artist Rank [P1]
 
-- [ ] B.2.1 Implement artist/musician list API
-  - Location: `lib/features/artist_rank/data/datasources/`
+- [x] B.2.1 Implement artist/musician list API
+  - Created Musician model with all fields from source
+  - Created ArtistRankRemoteDataSource with getMusicianList and getAllMusicians
+  - Location: `lib/features/artist_rank/data/`
   - Reference: `biu/src/service/musician-list.ts`
 
-- [ ] B.2.2 Create ArtistRankScreen
-  - Location: `lib/features/artist_rank/presentation/screens/`
+- [x] B.2.2 Create ArtistRankScreen
+  - Created MusicianCard and MusicianListTile widgets
+  - Created ArtistRankScreen with grid display
+  - Added route and navigation from Home screen
+  - Location: `lib/features/artist_rank/presentation/`
   - Reference: `biu/src/pages/artist-rank/index.tsx`
 
 ### B.3 Watch History [P0]
@@ -334,8 +339,11 @@ This task list is designed for autonomous agent implementation. After completing
   - Added Watch Later link in Profile menu
   - Location: `lib/core/router/`
 
-- [ ] B.4.2.3 Add "Watch Later" button to video items
-  - In search results, favorites, etc.
+- [x] B.4.2.3 Add "Watch Later" button to video items
+  - Added VideoCardAction model and actions menu to VideoCard
+  - Added Watch Later action to search results VideoCards
+  - Added Watch Later button to favorites folder detail list items
+  - Location: `lib/shared/widgets/video_card.dart`, search_screen.dart, folder_detail_screen.dart
   - Reference: Source has toview actions in menus
 
 ### B.5 Following List [P1]

@@ -7,6 +7,7 @@ import '../../../../shared/theme/theme.dart';
 import '../../../../shared/widgets/empty_state.dart';
 import '../../../../shared/widgets/loading_state.dart';
 import '../../../../shared/widgets/video_card.dart';
+import '../../../later/presentation/providers/later_notifier.dart';
 import '../../../player/domain/entities/play_item.dart';
 import '../../../player/presentation/providers/playlist_notifier.dart';
 import '../../data/datasources/search_remote_datasource.dart';
@@ -487,6 +488,13 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
           duration: video.duration,
           viewCount: video.play,
           onTap: () => _playVideo(video),
+          actions: [
+            VideoCardAction(
+              label: 'Watch Later',
+              icon: Icons.watch_later_outlined,
+              onTap: () => _addToWatchLater(video),
+            ),
+          ],
         );
       },
     );
@@ -558,6 +566,40 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
       duration: video.duration,
     );
     ref.read(playlistProvider.notifier).play(playItem);
+  }
+
+  Future<void> _addToWatchLater(SearchVideoItem video) async {
+    try {
+      final success = await ref.read(laterProvider.notifier).addItem(
+            aid: video.aid,
+            bvid: video.bvid,
+          );
+      if (success && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Added to Watch Later'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      } else if (mounted) {
+        final error = ref.read(laterProvider).errorMessage;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(error ?? 'Failed to add to Watch Later'),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    }
   }
 
   void _openUserProfile(SearchUserItem user) {

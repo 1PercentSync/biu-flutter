@@ -29,6 +29,9 @@ class AppRoutes {
   /// Login page
   static const String login = '/login';
 
+  /// Artist Rank page
+  static const String artistRank = '/artists';
+
   /// Video detail page
   static const String videoDetail = '/video/:bvid';
 

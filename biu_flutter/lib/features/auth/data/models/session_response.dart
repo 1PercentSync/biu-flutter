@@ -141,3 +141,27 @@ class LogoutData {
     );
   }
 }
+
+/// Response from /x/passport-login/web/confirm/refresh
+class ConfirmRefreshResponse {
+  final int code;
+  final String message;
+  final int? ttl;
+
+  const ConfirmRefreshResponse({
+    required this.code,
+    required this.message,
+    this.ttl,
+  });
+
+  factory ConfirmRefreshResponse.fromJson(Map<String, dynamic> json) {
+    return ConfirmRefreshResponse(
+      code: json['code'] as int? ?? -1,
+      message: json['message'] as String? ?? '',
+      ttl: json['ttl'] as int?,
+    );
+  }
+
+  /// Check if confirm was successful
+  bool get isSuccess => code == 0;
+}

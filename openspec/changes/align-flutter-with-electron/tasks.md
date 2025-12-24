@@ -187,53 +187,52 @@ This task list is designed for autonomous agent implementation. After completing
 ### A.3 Authentication Alignment
 
 #### A.3.1 Geetest SDK Integration [P0]
-- [ ] A.3.1.1 Research Flutter Geetest SDK options
-  - Options: WebView-based, Native SDK, or custom
-  - Document decision in design.md
+- [x] A.3.1.1 Research Flutter Geetest SDK options
+  - Decision: WebView-based approach using flutter_inappwebview
+  - Documented in design.md (D1 decision)
 
-- [ ] A.3.1.2 Implement Geetest captcha trigger
-  - When login returns captcha challenge
-  - Location: `lib/features/auth/presentation/providers/`
+- [x] A.3.1.2 Implement Geetest captcha trigger
+  - Created `GeetestNotifier` to trigger captcha verification
+  - Location: `lib/features/auth/presentation/providers/geetest_notifier.dart`
   - Reference: `biu/src/common/hooks/use-geetest.ts`
 
-- [ ] A.3.1.3 Create GeetestDialog widget
-  - Display captcha challenge
-  - Return validation result
+- [x] A.3.1.3 Create GeetestDialog widget
+  - WebView-based captcha dialog
+  - Returns validation result via JavaScript bridge
   - Location: `lib/features/auth/presentation/widgets/geetest_dialog.dart`
   - Reference: `biu/src/common/utils/geetest.ts`
 
-- [ ] A.3.1.4 Integrate Geetest with password login
-  - Trigger captcha when API returns challenge
-  - Retry with captcha result
-  - Location: `lib/features/auth/presentation/providers/password_login_notifier.dart`
+- [x] A.3.1.4 Integrate Geetest with password login
+  - Captcha triggers before password login
+  - Location: `lib/features/auth/presentation/widgets/password_login_widget.dart`
   - Reference: `biu/src/layout/navbar/login/password-login.tsx`
 
-- [ ] A.3.1.5 Integrate Geetest with SMS login
-  - Required before sending SMS code
-  - Location: `lib/features/auth/presentation/providers/sms_login_notifier.dart`
+- [x] A.3.1.5 Integrate Geetest with SMS login
+  - Captcha required before sending SMS code
+  - Location: `lib/features/auth/presentation/widgets/sms_login_widget.dart`
   - Reference: `biu/src/layout/navbar/login/code-login.tsx`
 
 #### A.3.2 Cookie Refresh Mechanism [P1]
-- [ ] A.3.2.1 Implement CorrespondPath fetch for refresh_csrf
-  - GET request to get correspond path
-  - Parse HTML response for refresh_csrf
-  - Location: `lib/features/auth/data/datasources/auth_remote_datasource.dart`
-  - Reference: `biu/src/service/passport-login-web-confirm-refresh.ts`
+- [x] A.3.2.1 Implement CorrespondPath fetch for refresh_csrf
+  - RSA-OAEP encryption for correspondPath
+  - HTML parsing for refresh_csrf
+  - Location: `lib/features/auth/data/services/cookie_refresh_service.dart`
+  - Reference: `biu/src/common/utils/cookie.ts`
 
-- [ ] A.3.2.2 Complete `refreshCookie()` flow
-  - Call getCookieInfo -> getCorrespondPath -> refreshCookie -> confirmRefresh
+- [x] A.3.2.2 Complete `refreshCookie()` flow
+  - Full flow: getCookieInfo -> getCorrespondPath -> refreshCookie -> confirmRefresh
   - Location: `lib/features/auth/presentation/providers/auth_notifier.dart`
   - Reference: `biu/src/store/token.ts`
 
 #### A.3.3 Bili Ticket Injection [P1]
-- [ ] A.3.3.1 Implement bili_ticket service
-  - Fetch and cache bili_ticket
+- [x] A.3.3.1 Implement bili_ticket service
+  - Fetch and cache bili_ticket with HMAC-SHA256 signature
   - Auto-refresh before expiry (3 days)
   - Location: `lib/core/network/ticket/bili_ticket_service.dart`
   - Reference: `biu/electron/network/web-bili-ticket.ts`
 
-- [ ] A.3.3.2 Inject bili_ticket in auth interceptor
-  - Add to cookies when making requests
+- [x] A.3.3.2 Inject bili_ticket in auth interceptor
+  - Adds bili_ticket to cookies for all requests
   - Location: `lib/core/network/interceptors/auth_interceptor.dart`
   - Reference: `biu/electron/network/cookie.ts`
 

@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/auth_token.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../../data/repositories/auth_repository_impl.dart';
+import '../../data/datasources/auth_remote_datasource.dart';
+import '../../data/services/cookie_refresh_service.dart';
 import 'auth_state.dart';
 
 /// Provider for the auth repository
@@ -30,8 +32,11 @@ final currentUserProvider = Provider((ref) {
 /// Auth state notifier
 class AuthNotifier extends StateNotifier<AuthState> {
   final AuthRepository _repository;
+  final CookieRefreshService _cookieRefreshService;
 
-  AuthNotifier(this._repository) : super(AuthState.initial) {
+  AuthNotifier(this._repository)
+      : _cookieRefreshService = CookieRefreshService(AuthRemoteDatasource()),
+        super(AuthState.initial) {
     // Check auth status on initialization
     checkAuthStatus();
   }
@@ -136,18 +141,25 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = state.copyWith(isRefreshing: true);
 
     try {
-      final (needsRefresh, timestamp) = await _repository.checkCookieInfo();
+      // Perform cookie refresh using the service
+      final (success, newRefreshToken) =
+          await _cookieRefreshService.refreshCookieIfNeeded(token.refreshToken);
 
-      if (needsRefresh && timestamp > 0) {
-        // TODO: Implement correspond path fetch for refresh_csrf
-        // For now, just update the check time
+      if (success && newRefreshToken != null) {
+        // Update token with new refresh token and next check time
         final newToken = token.copyWith(
+          refreshToken: newRefreshToken,
           nextCheckRefreshTime: _getNextCheckTime(),
         );
         await _repository.storeToken(newToken);
         state = state.copyWith(token: newToken, isRefreshing: false);
       } else {
-        state = state.copyWith(isRefreshing: false);
+        // Just update the check time to try again later
+        final newToken = token.copyWith(
+          nextCheckRefreshTime: _getNextCheckTime(),
+        );
+        await _repository.storeToken(newToken);
+        state = state.copyWith(token: newToken, isRefreshing: false);
       }
     } catch (e) {
       state = state.copyWith(isRefreshing: false);

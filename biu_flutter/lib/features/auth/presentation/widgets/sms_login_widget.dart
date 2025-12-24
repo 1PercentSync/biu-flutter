@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../providers/geetest_notifier.dart';
 import '../providers/sms_login_notifier.dart';
 
 /// SMS login widget
@@ -110,7 +111,7 @@ class _SmsLoginWidgetState extends ConsumerState<SmsLoginWidget> {
             SizedBox(
               width: 120,
               child: OutlinedButton(
-                onPressed: state.canSendCode ? _showCaptchaInfo : null,
+                onPressed: state.canSendCode ? _handleSendCode : null,
                 child: Text(
                   state.countdown > 0
                       ? '${state.countdown}s'
@@ -146,15 +147,50 @@ class _SmsLoginWidgetState extends ConsumerState<SmsLoginWidget> {
 
         // Captcha notice
         const Text(
-          '注意：短信登录需要完成极验验证\n当前版本暂不支持，请使用扫码登录',
+          '发送验证码需要完成极验验证',
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 12,
-            color: Colors.orange,
+            color: Colors.grey,
           ),
         ),
       ],
     );
+  }
+
+  Future<void> _handleSendCode() async {
+    final phone = _phoneController.text.trim();
+
+    if (phone.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('请输入手机号')),
+      );
+      return;
+    }
+
+    // Perform Geetest verification
+    final geetestResult = await ref.read(geetestNotifierProvider.notifier).verify(context);
+
+    if (geetestResult == null || !geetestResult.isValid) {
+      // User cancelled or verification failed
+      return;
+    }
+
+    // Send SMS code with Geetest result
+    final success = await ref.read(smsLoginNotifierProvider.notifier).sendCode(
+      phone: phone,
+      geetestToken: geetestResult.token,
+      geetestChallenge: geetestResult.challenge,
+      geetestValidate: geetestResult.validate,
+      geetestSeccode: geetestResult.seccode,
+    );
+
+    if (success && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('验证码已发送')),
+      );
+      _codeFocusNode.requestFocus();
+    }
   }
 
   void _showCountryCodePicker() {
@@ -201,26 +237,6 @@ class _SmsLoginWidgetState extends ConsumerState<SmsLoginWidget> {
             const SizedBox(height: 16),
           ],
         ),
-      ),
-    );
-  }
-
-  void _showCaptchaInfo() {
-    // In a full implementation, this would launch GeeTest captcha
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('极验验证'),
-        content: const Text(
-          '短信登录需要完成极验(GeeTest)人机验证。\n\n'
-          '当前版本暂不支持极验验证，请使用扫码登录。',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('我知道了'),
-          ),
-        ],
       ),
     );
   }

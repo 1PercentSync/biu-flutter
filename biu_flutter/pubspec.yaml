@@ -70,6 +70,9 @@ dependencies:
   # QR Code display
   qr_flutter: ^4.1.0
 
+  # WebView for Geetest captcha
+  flutter_inappwebview: ^6.1.5
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

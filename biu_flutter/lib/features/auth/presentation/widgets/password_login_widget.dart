@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../providers/geetest_notifier.dart';
 import '../providers/password_login_notifier.dart';
 
 /// Password login widget
@@ -105,7 +106,7 @@ class _PasswordLoginWidgetState extends ConsumerState<PasswordLoginWidget> {
             ),
           ),
           textInputAction: TextInputAction.done,
-          onSubmitted: (_) => _showCaptchaInfo(),
+          onSubmitted: (_) => _handleLogin(),
         ),
         const SizedBox(height: 24),
 
@@ -113,7 +114,7 @@ class _PasswordLoginWidgetState extends ConsumerState<PasswordLoginWidget> {
         SizedBox(
           width: double.infinity,
           child: FilledButton(
-            onPressed: state.isLoading ? null : _showCaptchaInfo,
+            onPressed: state.isLoading ? null : _handleLogin,
             child: state.isLoading
                 ? const SizedBox(
                     width: 20,
@@ -131,35 +132,44 @@ class _PasswordLoginWidgetState extends ConsumerState<PasswordLoginWidget> {
 
         // Captcha notice
         const Text(
-          '注意：密码登录需要完成极验验证\n当前版本暂不支持，请使用扫码登录',
+          '密码登录需要完成极验验证',
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 12,
-            color: Colors.orange,
+            color: Colors.grey,
           ),
         ),
       ],
     );
   }
 
-  void _showCaptchaInfo() {
-    // In a full implementation, this would launch GeeTest captcha
-    // For now, show an info dialog
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('极验验证'),
-        content: const Text(
-          '密码登录需要完成极验(GeeTest)人机验证。\n\n'
-          '当前版本暂不支持极验验证，请使用扫码登录或短信登录。',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('我知道了'),
-          ),
-        ],
-      ),
+  Future<void> _handleLogin() async {
+    final username = _usernameController.text.trim();
+    final password = _passwordController.text;
+
+    if (username.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('请输入账号和密码')),
+      );
+      return;
+    }
+
+    // Perform Geetest verification
+    final geetestResult = await ref.read(geetestNotifierProvider.notifier).verify(context);
+
+    if (geetestResult == null || !geetestResult.isValid) {
+      // User cancelled or verification failed
+      return;
+    }
+
+    // Login with Geetest result
+    await ref.read(passwordLoginNotifierProvider.notifier).login(
+      username: username,
+      password: password,
+      geetestToken: geetestResult.token,
+      geetestChallenge: geetestResult.challenge,
+      geetestValidate: geetestResult.validate,
+      geetestSeccode: geetestResult.seccode,
     );
   }
 

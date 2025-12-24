@@ -2,10 +2,12 @@ import 'package:dio/dio.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 
 import '../wbi/wbi_sign.dart';
+import '../ticket/bili_ticket_service.dart';
 
 /// Interceptor for handling authentication-related tasks:
 /// - Injecting CSRF token
 /// - Adding WBI signature when needed
+/// - Injecting bili_ticket cookie
 class AuthInterceptor extends Interceptor {
   AuthInterceptor({required this.cookieJar});
 
@@ -45,7 +47,30 @@ class AuthInterceptor extends Interceptor {
       );
     }
 
+    // Inject bili_ticket if available
+    await _injectBiliTicket(options);
+
     handler.next(options);
+  }
+
+  /// Inject bili_ticket into request cookies
+  Future<void> _injectBiliTicket(RequestOptions options) async {
+    try {
+      // Ensure ticket is available
+      await BiliTicketService.instance.refreshIfNeeded();
+
+      final ticket = BiliTicketService.instance.ticket;
+      if (ticket != null && ticket.isNotEmpty) {
+        // Add bili_ticket to existing cookies
+        final existingCookie = options.headers['Cookie'] as String? ?? '';
+        final newCookie = existingCookie.isEmpty
+            ? 'bili_ticket=$ticket'
+            : '$existingCookie; bili_ticket=$ticket';
+        options.headers['Cookie'] = newCookie;
+      }
+    } catch (e) {
+      // Silently fail if ticket injection fails
+    }
   }
 
   Future<String?> _getCsrfToken() async {

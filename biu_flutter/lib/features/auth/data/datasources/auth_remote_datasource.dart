@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 
 import '../../../../core/network/dio_client.dart';
+import '../models/captcha_response.dart';
 import '../models/user_info_response.dart';
 import '../models/qrcode_response.dart';
 import '../models/login_response.dart';
@@ -52,6 +53,16 @@ class AuthRemoteDatasource {
       '/x/passport-login/web/key',
     );
     return WebKeyResponse.fromJson(response.data ?? {});
+  }
+
+  /// Get captcha challenge for Geetest verification
+  /// GET /x/passport-login/captcha
+  Future<CaptchaResponse> getCaptcha({String source = 'main_web'}) async {
+    final response = await _passportDio.get<Map<String, dynamic>>(
+      '/x/passport-login/captcha',
+      queryParameters: {'source': source},
+    );
+    return CaptchaResponse.fromJson(response.data ?? {});
   }
 
   /// Login with password
@@ -167,6 +178,52 @@ class AuthRemoteDatasource {
       ),
     );
     return CookieRefreshResponse.fromJson(response.data ?? {});
+  }
+
+  /// Confirm cookie refresh (invalidates old refresh_token)
+  /// POST /x/passport-login/web/confirm/refresh
+  Future<ConfirmRefreshResponse> confirmRefresh({
+    required String refreshToken,
+  }) async {
+    // Get CSRF token from cookies
+    final csrf = await DioClient.instance.getCookie('bili_jct');
+
+    final response = await _passportDio.post<Map<String, dynamic>>(
+      '/x/passport-login/web/confirm/refresh',
+      data: {
+        'refresh_token': refreshToken,
+        'csrf': csrf ?? '',
+      },
+      options: Options(
+        contentType: Headers.formUrlEncodedContentType,
+      ),
+    );
+    return ConfirmRefreshResponse.fromJson(response.data ?? {});
+  }
+
+  /// Get correspond path page HTML to extract refresh_csrf
+  /// GET /correspond/1/{correspondPath}
+  Future<String> getCorrespondPathHtml(String correspondPath) async {
+    // Use main site Dio for this request
+    final mainSiteDio = Dio(BaseOptions(
+      baseUrl: 'https://www.bilibili.com',
+      connectTimeout: const Duration(seconds: 10),
+      receiveTimeout: const Duration(seconds: 10),
+    ));
+
+    // Copy cookies from main dio
+    final cookies = await DioClient.instance.getCookies('https://www.bilibili.com');
+    if (cookies.isNotEmpty) {
+      mainSiteDio.options.headers['Cookie'] = cookies.map((c) => '${c.name}=${c.value}').join('; ');
+    }
+
+    final response = await mainSiteDio.get<String>(
+      '/correspond/1/$correspondPath',
+      options: Options(
+        responseType: ResponseType.plain,
+      ),
+    );
+    return response.data ?? '';
   }
 
   /// Logout

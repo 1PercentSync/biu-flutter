@@ -135,6 +135,11 @@ class DioClient {
     return cookies.map((c) => '${c.name}=${c.value}').join('; ');
   }
 
+  /// Get all cookies for a URL
+  Future<List<Cookie>> getCookies(String url) async {
+    return _cookieJar.loadForRequest(Uri.parse(url));
+  }
+
   /// Clear all cookies
   Future<void> clearCookies() async {
     await _cookieJar.deleteAll();

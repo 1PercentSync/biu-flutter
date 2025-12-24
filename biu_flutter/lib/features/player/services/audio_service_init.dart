@@ -6,6 +6,7 @@ import 'package:biu_flutter/features/audio/data/datasources/audio_remote_datasou
 import 'package:biu_flutter/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:biu_flutter/features/player/presentation/providers/playlist_notifier.dart';
 import 'package:biu_flutter/features/player/services/audio_player_service.dart';
+import 'package:biu_flutter/features/settings/presentation/providers/settings_notifier.dart';
 import 'package:biu_flutter/features/video/data/datasources/video_remote_datasource.dart';
 
 /// Video fnval constants for DASH format
@@ -59,6 +60,10 @@ void _setupAudioFetchCallbacks(PlaylistNotifier notifier, ProviderContainer cont
     try {
       debugPrint('[Audio] Fetching MV audio URL: bvid=$bvid, cid=$cid');
 
+      // Get user audio quality preference from settings
+      final audioQuality = container.read(settingsNotifierProvider).audioQuality;
+      debugPrint('[Audio] User audio quality preference: ${audioQuality.value}');
+
       final playUrl = await videoDataSource.getPlayUrl(
         bvid: bvid,
         cid: int.parse(cid),
@@ -71,17 +76,18 @@ void _setupAudioFetchCallbacks(PlaylistNotifier notifier, ProviderContainer cont
         return null;
       }
 
-      // Get best audio stream (FLAC > Dolby > standard)
-      final bestAudio = dash.getBestAudio();
-      if (bestAudio != null) {
-        final url = bestAudio.baseUrl.isNotEmpty
-            ? bestAudio.baseUrl
-            : bestAudio.backupUrl.isNotEmpty
-                ? bestAudio.backupUrl.first
+      // Select audio stream based on user quality preference
+      // Reference: `biu/src/common/utils/audio.ts:selectAudioByQuality`
+      final selectedAudio = dash.selectAudioByQuality(audioQuality.value);
+      if (selectedAudio != null) {
+        final url = selectedAudio.baseUrl.isNotEmpty
+            ? selectedAudio.baseUrl
+            : selectedAudio.backupUrl.isNotEmpty
+                ? selectedAudio.backupUrl.first
                 : null;
 
         debugPrint('[Audio] Got audio URL: ${url?.substring(0, 50)}..., '
-            'flac=${dash.hasFlac}, dolby=${dash.hasDolby}');
+            'quality=${audioQuality.value}, flac=${dash.hasFlac}, dolby=${dash.hasDolby}');
         return url;
       }
 

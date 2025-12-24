@@ -101,7 +101,7 @@ This task list is designed for autonomous agent implementation. After completing
 ### A.2 Player Module Alignment
 
 #### A.2.1 URL Validity Checking [P0]
-- [ ] A.2.1.1 Create `isUrlValid()` utility function
+- [x] A.2.1.1 Create `isUrlValid()` utility function
   ```dart
   bool isUrlValid(String? url) {
     if (url == null || url.isEmpty) return false;
@@ -115,14 +115,14 @@ This task list is designed for autonomous agent implementation. After completing
   - Location: `lib/core/utils/url_utils.dart`
   - Reference: `biu/src/common/utils/audio.ts:123-126`
 
-- [ ] A.2.1.2 Integrate URL check in `_ensureAudioUrlValid()`
+- [x] A.2.1.2 Integrate URL check in `_ensureAudioUrlValid()`
   - Check validity BEFORE attempting playback
   - If invalid, fetch fresh URL immediately
   - Location: `lib/features/player/presentation/providers/playlist_notifier.dart:577`
   - Reference: `biu/src/store/play-list.ts:247-260`
 
 #### A.2.2 Audio Quality Selection [P0]
-- [ ] A.2.2.1 Create UserAudioQuality enum
+- [x] A.2.2.1 Create UserAudioQuality enum
   ```dart
   enum UserAudioQuality {
     auto('auto', 'Auto'),
@@ -134,13 +134,15 @@ This task list is designed for autonomous agent implementation. After completing
   ```
   - Location: `lib/core/constants/audio.dart`
   - Reference: `biu/shared/types/app-setting.d.ts:1`
+  - Note: Used existing `AudioQualitySetting` enum from `lib/features/settings/domain/entities/app_settings.dart`
 
-- [ ] A.2.2.2 Add quality selection to settings
+- [x] A.2.2.2 Add quality selection to settings
   - Use current AudioQualitySetting or merge
   - Location: `lib/features/settings/domain/entities/app_settings.dart`
   - Reference: `biu/shared/settings/app-settings.ts`
+  - Note: Already implemented
 
-- [ ] A.2.2.3 Implement `selectAudioByQuality()` function
+- [x] A.2.2.3 Implement `selectAudioByQuality()` function
   ```dart
   DashAudio? selectAudioByQuality(List<DashAudio> audioList, UserAudioQuality quality) {
     final sorted = sortAudioByQuality(audioList);
@@ -155,28 +157,30 @@ This task list is designed for autonomous agent implementation. After completing
   - Location: `lib/features/video/data/models/play_url.dart`
   - Reference: `biu/src/common/utils/audio.ts:26-43`
 
-- [ ] A.2.2.4 Apply quality preference in audio URL fetch
+- [x] A.2.2.4 Apply quality preference in audio URL fetch
   - Read from settings provider
   - Pass to URL selection logic
   - Location: `lib/features/player/services/audio_service_init.dart`
   - Reference: `biu/src/common/utils/audio.ts:45-100`
 
 #### A.2.3 Multi-Part Video addToNext Fix [P1]
-- [ ] A.2.3.1 Update `addToNext()` logic for MV type
+- [x] A.2.3.1 Update `addToNext()` logic for MV type
   - For MV: Insert after last page of current video
   - For Audio: Insert after current item
   - Location: `lib/features/player/presentation/providers/playlist_notifier.dart:294`
   - Reference: `biu/src/store/play-list.ts:729-745`
 
 #### A.2.4 Playback Rate UI [P1]
-- [ ] A.2.4.1 Add rate selector to full player screen
+- [x] A.2.4.1 Add rate selector to full player screen
   - Options: 0.5x, 0.75x, 1.0x, 1.25x, 1.5x, 2.0x
   - Location: `lib/shared/widgets/playbar/full_player_screen.dart`
   - Reference: `biu/src/layout/playbar/right/rate.tsx`
+  - Note: Already implemented as `_RateDialog` with matching rate options
 
-- [ ] A.2.4.2 Create rate picker bottom sheet widget
+- [x] A.2.4.2 Create rate picker bottom sheet widget
   - Location: `lib/shared/widgets/playbar/rate_picker_sheet.dart`
   - Reference: `biu/src/layout/playbar/right/rate.tsx`
+  - Note: Implemented as dialog instead of bottom sheet (better for mobile UX)
 
 ---
 

@@ -8,6 +8,7 @@ import 'package:just_audio/just_audio.dart';
 
 import 'package:biu_flutter/core/constants/audio.dart';
 import 'package:biu_flutter/core/storage/storage_service.dart';
+import 'package:biu_flutter/core/utils/url_utils.dart';
 import 'package:biu_flutter/features/player/domain/entities/play_item.dart';
 import 'package:biu_flutter/features/player/presentation/providers/playlist_state.dart';
 import 'package:biu_flutter/features/player/services/audio_player_service.dart';
@@ -290,7 +291,12 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
     await _playCurrentItem();
   }
 
-  /// Add item to play next
+  /// Add item to play next.
+  ///
+  /// For audio type: Insert directly after current item.
+  /// For MV type: Insert after the LAST page of the current video.
+  ///
+  /// Reference: `biu/src/store/play-list.ts:729-745`
   Future<void> addToNext(PlayItem item) async {
     // Don't add if currently playing
     final currentItem = state.currentItem;
@@ -321,9 +327,24 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
       return;
     }
 
-    // Insert after current item
-    final currentIndex = state.currentIndex;
-    final insertIndex = currentIndex == -1 ? 0 : currentIndex + 1;
+    // Determine insert position based on current item type
+    int insertIndex;
+    if (currentItem?.type == PlayDataType.audio) {
+      // For audio: Insert directly after current item
+      final currentIndex = state.currentIndex;
+      insertIndex = currentIndex == -1 ? 0 : currentIndex + 1;
+    } else if (currentItem?.type == PlayDataType.mv && currentItem?.bvid != null) {
+      // For MV: Find the last page of the current video and insert after it
+      final lastPageIndex = state.list.lastIndexWhere(
+        (i) => i.bvid == currentItem!.bvid,
+      );
+      insertIndex = lastPageIndex == -1 ? state.length : lastPageIndex + 1;
+    } else {
+      // Fallback: Insert after current item
+      final currentIndex = state.currentIndex;
+      insertIndex = currentIndex == -1 ? 0 : currentIndex + 1;
+    }
+
     final newList = [...state.list];
     newList.insert(insertIndex, item);
 
@@ -575,6 +596,12 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
   }
 
   /// Ensures audio URL is valid and loaded. Returns true if successful.
+  ///
+  /// This method proactively checks URL validity using the deadline parameter
+  /// before attempting playback, which provides a better user experience
+  /// compared to waiting for playback to fail.
+  ///
+  /// Reference: `biu/src/store/play-list.ts:247-260`
   Future<bool> _ensureAudioUrlValid() async {
     final currentItem = state.currentItem;
     if (currentItem == null) {
@@ -588,8 +615,16 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
     // First, try to get a fresh URL if we don't have one or need to refresh
     String? audioUrl = currentItem.audioUrl;
 
-    // Always fetch fresh URL for playback to avoid expired URLs
-    if (audioUrl == null || audioUrl.isEmpty) {
+    // Check URL validity using deadline parameter
+    // Bilibili URLs have a deadline query param that indicates expiry time
+    final isValid = UrlUtils.isUrlValid(audioUrl);
+    debugPrint('[Playlist] Current URL valid: $isValid');
+
+    // Fetch fresh URL if:
+    // 1. No URL available
+    // 2. URL has expired (deadline passed)
+    if (audioUrl == null || audioUrl.isEmpty || !isValid) {
+      debugPrint('[Playlist] Fetching fresh audio URL (expired or missing)');
       audioUrl = await _fetchAudioUrl(currentItem);
       if (audioUrl != null) {
         updateCurrentItemAudioUrl(audioUrl: audioUrl);

@@ -222,6 +222,94 @@ class DashInfo {
         audio.where((a) => a.id <= qualityId).firstOrNull;
   }
 
+  /// Sort audio streams by quality (highest first).
+  /// Priority: Higher quality ID, then higher bandwidth.
+  ///
+  /// Reference: `biu/src/common/utils/audio.ts:sortAudio`
+  List<DashAudio> _sortAudioByQuality() {
+    if (audio.isEmpty) return [];
+
+    // Audio quality sort order (higher index = better)
+    const qualitySort = [
+      30257, // 64K
+      30216, // 64K (legacy)
+      30259, // 128K
+      30260, // 128K (legacy)
+      30232, // 132K
+      30280, // 192K
+      30250, // Dolby
+      30251, // Hi-Res
+    ];
+
+    final sorted = List<DashAudio>.from(audio);
+    sorted.sort((a, b) {
+      // First sort by bandwidth (higher = better)
+      if (a.bandwidth != b.bandwidth) {
+        return b.bandwidth.compareTo(a.bandwidth);
+      }
+
+      // Then sort by quality ID position
+      final indexA = qualitySort.indexOf(a.id);
+      final indexB = qualitySort.indexOf(b.id);
+      if (indexA == -1) return 1;
+      if (indexB == -1) return -1;
+      return indexB.compareTo(indexA);
+    });
+
+    return sorted;
+  }
+
+  /// Select audio by user quality preference.
+  ///
+  /// [quality] can be:
+  /// - 'auto' or 'lossless': FLAC > Dolby > highest standard
+  /// - 'high': Highest bitrate standard audio (192K)
+  /// - 'standard': Middle bitrate (128K)
+  /// - 'low': Lowest bitrate (64K)
+  /// - 'hires': Lossless only (FLAC), fallback to Dolby
+  ///
+  /// Reference: `biu/src/common/utils/audio.ts:selectAudioByQuality`
+  DashAudio? selectAudioByQuality(String quality) {
+    // For auto and lossless/hires, prefer FLAC and Dolby
+    if (quality == 'auto' || quality == 'hires' || quality == 'lossless') {
+      // Try FLAC first (lossless)
+      if (flac?.audio != null) {
+        return flac!.audio;
+      }
+
+      // Try Dolby
+      if (dolby != null && dolby!.audio.isNotEmpty) {
+        return dolby!.audio.first;
+      }
+
+      // For 'hires', if no lossless available, still fall back to best standard
+      // For 'auto', always fall back to best standard
+    }
+
+    // Get sorted standard audio list
+    final sortedList = _sortAudioByQuality();
+    if (sortedList.isEmpty) return null;
+
+    switch (quality) {
+      case 'high':
+        // Return highest quality
+        return sortedList.first;
+
+      case 'standard':
+        // Return middle quality
+        final midIndex = (sortedList.length - 1) ~/ 2;
+        return sortedList[midIndex];
+
+      case 'low':
+        // Return lowest quality
+        return sortedList.last;
+
+      default:
+        // Default to highest available
+        return sortedList.first;
+    }
+  }
+
   Map<String, dynamic> toJson() => {
     'duration': duration,
     'minBufferTime': minBufferTime,

@@ -2,6 +2,43 @@
 class UrlUtils {
   UrlUtils._();
 
+  /// Check if a Bilibili media URL is still valid based on its deadline parameter.
+  ///
+  /// Bilibili audio/video URLs contain a `deadline` query parameter that indicates
+  /// when the URL expires. This function checks if the URL is still valid.
+  ///
+  /// Returns `true` if:
+  /// - URL is valid and has no deadline (assumed valid)
+  /// - URL is valid and deadline has not passed
+  ///
+  /// Returns `false` if:
+  /// - URL is null or empty
+  /// - URL is malformed
+  /// - Deadline has passed
+  ///
+  /// Reference: `biu/src/common/utils/audio.ts:isUrlValid`
+  static bool isUrlValid(String? url) {
+    if (url == null || url.isEmpty) return false;
+
+    try {
+      final uri = Uri.parse(url);
+      final deadline = uri.queryParameters['deadline'];
+
+      // No deadline parameter - assume URL is valid
+      if (deadline == null || deadline.isEmpty) return true;
+
+      final deadlineTime = int.tryParse(deadline);
+      if (deadlineTime == null) return true;
+
+      // Compare current time with deadline (deadline is in Unix seconds)
+      final nowSeconds = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+      return nowSeconds < deadlineTime;
+    } catch (_) {
+      // Malformed URL - consider invalid
+      return false;
+    }
+  }
+
   /// Ensure URL uses HTTPS protocol
   static String formatProtocol(String? url) {
     if (url == null || url.isEmpty) return '';

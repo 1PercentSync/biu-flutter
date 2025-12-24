@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group('SearchHistoryItem', () {
     test('creates item with correct values', () {
-      final item = SearchHistoryItem(
+      const item = SearchHistoryItem(
         value: 'test query',
         timestamp: 1703123456000,
       );
@@ -40,7 +40,7 @@ void main() {
     });
 
     test('toJson serializes correctly', () {
-      final item = SearchHistoryItem(
+      const item = SearchHistoryItem(
         value: 'test',
         timestamp: 1703123456000,
       );
@@ -50,15 +50,15 @@ void main() {
     });
 
     test('equality based on value', () {
-      final item1 = SearchHistoryItem(
+      const item1 = SearchHistoryItem(
         value: 'same query',
         timestamp: 1000,
       );
-      final item2 = SearchHistoryItem(
+      const item2 = SearchHistoryItem(
         value: 'same query',
         timestamp: 2000,
       );
-      final item3 = SearchHistoryItem(
+      const item3 = SearchHistoryItem(
         value: 'different query',
         timestamp: 1000,
       );
@@ -68,11 +68,11 @@ void main() {
     });
 
     test('hashCode based on value', () {
-      final item1 = SearchHistoryItem(
+      const item1 = SearchHistoryItem(
         value: 'test',
         timestamp: 1000,
       );
-      final item2 = SearchHistoryItem(
+      const item2 = SearchHistoryItem(
         value: 'test',
         timestamp: 2000,
       );

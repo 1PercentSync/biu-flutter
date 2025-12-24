@@ -8,8 +8,7 @@ import '../providers/search_history_notifier.dart';
 /// Widget displaying search history with chips
 class SearchHistoryWidget extends ConsumerWidget {
   const SearchHistoryWidget({
-    super.key,
-    required this.onSelect,
+    required this.onSelect, super.key,
   });
 
   final void Function(String query) onSelect;

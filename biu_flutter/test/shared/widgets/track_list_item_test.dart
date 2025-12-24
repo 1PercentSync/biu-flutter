@@ -1,6 +1,6 @@
+import 'package:biu_flutter/shared/widgets/track_list_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:biu_flutter/shared/widgets/track_list_item.dart';
 
 void main() {
   // Helper to wrap widget with MaterialApp for testing
@@ -122,7 +122,6 @@ void main() {
         const TrackListItem(
           title: 'Test Track',
           isActive: true,
-          isPlaying: false,
         ),
       ));
 

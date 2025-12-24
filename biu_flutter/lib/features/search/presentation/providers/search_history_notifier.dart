@@ -45,7 +45,7 @@ class SearchHistoryNotifier extends StateNotifier<SearchHistoryState> {
     try {
       final jsonStr = await _storage.getString(_storageKey);
       if (jsonStr != null) {
-        final List<dynamic> jsonList = json.decode(jsonStr) as List<dynamic>;
+        final jsonList = json.decode(jsonStr) as List<dynamic>;
         final items = jsonList
             .map((e) => SearchHistoryItem.fromJson(e as Map<String, dynamic>))
             .toList();

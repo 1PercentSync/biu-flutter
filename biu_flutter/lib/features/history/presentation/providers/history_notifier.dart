@@ -1,7 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/datasources/history_remote_datasource.dart';
-import '../../data/models/history_item.dart';
 import 'history_state.dart';
 
 /// Provider for history datasource
@@ -34,7 +33,7 @@ class HistoryNotifier extends StateNotifier<HistoryState> {
 
     try {
       final response = await _dataSource.getHistoryCursor(
-        type: HistoryFilterType.archive,
+        
       );
 
       state = state.copyWith(
@@ -69,7 +68,6 @@ class HistoryNotifier extends StateNotifier<HistoryState> {
         max: cursor.max,
         business: cursor.business,
         viewAt: cursor.viewAt,
-        type: HistoryFilterType.archive,
       );
 
       state = state.copyWith(
@@ -105,7 +103,7 @@ class HistoryNotifier extends StateNotifier<HistoryState> {
 
     try {
       final response = await _dataSource.getHistoryCursor(
-        type: HistoryFilterType.archive,
+        
       );
 
       state = state.copyWith(

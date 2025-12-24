@@ -1,7 +1,6 @@
-import 'package:flutter_test/flutter_test.dart';
-import 'package:biu_flutter/features/auth/presentation/providers/auth_state.dart';
 import 'package:biu_flutter/features/auth/domain/entities/user.dart';
-import 'package:biu_flutter/features/auth/domain/entities/auth_token.dart';
+import 'package:biu_flutter/features/auth/presentation/providers/auth_state.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('AuthStatus', () {
@@ -49,7 +48,7 @@ void main() {
     });
 
     test('isLoading returns true for initial status', () {
-      const state = AuthState(status: AuthStatus.initial);
+      const state = AuthState();
       expect(state.isLoading, true);
     });
 
@@ -139,7 +138,7 @@ void main() {
     });
 
     test('isVip returns false when vipStatus is 0', () {
-      final user = _createTestUser(vipStatus: 0);
+      final user = _createTestUser();
       expect(user.isVip, false);
     });
 
@@ -149,7 +148,7 @@ void main() {
     });
 
     test('isAnnualVip returns false when vipType < 2', () {
-      expect(_createTestUser(vipType: 0).isAnnualVip, false);
+      expect(_createTestUser().isAnnualVip, false);
       expect(_createTestUser(vipType: 1).isAnnualVip, false);
     });
 

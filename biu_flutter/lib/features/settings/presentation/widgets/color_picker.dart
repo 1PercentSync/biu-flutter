@@ -6,9 +6,7 @@ import '../../domain/entities/app_settings.dart';
 /// Color picker dialog widget with preset colors
 class ColorPicker extends StatelessWidget {
   const ColorPicker({
-    super.key,
-    required this.currentColor,
-    required this.onSelected,
+    required this.currentColor, required this.onSelected, super.key,
   });
 
   final Color currentColor;

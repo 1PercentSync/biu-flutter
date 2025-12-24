@@ -1,12 +1,5 @@
 /// Search history item entity
 class SearchHistoryItem {
-  const SearchHistoryItem({
-    required this.value,
-    required this.timestamp,
-  });
-
-  final String value;
-  final int timestamp;
 
   factory SearchHistoryItem.fromJson(Map<String, dynamic> json) {
     return SearchHistoryItem(
@@ -14,6 +7,13 @@ class SearchHistoryItem {
       timestamp: json['timestamp'] as int? ?? json['time'] as int? ?? 0,
     );
   }
+  const SearchHistoryItem({
+    required this.value,
+    required this.timestamp,
+  });
+
+  final String value;
+  final int timestamp;
 
   Map<String, dynamic> toJson() => {
         'value': value,

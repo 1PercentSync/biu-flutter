@@ -116,7 +116,6 @@ class AppCachedImage extends StatelessWidget {
         borderRadius: borderRadius,
         border: Border.all(
           color: AppColors.border,
-          width: 1,
         ),
       ),
       child: Center(

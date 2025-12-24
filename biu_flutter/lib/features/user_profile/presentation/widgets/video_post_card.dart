@@ -42,7 +42,6 @@ class VideoPostCard extends StatelessWidget {
                     ),
                     child: AppCachedImage(
                       imageUrl: video.pic,
-                      fit: BoxFit.cover,
                     ),
                   ),
                   // Duration badge
@@ -198,7 +197,6 @@ class VideoPostListTile extends StatelessWidget {
                             BorderRadius.circular(AppTheme.borderRadius),
                         child: AppCachedImage(
                           imageUrl: video.pic,
-                          fit: BoxFit.cover,
                         ),
                       ),
                       // Duration badge

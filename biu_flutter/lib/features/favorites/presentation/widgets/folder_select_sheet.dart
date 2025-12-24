@@ -59,7 +59,7 @@ class FolderSelectSheet extends ConsumerWidget {
             // Header
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 border: Border(
                   bottom: BorderSide(color: AppColors.divider),
                 ),
@@ -120,13 +120,13 @@ class FolderSelectSheet extends ConsumerWidget {
                               ),
                               subtitle: Text(
                                 '${folder.mediaCount} items',
-                                style: TextStyle(
+                                style: const TextStyle(
                                   color: AppColors.textSecondary,
                                   fontSize: 12,
                                 ),
                               ),
                               secondary: folder.isPrivate
-                                  ? Icon(
+                                  ? const Icon(
                                       Icons.lock,
                                       size: 18,
                                       color: AppColors.textTertiary,
@@ -144,7 +144,7 @@ class FolderSelectSheet extends ConsumerWidget {
   }
 
   Widget _buildEmpty() {
-    return Center(
+    return const Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -153,7 +153,7 @@ class FolderSelectSheet extends ConsumerWidget {
             size: 48,
             color: AppColors.textTertiary,
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           Text(
             'No folders',
             style: TextStyle(color: AppColors.textSecondary),

@@ -1,5 +1,5 @@
-import '../../domain/entities/favorites_folder.dart';
 import '../../domain/entities/fav_media.dart';
+import '../../domain/entities/favorites_folder.dart';
 
 /// State for the favorites folder list.
 class FavoritesListState {
@@ -177,7 +177,7 @@ class FolderSelectState {
   bool get hasChanges {
     if (selectedIds.length != originalIds.length) return true;
     final selectedSet = selectedIds.toSet();
-    return !originalIds.every((id) => selectedSet.contains(id));
+    return !originalIds.every(selectedSet.contains);
   }
 
   FolderSelectState copyWith({

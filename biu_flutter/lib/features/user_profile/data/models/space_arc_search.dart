@@ -116,8 +116,7 @@ class SpaceArcTListItem {
 /// Video list data
 class SpaceArcSearchList {
   const SpaceArcSearchList({
-    this.tlist,
-    required this.vlist,
+    required this.vlist, this.tlist,
   });
 
   factory SpaceArcSearchList.fromJson(Map<String, dynamic> json) {

@@ -33,11 +33,11 @@ final hiddenFolderIdsProvider = Provider<List<int>>((ref) {
 
 /// Settings state notifier
 class SettingsNotifier extends StateNotifier<AppSettings> {
-  final StorageService _storage;
 
   SettingsNotifier(this._storage) : super(AppSettings.defaults) {
     _loadSettings();
   }
+  final StorageService _storage;
 
   /// Load settings from storage
   Future<void> _loadSettings() async {

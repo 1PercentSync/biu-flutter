@@ -60,7 +60,6 @@ class HistoryItemCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
             child: AppCachedImage(
               imageUrl: item.cover,
-              fit: BoxFit.cover,
               fileType: FileType.video,
             ),
           ),

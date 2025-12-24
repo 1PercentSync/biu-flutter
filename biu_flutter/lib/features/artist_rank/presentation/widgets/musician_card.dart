@@ -37,7 +37,6 @@ class MusicianCard extends StatelessWidget {
                 children: [
                   AppCachedImage(
                     imageUrl: musician.cover,
-                    fit: BoxFit.cover,
                     fileType: FileType.video,
                   ),
                   // Title overlay at top left
@@ -82,8 +81,6 @@ class MusicianCard extends StatelessWidget {
                       height: 40,
                       child: AppCachedImage(
                         imageUrl: musician.userProfile,
-                        fit: BoxFit.cover,
-                        fileType: FileType.audio,
                       ),
                     ),
                   ),
@@ -154,8 +151,6 @@ class MusicianListTile extends StatelessWidget {
           height: 48,
           child: AppCachedImage(
             imageUrl: musician.userProfile,
-            fit: BoxFit.cover,
-            fileType: FileType.audio,
           ),
         ),
       ),
@@ -168,7 +163,7 @@ class MusicianListTile extends StatelessWidget {
         children: [
           Text(
             '${_formatCount(musician.fansCount)} fans',
-            style: TextStyle(
+            style: const TextStyle(
               color: AppColors.textSecondary,
               fontSize: 12,
             ),
@@ -176,7 +171,7 @@ class MusicianListTile extends StatelessWidget {
           const SizedBox(width: 12),
           Text(
             '${musician.archiveCount} videos',
-            style: TextStyle(
+            style: const TextStyle(
               color: AppColors.textTertiary,
               fontSize: 12,
             ),

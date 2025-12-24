@@ -65,7 +65,7 @@ class RsaUtils {
       final publicKeyBitString = topLevelSeq.elements![1] as ASN1BitString;
 
       // Parse the actual public key
-      final publicKeyAsn = ASN1Parser(publicKeyBitString.valueBytes!);
+      final publicKeyAsn = ASN1Parser(publicKeyBitString.valueBytes);
       final publicKeySeq = publicKeyAsn.nextObject() as ASN1Sequence;
 
       final modulus = publicKeySeq.elements![0] as ASN1Integer;

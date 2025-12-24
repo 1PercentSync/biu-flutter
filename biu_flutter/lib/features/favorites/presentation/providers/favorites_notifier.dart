@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../auth/auth.dart';
+import '../../data/repositories/favorites_repository_impl.dart';
 import '../../domain/entities/fav_media.dart';
 import '../../domain/repositories/favorites_repository.dart';
-import '../../data/repositories/favorites_repository_impl.dart';
 import 'favorites_state.dart';
 
 /// Provider for the favorites repository.
@@ -36,8 +36,6 @@ final folderSelectProvider = StateNotifierProvider.family<FolderSelectNotifier,
 
 /// Notifier for managing favorites list.
 class FavoritesListNotifier extends StateNotifier<FavoritesListState> {
-  final FavoritesRepository _repository;
-  final int? _userMid;
 
   FavoritesListNotifier(this._repository, this._userMid)
       : super(const FavoritesListState()) {
@@ -46,6 +44,8 @@ class FavoritesListNotifier extends StateNotifier<FavoritesListState> {
       loadCollectedFolders();
     }
   }
+  final FavoritesRepository _repository;
+  final int? _userMid;
 
   /// Load created folders.
   Future<void> loadCreatedFolders({bool refresh = false}) async {
@@ -206,13 +206,13 @@ class FavoritesListNotifier extends StateNotifier<FavoritesListState> {
 
 /// Notifier for folder detail screen.
 class FolderDetailNotifier extends StateNotifier<FolderDetailState> {
-  final FavoritesRepository _repository;
-  final int _folderId;
 
   FolderDetailNotifier(this._repository, this._folderId)
       : super(const FolderDetailState()) {
     load();
   }
+  final FavoritesRepository _repository;
+  final int _folderId;
 
   /// Load folder resources.
   Future<void> load({bool refresh = false}) async {
@@ -440,9 +440,6 @@ class FolderDetailNotifier extends StateNotifier<FolderDetailState> {
 
 /// Notifier for folder selection.
 class FolderSelectNotifier extends StateNotifier<FolderSelectState> {
-  final FavoritesRepository _repository;
-  final int? _userMid;
-  final String _resourceId;
 
   FolderSelectNotifier(this._repository, this._userMid, this._resourceId)
       : super(const FolderSelectState()) {
@@ -450,6 +447,9 @@ class FolderSelectNotifier extends StateNotifier<FolderSelectState> {
       load();
     }
   }
+  final FavoritesRepository _repository;
+  final int? _userMid;
+  final String _resourceId;
 
   /// Load folders with favorite status.
   Future<void> load() async {

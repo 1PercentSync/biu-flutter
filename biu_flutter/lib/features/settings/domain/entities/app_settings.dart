@@ -53,6 +53,26 @@ enum AudioQualitySetting {
 
 /// App settings entity matching source app configuration
 class AppSettings {
+
+  factory AppSettings.fromJson(Map<String, dynamic> json) {
+    return AppSettings(
+      audioQuality: AudioQualitySetting.fromValue(
+        json['audioQuality'] as String? ?? 'auto',
+      ),
+      primaryColor: Color(json['primaryColor'] as int? ?? 0xFF17C964),
+      backgroundColor: Color(json['backgroundColor'] as int? ?? 0xFF18181B),
+      contentBackgroundColor:
+          Color(json['contentBackgroundColor'] as int? ?? 0xFF1F1F1F),
+      borderRadius: (json['borderRadius'] as num?)?.toDouble() ?? 8.0,
+      displayMode: DisplayMode.fromValue(
+        json['displayMode'] as String? ?? 'card',
+      ),
+      hiddenFolderIds: (json['hiddenFolderIds'] as List<dynamic>?)
+              ?.map((e) => e as int)
+              .toList() ??
+          [],
+    );
+  }
   const AppSettings({
     this.audioQuality = AudioQualitySetting.auto,
     this.primaryColor = const Color(0xFF17C964),
@@ -132,26 +152,6 @@ class AppSettings {
     };
   }
 
-  factory AppSettings.fromJson(Map<String, dynamic> json) {
-    return AppSettings(
-      audioQuality: AudioQualitySetting.fromValue(
-        json['audioQuality'] as String? ?? 'auto',
-      ),
-      primaryColor: Color(json['primaryColor'] as int? ?? 0xFF17C964),
-      backgroundColor: Color(json['backgroundColor'] as int? ?? 0xFF18181B),
-      contentBackgroundColor:
-          Color(json['contentBackgroundColor'] as int? ?? 0xFF1F1F1F),
-      borderRadius: (json['borderRadius'] as num?)?.toDouble() ?? 8.0,
-      displayMode: DisplayMode.fromValue(
-        json['displayMode'] as String? ?? 'card',
-      ),
-      hiddenFolderIds: (json['hiddenFolderIds'] as List<dynamic>?)
-              ?.map((e) => e as int)
-              .toList() ??
-          [],
-    );
-  }
-
   /// Check if a folder is hidden
   bool isFolderHidden(int folderId) => hiddenFolderIds.contains(folderId);
 
@@ -160,7 +160,7 @@ class AppSettings {
     if (identical(this, other)) return true;
     if (other is! AppSettings) return false;
     if (hiddenFolderIds.length != other.hiddenFolderIds.length) return false;
-    for (int i = 0; i < hiddenFolderIds.length; i++) {
+    for (var i = 0; i < hiddenFolderIds.length; i++) {
       if (hiddenFolderIds[i] != other.hiddenFolderIds[i]) return false;
     }
     return other.audioQuality == audioQuality &&

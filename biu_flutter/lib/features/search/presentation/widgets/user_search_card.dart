@@ -7,8 +7,7 @@ import '../../data/models/search_result.dart';
 /// Card widget for displaying user search results
 class UserSearchCard extends StatelessWidget {
   const UserSearchCard({
-    super.key,
-    required this.user,
+    required this.user, super.key,
     this.onTap,
   });
 

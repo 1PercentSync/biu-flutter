@@ -35,8 +35,8 @@ class FavoritesScreen extends ConsumerWidget {
                     tooltip: 'Create Folder',
                   ),
                 ],
-                bottom: TabBar(
-                  tabs: const [
+                bottom: const TabBar(
+                  tabs: [
                     Tab(text: 'Created'),
                     Tab(text: 'Collected'),
                   ],
@@ -94,7 +94,7 @@ class _CreatedFoldersTab extends ConsumerWidget {
 
     if (state.createdFolders.isEmpty) {
       return EmptyState(
-        icon: Icon(
+        icon: const Icon(
           Icons.folder_special,
           size: 48,
           color: AppColors.textTertiary,
@@ -172,7 +172,7 @@ class _CollectedFoldersTab extends ConsumerWidget {
     }
 
     if (state.collectedFolders.isEmpty) {
-      return EmptyState(
+      return const EmptyState(
         icon: Icon(
           Icons.bookmark,
           size: 48,
@@ -239,11 +239,10 @@ class _FolderListItem extends StatelessWidget {
           child: folder.cover.isNotEmpty
               ? AppCachedImage(
                   imageUrl: folder.cover,
-                  fit: BoxFit.cover,
                 )
-              : Container(
+              : const ColoredBox(
                   color: AppColors.contentBackground,
-                  child: const Icon(
+                  child: Icon(
                     Icons.folder,
                     color: AppColors.textTertiary,
                   ),
@@ -261,8 +260,8 @@ class _FolderListItem extends StatelessWidget {
             ),
           ),
           if (folder.isPrivate)
-            Padding(
-              padding: const EdgeInsets.only(left: 4),
+            const Padding(
+              padding: EdgeInsets.only(left: 4),
               child: Icon(
                 Icons.lock,
                 size: 14,
@@ -273,7 +272,7 @@ class _FolderListItem extends StatelessWidget {
       ),
       subtitle: Text(
         '${folder.mediaCount} items',
-        style: TextStyle(
+        style: const TextStyle(
           color: AppColors.textSecondary,
           fontSize: 12,
         ),

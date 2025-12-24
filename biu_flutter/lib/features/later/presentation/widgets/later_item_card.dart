@@ -64,7 +64,6 @@ class LaterItemCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
             child: AppCachedImage(
               imageUrl: item.pic,
-              fit: BoxFit.cover,
               fileType: FileType.video,
             ),
           ),
@@ -156,7 +155,7 @@ class LaterItemCard extends StatelessWidget {
             ),
             if (item.stat != null) ...[
               const SizedBox(width: 8),
-              Icon(
+              const Icon(
                 Icons.play_circle_outline,
                 size: 12,
                 color: AppColors.textTertiary,
@@ -177,7 +176,7 @@ class LaterItemCard extends StatelessWidget {
 
   Widget _buildDeleteButton(BuildContext context) {
     return IconButton(
-      icon: Icon(
+      icon: const Icon(
         Icons.delete_outline,
         color: AppColors.textTertiary,
         size: 20,

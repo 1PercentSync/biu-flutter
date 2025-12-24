@@ -1,13 +1,12 @@
 import 'package:audio_service/audio_service.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import 'package:biu_flutter/features/audio/data/datasources/audio_remote_datasource.dart';
 import 'package:biu_flutter/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:biu_flutter/features/player/presentation/providers/playlist_notifier.dart';
 import 'package:biu_flutter/features/player/services/audio_player_service.dart';
 import 'package:biu_flutter/features/settings/presentation/providers/settings_notifier.dart';
 import 'package:biu_flutter/features/video/data/datasources/video_remote_datasource.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Video fnval constants for DASH format
 class VideoFnval {
@@ -29,14 +28,13 @@ Future<BiuAudioHandler> initializeAudioService(ProviderContainer container) asyn
   final audioHandler = await AudioService.init(
     builder: () => BiuAudioHandler(
       playerService: playerService,
-      onPlayNext: () => playlistNotifier.next(),
-      onPlayPrevious: () => playlistNotifier.prev(),
+      onPlayNext: playlistNotifier.next,
+      onPlayPrevious: playlistNotifier.prev,
     ),
     config: const AudioServiceConfig(
       androidNotificationChannelId: 'com.example.biu_flutter.audio',
       androidNotificationChannelName: 'Music playback',
       androidNotificationOngoing: true,
-      androidStopForegroundOnPause: true,
     ),
   );
 

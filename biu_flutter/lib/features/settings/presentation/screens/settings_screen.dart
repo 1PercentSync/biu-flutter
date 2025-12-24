@@ -277,7 +277,7 @@ class SettingsScreen extends ConsumerWidget {
       ),
     );
 
-    if (confirmed == true) {
+    if (confirmed ?? false) {
       await ref.read(settingsNotifierProvider.notifier).resetToDefaults();
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -311,7 +311,7 @@ class SettingsScreen extends ConsumerWidget {
       ),
     );
 
-    if (confirmed == true && context.mounted) {
+    if ((confirmed ?? false) && context.mounted) {
       // Clear image cache
       PaintingBinding.instance.imageCache.clear();
       PaintingBinding.instance.imageCache.clearLiveImages();
@@ -342,7 +342,7 @@ class SettingsScreen extends ConsumerWidget {
       ),
     );
 
-    if (confirmed == true) {
+    if (confirmed ?? false) {
       await ref.read(authNotifierProvider.notifier).logout();
       if (context.mounted) {
         // Navigate back to main screen
@@ -439,7 +439,6 @@ class _HiddenFoldersDialog extends ConsumerWidget {
                               imageUrl: folder.cover,
                               width: 40,
                               height: 40,
-                              fit: BoxFit.cover,
                             ),
                           )
                         : Container(

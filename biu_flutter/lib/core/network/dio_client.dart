@@ -1,11 +1,11 @@
+import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
-import 'package:cookie_jar/cookie_jar.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../constants/api.dart';
-import 'interceptors/logging_interceptor.dart';
 import 'interceptors/auth_interceptor.dart';
+import 'interceptors/logging_interceptor.dart';
 import 'interceptors/response_interceptor.dart';
 
 /// Singleton Dio client for Bilibili API requests

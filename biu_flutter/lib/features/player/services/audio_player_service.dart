@@ -1,17 +1,16 @@
 import 'dart:async';
 
 import 'package:audio_service/audio_service.dart';
-import 'package:just_audio/just_audio.dart';
-
 import 'package:biu_flutter/core/constants/api.dart';
 import 'package:biu_flutter/features/player/domain/entities/play_item.dart';
+import 'package:just_audio/just_audio.dart';
 
 /// Service that wraps just_audio AudioPlayer for audio playback.
 /// Provides a simplified interface for the playlist manager.
 class AudioPlayerService {
-  final AudioPlayer _player;
 
   AudioPlayerService() : _player = AudioPlayer();
+  final AudioPlayer _player;
 
   /// The underlying AudioPlayer instance
   AudioPlayer get player => _player;
@@ -58,7 +57,7 @@ class AudioPlayerService {
       ...?headers,
     };
 
-    return await _player.setUrl(
+    return _player.setUrl(
       url,
       headers: effectiveHeaders,
     );
@@ -69,7 +68,7 @@ class AudioPlayerService {
     if (item.audioUrl == null || item.audioUrl!.isEmpty) {
       return null;
     }
-    return await setUrl(item.audioUrl!);
+    return setUrl(item.audioUrl!);
   }
 
   /// Start or resume playback
@@ -116,9 +115,6 @@ class AudioPlayerService {
 /// Audio handler for background playback using audio_service.
 /// Integrates with system media controls.
 class BiuAudioHandler extends BaseAudioHandler with SeekHandler {
-  final AudioPlayerService _playerService;
-  final void Function()? onPlayNext;
-  final void Function()? onPlayPrevious;
 
   BiuAudioHandler({
     required AudioPlayerService playerService,
@@ -127,6 +123,9 @@ class BiuAudioHandler extends BaseAudioHandler with SeekHandler {
   }) : _playerService = playerService {
     _init();
   }
+  final AudioPlayerService _playerService;
+  final void Function()? onPlayNext;
+  final void Function()? onPlayPrevious;
 
   void _init() {
     // Forward player state to playback state
@@ -135,7 +134,7 @@ class BiuAudioHandler extends BaseAudioHandler with SeekHandler {
       playbackState.add(playbackState.value.copyWith(
         controls: [
           MediaControl.skipToPrevious,
-          playerState.playing ? MediaControl.pause : MediaControl.play,
+          if (playerState.playing) MediaControl.pause else MediaControl.play,
           MediaControl.skipToNext,
         ],
         systemActions: const {

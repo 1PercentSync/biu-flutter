@@ -1,5 +1,5 @@
-import '../entities/user.dart';
 import '../entities/auth_token.dart';
+import '../entities/user.dart';
 
 /// Authentication repository interface
 abstract class AuthRepository {

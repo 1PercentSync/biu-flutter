@@ -1,8 +1,5 @@
 /// Response from /x/passport-login/web/qrcode/generate API
 class QrCodeGenerateResponse {
-  final int code;
-  final String message;
-  final QrCodeData? data;
 
   const QrCodeGenerateResponse({
     required this.code,
@@ -19,16 +16,14 @@ class QrCodeGenerateResponse {
           : null,
     );
   }
+  final int code;
+  final String message;
+  final QrCodeData? data;
 
   bool get isSuccess => code == 0 && data != null;
 }
 
 class QrCodeData {
-  /// QR code URL to display
-  final String url;
-
-  /// QR code key for polling
-  final String qrcodeKey;
 
   const QrCodeData({required this.url, required this.qrcodeKey});
 
@@ -38,13 +33,15 @@ class QrCodeData {
       qrcodeKey: json['qrcode_key'] as String? ?? '',
     );
   }
+  /// QR code URL to display
+  final String url;
+
+  /// QR code key for polling
+  final String qrcodeKey;
 }
 
 /// Response from /x/passport-login/web/qrcode/poll API
 class QrCodePollResponse {
-  final int code;
-  final String message;
-  final QrCodePollData? data;
 
   const QrCodePollResponse({
     required this.code,
@@ -61,27 +58,12 @@ class QrCodePollResponse {
           : null,
     );
   }
+  final int code;
+  final String message;
+  final QrCodePollData? data;
 }
 
 class QrCodePollData {
-  /// Login URL (only available after successful login)
-  final String url;
-
-  /// Refresh token (only available after successful login)
-  final String refreshToken;
-
-  /// Timestamp (milliseconds)
-  final int timestamp;
-
-  /// Status code:
-  /// - 0: Login successful
-  /// - 86038: QR code expired
-  /// - 86090: QR code scanned, waiting for confirmation
-  /// - 86101: QR code not scanned
-  final int code;
-
-  /// Status message
-  final String message;
 
   const QrCodePollData({
     required this.url,
@@ -100,6 +82,24 @@ class QrCodePollData {
       message: json['message'] as String? ?? '',
     );
   }
+  /// Login URL (only available after successful login)
+  final String url;
+
+  /// Refresh token (only available after successful login)
+  final String refreshToken;
+
+  /// Timestamp (milliseconds)
+  final int timestamp;
+
+  /// Status code:
+  /// - 0: Login successful
+  /// - 86038: QR code expired
+  /// - 86090: QR code scanned, waiting for confirmation
+  /// - 86101: QR code not scanned
+  final int code;
+
+  /// Status message
+  final String message;
 
   /// Check if login is successful
   bool get isSuccess => code == 0;

@@ -3,6 +3,41 @@ import 'package:biu_flutter/features/player/domain/entities/play_item.dart';
 
 /// Represents the state of the playlist and playback.
 class PlaylistState {
+
+  const PlaylistState({
+    this.isPlaying = false,
+    this.isMuted = false,
+    this.volume = 0.5,
+    this.playMode = PlayMode.loop,
+    this.rate = 1.0,
+    this.duration,
+    this.currentTime = 0.0,
+    this.list = const [],
+    this.playId,
+    this.nextId,
+    this.shouldKeepPagesOrderInRandomPlayMode = true,
+    this.isLoading = false,
+    this.error,
+  });
+
+  /// Create from JSON
+  factory PlaylistState.fromJson(Map<String, dynamic> json) {
+    return PlaylistState(
+      isMuted: json['isMuted'] as bool? ?? false,
+      volume: (json['volume'] as num?)?.toDouble() ?? 0.5,
+      playMode: PlayMode.fromValue(json['playMode'] as int? ?? 2),
+      rate: (json['rate'] as num?)?.toDouble() ?? 1.0,
+      duration: (json['duration'] as num?)?.toDouble(),
+      list: (json['list'] as List<dynamic>?)
+              ?.map((item) => PlayItem.fromJson(item as Map<String, dynamic>))
+              .toList() ??
+          [],
+      playId: json['playId'] as String?,
+      nextId: json['nextId'] as String?,
+      shouldKeepPagesOrderInRandomPlayMode:
+          json['shouldKeepPagesOrderInRandomPlayMode'] as bool? ?? true,
+    );
+  }
   /// Whether audio is currently playing
   final bool isPlaying;
 
@@ -41,22 +76,6 @@ class PlaylistState {
 
   /// Error message if any
   final String? error;
-
-  const PlaylistState({
-    this.isPlaying = false,
-    this.isMuted = false,
-    this.volume = 0.5,
-    this.playMode = PlayMode.loop,
-    this.rate = 1.0,
-    this.duration,
-    this.currentTime = 0.0,
-    this.list = const [],
-    this.playId,
-    this.nextId,
-    this.shouldKeepPagesOrderInRandomPlayMode = true,
-    this.isLoading = false,
-    this.error,
-  });
 
   /// Get the currently playing item
   PlayItem? get currentItem {
@@ -135,25 +154,6 @@ class PlaylistState {
       'shouldKeepPagesOrderInRandomPlayMode':
           shouldKeepPagesOrderInRandomPlayMode,
     };
-  }
-
-  /// Create from JSON
-  factory PlaylistState.fromJson(Map<String, dynamic> json) {
-    return PlaylistState(
-      isMuted: json['isMuted'] as bool? ?? false,
-      volume: (json['volume'] as num?)?.toDouble() ?? 0.5,
-      playMode: PlayMode.fromValue(json['playMode'] as int? ?? 2),
-      rate: (json['rate'] as num?)?.toDouble() ?? 1.0,
-      duration: (json['duration'] as num?)?.toDouble(),
-      list: (json['list'] as List<dynamic>?)
-              ?.map((item) => PlayItem.fromJson(item as Map<String, dynamic>))
-              .toList() ??
-          [],
-      playId: json['playId'] as String?,
-      nextId: json['nextId'] as String?,
-      shouldKeepPagesOrderInRandomPlayMode:
-          json['shouldKeepPagesOrderInRandomPlayMode'] as bool? ?? true,
-    );
   }
 
   @override

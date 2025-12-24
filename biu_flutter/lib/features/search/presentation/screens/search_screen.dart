@@ -146,7 +146,6 @@ class SearchNotifier extends StateNotifier<SearchState> {
       if (state.searchTab == SearchTabType.video) {
         final result = await _dataSource.searchVideo(
           keyword: query,
-          page: 1,
           tids: state.musicOnly ? 3 : 0,
         );
         state = state.copyWith(
@@ -159,7 +158,6 @@ class SearchNotifier extends StateNotifier<SearchState> {
       } else {
         final result = await _dataSource.searchUser(
           keyword: query,
-          page: 1,
         );
         state = state.copyWith(
           isSearching: false,
@@ -385,7 +383,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
             onChanged: (value) {
               ref.read(searchNotifierProvider.notifier).setMusicOnly(value);
             },
-            activeColor: AppColors.primary,
+            activeThumbColor: AppColors.primary,
           ),
         ],
       ),
@@ -393,12 +391,11 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
   }
 
   Widget _buildTabBar(BuildContext context, SearchState searchState) {
-    return Container(
+    return DecoratedBox(
       decoration: const BoxDecoration(
         border: Border(
           bottom: BorderSide(
             color: AppColors.divider,
-            width: 1,
           ),
         ),
       ),

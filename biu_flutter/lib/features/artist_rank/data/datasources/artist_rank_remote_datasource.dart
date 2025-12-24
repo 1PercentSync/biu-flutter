@@ -52,7 +52,7 @@ class ArtistRankRemoteDataSource {
   /// Get all musicians (famous + new)
   Future<List<Musician>> getAllMusicians() async {
     final results = await Future.wait([
-      getMusicianList(levelSource: MusicianLevelSource.all),
+      getMusicianList(),
       getMusicianList(levelSource: MusicianLevelSource.newMusicians),
     ]);
 

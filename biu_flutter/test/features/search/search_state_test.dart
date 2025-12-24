@@ -14,13 +14,13 @@ void main() {
     });
 
     test('musicOnly toggle works correctly', () {
-      const state = SearchState(musicOnly: true);
+      const state = SearchState();
       final newState = state.copyWith(musicOnly: false);
       expect(newState.musicOnly, false);
     });
 
     test('hasMore returns true when currentPage < totalPages', () {
-      const state = SearchState(currentPage: 1, totalPages: 5);
+      const state = SearchState(totalPages: 5);
       expect(state.hasMore, true);
     });
 
@@ -32,9 +32,7 @@ void main() {
     test('copyWith preserves other fields when only musicOnly changes', () {
       const state = SearchState(
         query: 'test query',
-        isSearching: false,
         hasSearched: true,
-        musicOnly: true,
         currentPage: 2,
         totalPages: 10,
       );
@@ -49,7 +47,7 @@ void main() {
     });
 
     test('searchTab changes correctly', () {
-      const state = SearchState(searchTab: SearchTabType.video);
+      const state = SearchState();
       final newState = state.copyWith(searchTab: SearchTabType.user);
       expect(newState.searchTab, SearchTabType.user);
     });

@@ -1,5 +1,5 @@
-import '../entities/favorites_folder.dart';
 import '../entities/fav_media.dart';
+import '../entities/favorites_folder.dart';
 
 /// Repository interface for favorites operations.
 abstract class FavoritesRepository {

@@ -4,8 +4,8 @@
 // which are not available in the standard test environment.
 // These tests focus on unit testing individual components.
 
-import 'package:biu_flutter/features/auth/domain/entities/user.dart';
 import 'package:biu_flutter/features/auth/domain/entities/auth_token.dart';
+import 'package:biu_flutter/features/auth/domain/entities/user.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

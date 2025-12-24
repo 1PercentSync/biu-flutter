@@ -1,5 +1,5 @@
-import 'package:flutter_test/flutter_test.dart';
 import 'package:biu_flutter/core/constants/response_code.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('BiliErrorCode', () {

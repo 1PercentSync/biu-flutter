@@ -1,8 +1,5 @@
 /// Response from /x/passport-login/captcha API
 class CaptchaResponse {
-  final int code;
-  final String message;
-  final CaptchaData? data;
 
   const CaptchaResponse({
     required this.code,
@@ -19,19 +16,14 @@ class CaptchaResponse {
           : null,
     );
   }
+  final int code;
+  final String message;
+  final CaptchaData? data;
 
   bool get isSuccess => code == 0 && data != null;
 }
 
 class CaptchaData {
-  /// Captcha type (e.g., "geetest")
-  final String type;
-
-  /// Token for captcha verification
-  final String token;
-
-  /// Geetest specific parameters
-  final GeetestParams? geetest;
 
   const CaptchaData({
     required this.type,
@@ -48,14 +40,17 @@ class CaptchaData {
           : null,
     );
   }
+  /// Captcha type (e.g., "geetest")
+  final String type;
+
+  /// Token for captcha verification
+  final String token;
+
+  /// Geetest specific parameters
+  final GeetestParams? geetest;
 }
 
 class GeetestParams {
-  /// Geetest gt parameter
-  final String gt;
-
-  /// Geetest challenge parameter
-  final String challenge;
 
   const GeetestParams({
     required this.gt,
@@ -68,10 +63,23 @@ class GeetestParams {
       challenge: json['challenge'] as String? ?? '',
     );
   }
+  /// Geetest gt parameter
+  final String gt;
+
+  /// Geetest challenge parameter
+  final String challenge;
 }
 
 /// Geetest verification result
 class GeetestResult {
+
+  const GeetestResult({
+    required this.token,
+    required this.gt,
+    required this.challenge,
+    required this.validate,
+    required this.seccode,
+  });
   /// Geetest token from captcha API
   final String token;
 
@@ -86,14 +94,6 @@ class GeetestResult {
 
   /// Geetest seccode result
   final String seccode;
-
-  const GeetestResult({
-    required this.token,
-    required this.gt,
-    required this.challenge,
-    required this.validate,
-    required this.seccode,
-  });
 
   /// Check if result is valid
   bool get isValid =>

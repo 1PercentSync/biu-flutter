@@ -1,10 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../data/datasources/auth_remote_datasource.dart';
+import '../../data/repositories/auth_repository_impl.dart';
+import '../../data/services/cookie_refresh_service.dart';
 import '../../domain/entities/auth_token.dart';
 import '../../domain/repositories/auth_repository.dart';
-import '../../data/repositories/auth_repository_impl.dart';
-import '../../data/datasources/auth_remote_datasource.dart';
-import '../../data/services/cookie_refresh_service.dart';
 import 'auth_state.dart';
 
 /// Provider for the auth repository
@@ -31,8 +31,6 @@ final currentUserProvider = Provider((ref) {
 
 /// Auth state notifier
 class AuthNotifier extends StateNotifier<AuthState> {
-  final AuthRepository _repository;
-  final CookieRefreshService _cookieRefreshService;
 
   AuthNotifier(this._repository)
       : _cookieRefreshService = CookieRefreshService(AuthRemoteDatasource()),
@@ -40,6 +38,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
     // Check auth status on initialization
     checkAuthStatus();
   }
+  final AuthRepository _repository;
+  final CookieRefreshService _cookieRefreshService;
 
   /// Check current authentication status
   Future<void> checkAuthStatus() async {

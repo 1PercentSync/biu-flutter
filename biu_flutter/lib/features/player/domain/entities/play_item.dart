@@ -3,6 +3,58 @@ import 'package:biu_flutter/core/constants/audio.dart';
 /// Represents a playable item in the playlist.
 /// Maps to PlayData interface from the source project.
 class PlayItem {
+
+  const PlayItem({
+    required this.id,
+    required this.title,
+    required this.type,
+    this.bvid,
+    this.sid,
+    this.aid,
+    this.cid,
+    this.cover,
+    this.ownerName,
+    this.ownerMid,
+    this.hasMultiPart = false,
+    this.pageTitle,
+    this.pageCover,
+    this.pageIndex,
+    this.totalPage,
+    this.duration,
+    this.audioUrl,
+    this.videoUrl,
+    this.isLossless = false,
+    this.isDolby = false,
+  });
+
+  /// Create from JSON
+  factory PlayItem.fromJson(Map<String, dynamic> json) {
+    return PlayItem(
+      id: json['id'] as String,
+      title: json['title'] as String,
+      type: PlayDataType.values.firstWhere(
+        (e) => e.name == json['type'],
+        orElse: () => PlayDataType.mv,
+      ),
+      bvid: json['bvid'] as String?,
+      sid: json['sid'] as int?,
+      aid: json['aid'] as String?,
+      cid: json['cid'] as String?,
+      cover: json['cover'] as String?,
+      ownerName: json['ownerName'] as String?,
+      ownerMid: json['ownerMid'] as int?,
+      hasMultiPart: json['hasMultiPart'] as bool? ?? false,
+      pageTitle: json['pageTitle'] as String?,
+      pageCover: json['pageCover'] as String?,
+      pageIndex: json['pageIndex'] as int?,
+      totalPage: json['totalPage'] as int?,
+      duration: json['duration'] as int?,
+      audioUrl: json['audioUrl'] as String?,
+      videoUrl: json['videoUrl'] as String?,
+      isLossless: json['isLossless'] as bool? ?? false,
+      isDolby: json['isDolby'] as bool? ?? false,
+    );
+  }
   /// Unique ID for this playlist entry
   final String id;
 
@@ -62,29 +114,6 @@ class PlayItem {
 
   /// Whether audio is Dolby
   final bool isDolby;
-
-  const PlayItem({
-    required this.id,
-    required this.title,
-    required this.type,
-    this.bvid,
-    this.sid,
-    this.aid,
-    this.cid,
-    this.cover,
-    this.ownerName,
-    this.ownerMid,
-    this.hasMultiPart = false,
-    this.pageTitle,
-    this.pageCover,
-    this.pageIndex,
-    this.totalPage,
-    this.duration,
-    this.audioUrl,
-    this.videoUrl,
-    this.isLossless = false,
-    this.isDolby = false,
-  });
 
   /// Display title - uses pageTitle for multi-part videos, otherwise title
   String get displayTitle => pageTitle ?? title;
@@ -172,35 +201,6 @@ class PlayItem {
       'isLossless': isLossless,
       'isDolby': isDolby,
     };
-  }
-
-  /// Create from JSON
-  factory PlayItem.fromJson(Map<String, dynamic> json) {
-    return PlayItem(
-      id: json['id'] as String,
-      title: json['title'] as String,
-      type: PlayDataType.values.firstWhere(
-        (e) => e.name == json['type'],
-        orElse: () => PlayDataType.mv,
-      ),
-      bvid: json['bvid'] as String?,
-      sid: json['sid'] as int?,
-      aid: json['aid'] as String?,
-      cid: json['cid'] as String?,
-      cover: json['cover'] as String?,
-      ownerName: json['ownerName'] as String?,
-      ownerMid: json['ownerMid'] as int?,
-      hasMultiPart: json['hasMultiPart'] as bool? ?? false,
-      pageTitle: json['pageTitle'] as String?,
-      pageCover: json['pageCover'] as String?,
-      pageIndex: json['pageIndex'] as int?,
-      totalPage: json['totalPage'] as int?,
-      duration: json['duration'] as int?,
-      audioUrl: json['audioUrl'] as String?,
-      videoUrl: json['videoUrl'] as String?,
-      isLossless: json['isLossless'] as bool? ?? false,
-      isDolby: json['isDolby'] as bool? ?? false,
-    );
   }
 
   @override

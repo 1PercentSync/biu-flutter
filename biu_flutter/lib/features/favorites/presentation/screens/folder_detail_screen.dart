@@ -62,13 +62,13 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
+          const Icon(
             Icons.error_outline,
             size: 48,
             color: AppColors.textTertiary,
           ),
           const SizedBox(height: 16),
-          Text(
+          const Text(
             'Failed to load folder',
             style: TextStyle(color: AppColors.textSecondary),
           ),
@@ -164,7 +164,6 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
                   if (folder.cover.isNotEmpty)
                     AppCachedImage(
                       imageUrl: folder.cover,
-                      fit: BoxFit.cover,
                     )
                   else
                     Container(color: AppColors.contentBackground),
@@ -202,7 +201,7 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
           if (state.medias.isEmpty && !state.isLoading)
             SliverFillRemaining(
               child: EmptyState(
-                icon: Icon(
+                icon: const Icon(
                   Icons.video_library_outlined,
                   size: 48,
                   color: AppColors.textTertiary,
@@ -298,10 +297,10 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
                 ),
               ),
               if (folder.isPrivate)
-                Chip(
-                  label: const Text('Private'),
-                  avatar: const Icon(Icons.lock, size: 14),
-                  labelStyle: const TextStyle(fontSize: 12),
+                const Chip(
+                  label: Text('Private'),
+                  avatar: Icon(Icons.lock, size: 14),
+                  labelStyle: TextStyle(fontSize: 12),
                   visualDensity: VisualDensity.compact,
                 ),
             ],
@@ -324,14 +323,14 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
                 onTap: () => context.push('/user/${folder.upper.mid}'),
                 child: Text(
                   folder.upper.name,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 14,
                   ),
                 ),
               ),
               const SizedBox(width: 16),
-              Icon(
+              const Icon(
                 Icons.video_library_outlined,
                 size: 14,
                 color: AppColors.textTertiary,
@@ -339,7 +338,7 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
               const SizedBox(width: 4),
               Text(
                 '${folder.mediaCount} items',
-                style: TextStyle(
+                style: const TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 14,
                 ),
@@ -350,7 +349,7 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
             const SizedBox(height: 12),
             Text(
               folder.intro,
-              style: TextStyle(
+              style: const TextStyle(
                 color: AppColors.textSecondary,
                 fontSize: 13,
               ),
@@ -420,11 +419,11 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
                 ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: AppColors.border),
+                  borderSide: const BorderSide(color: AppColors.border),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: AppColors.border),
+                  borderSide: const BorderSide(color: AppColors.border),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -501,7 +500,7 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: AppColors.contentBackground,
         border: Border(
           top: BorderSide(color: AppColors.border),
@@ -602,7 +601,7 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
     }
 
     // Convert to PlayItems and play
-    final playItems = validMedias.map((media) => _mediaToPlayItem(media)).toList();
+    final playItems = validMedias.map(_mediaToPlayItem).toList();
     ref.read(playlistProvider.notifier).playList(playItems);
   }
 
@@ -616,7 +615,7 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
     }
 
     // Convert to PlayItems and add to queue
-    final playItems = validMedias.map((media) => _mediaToPlayItem(media)).toList();
+    final playItems = validMedias.map(_mediaToPlayItem).toList();
     ref.read(playlistProvider.notifier).addList(playItems);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Added ${playItems.length} items to queue')),
@@ -826,7 +825,6 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
                               imageUrl: folder.cover,
                               width: 48,
                               height: 48,
-                              fit: BoxFit.cover,
                             ),
                           )
                         : Container(
@@ -897,11 +895,10 @@ class _MediaListItem extends StatelessWidget {
                   child: media.cover.isNotEmpty
                       ? AppCachedImage(
                           imageUrl: media.cover,
-                          fit: BoxFit.cover,
                         )
-                      : Container(
+                      : const ColoredBox(
                           color: AppColors.contentBackground,
-                          child: const Icon(
+                          child: Icon(
                             Icons.video_library,
                             color: AppColors.textTertiary,
                           ),
@@ -932,7 +929,7 @@ class _MediaListItem extends StatelessWidget {
               // Invalid overlay
               if (media.isInvalid)
                 Positioned.fill(
-                  child: Container(
+                  child: DecoratedBox(
                     decoration: BoxDecoration(
                       color: Colors.black54,
                       borderRadius: BorderRadius.circular(8),
@@ -964,7 +961,7 @@ class _MediaListItem extends StatelessWidget {
         children: [
           Text(
             media.upper.name,
-            style: TextStyle(
+            style: const TextStyle(
               color: AppColors.textSecondary,
               fontSize: 12,
             ),
@@ -973,7 +970,7 @@ class _MediaListItem extends StatelessWidget {
           if (media.playCount > 0)
             Text(
               '${_formatCount(media.playCount)} plays',
-              style: TextStyle(
+              style: const TextStyle(
                 color: AppColors.textTertiary,
                 fontSize: 12,
               ),

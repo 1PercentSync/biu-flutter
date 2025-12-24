@@ -1,15 +1,23 @@
 /// Authentication token storage
 class AuthToken {
-  /// Refresh token from login
-  final String? refreshToken;
-
-  /// Next time to check for cookie refresh (Unix timestamp in seconds)
-  final int? nextCheckRefreshTime;
 
   const AuthToken({
     this.refreshToken,
     this.nextCheckRefreshTime,
   });
+
+  /// Create from JSON
+  factory AuthToken.fromJson(Map<String, dynamic> json) {
+    return AuthToken(
+      refreshToken: json['refresh_token'] as String?,
+      nextCheckRefreshTime: json['next_check_refresh_time'] as int?,
+    );
+  }
+  /// Refresh token from login
+  final String? refreshToken;
+
+  /// Next time to check for cookie refresh (Unix timestamp in seconds)
+  final int? nextCheckRefreshTime;
 
   /// Check if token data exists
   bool get hasToken => refreshToken != null && refreshToken!.isNotEmpty;
@@ -38,14 +46,6 @@ class AuthToken {
       'refresh_token': refreshToken,
       'next_check_refresh_time': nextCheckRefreshTime,
     };
-  }
-
-  /// Create from JSON
-  factory AuthToken.fromJson(Map<String, dynamic> json) {
-    return AuthToken(
-      refreshToken: json['refresh_token'] as String?,
-      nextCheckRefreshTime: json['next_check_refresh_time'] as int?,
-    );
   }
 
   /// Empty token

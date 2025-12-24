@@ -45,7 +45,6 @@ class AsyncValueWidget<T> extends StatelessWidget {
           error?.call(e, st) ??
           ErrorState(
             message: e.toString(),
-            onRetry: null, // Caller should handle retry
           ),
       skipLoadingOnRefresh: skipLoadingOnRefresh,
       skipLoadingOnReload: skipLoadingOnReload,

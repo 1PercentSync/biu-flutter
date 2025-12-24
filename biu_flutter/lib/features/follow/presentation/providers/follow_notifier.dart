@@ -48,9 +48,7 @@ class FollowNotifier extends StateNotifier<FollowState> {
 
     try {
       final response = await _dataSource.getFollowings(
-        vmid: _currentUserMid!,
-        pn: 1,
-        ps: _pageSize,
+        vmid: _currentUserMid,
       );
 
       final hasMore = response.list.length >= _pageSize &&
@@ -92,9 +90,8 @@ class FollowNotifier extends StateNotifier<FollowState> {
     try {
       final nextPage = state.currentPage + 1;
       final response = await _dataSource.getFollowings(
-        vmid: _currentUserMid!,
+        vmid: _currentUserMid,
         pn: nextPage,
-        ps: _pageSize,
       );
 
       final newUsers = [...state.users, ...response.list];
@@ -134,9 +131,7 @@ class FollowNotifier extends StateNotifier<FollowState> {
 
     try {
       final response = await _dataSource.getFollowings(
-        vmid: _currentUserMid!,
-        pn: 1,
-        ps: _pageSize,
+        vmid: _currentUserMid,
       );
 
       final hasMore = response.list.length >= _pageSize &&

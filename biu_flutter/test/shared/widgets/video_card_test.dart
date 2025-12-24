@@ -1,6 +1,6 @@
+import 'package:biu_flutter/shared/widgets/video_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:biu_flutter/shared/widgets/video_card.dart';
 
 void main() {
   // Helper to wrap widget with MaterialApp for testing
@@ -113,7 +113,7 @@ void main() {
         (element) {
           final widget = element.widget as Container;
           if (widget.decoration is BoxDecoration) {
-            final decoration = widget.decoration as BoxDecoration;
+            final decoration = widget.decoration! as BoxDecoration;
             return decoration.border != null;
           }
           return false;

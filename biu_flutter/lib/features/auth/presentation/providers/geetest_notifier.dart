@@ -7,15 +7,15 @@ import '../widgets/geetest_dialog.dart';
 
 /// State for Geetest verification
 class GeetestState {
-  final bool isLoading;
-  final String? errorMessage;
-  final GeetestResult? result;
 
   const GeetestState({
     this.isLoading = false,
     this.errorMessage,
     this.result,
   });
+  final bool isLoading;
+  final String? errorMessage;
+  final GeetestResult? result;
 
   GeetestState copyWith({
     bool? isLoading,
@@ -34,9 +34,9 @@ class GeetestState {
 
 /// Provider for Geetest verification
 class GeetestNotifier extends StateNotifier<GeetestState> {
-  final AuthRemoteDatasource _datasource;
 
   GeetestNotifier(this._datasource) : super(const GeetestState());
+  final AuthRemoteDatasource _datasource;
 
   /// Verify using Geetest captcha
   /// Returns the verification result, or null if cancelled/failed

@@ -1,5 +1,5 @@
-import 'package:flutter_test/flutter_test.dart';
 import 'package:biu_flutter/core/utils/number_utils.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('NumberUtils', () {
@@ -57,10 +57,10 @@ void main() {
       });
 
       test('formats percentages correctly', () {
-        expect(NumberUtils.formatPercentage(0.0), '0.0%');
+        expect(NumberUtils.formatPercentage(0), '0.0%');
         expect(NumberUtils.formatPercentage(0.1234), '12.3%');
         expect(NumberUtils.formatPercentage(0.5), '50.0%');
-        expect(NumberUtils.formatPercentage(1.0), '100.0%');
+        expect(NumberUtils.formatPercentage(1), '100.0%');
       });
 
       test('respects decimals parameter', () {
@@ -77,9 +77,9 @@ void main() {
       });
 
       test('clamps double values correctly', () {
-        expect(NumberUtils.clamp(0.5, 0.0, 1.0), 0.5);
-        expect(NumberUtils.clamp(-0.5, 0.0, 1.0), 0.0);
-        expect(NumberUtils.clamp(1.5, 0.0, 1.0), 1.0);
+        expect(NumberUtils.clamp(0.5, 0, 1), 0.5);
+        expect(NumberUtils.clamp(-0.5, 0, 1), 0.0);
+        expect(NumberUtils.clamp(1.5, 0, 1), 1.0);
       });
     });
   });

@@ -6,12 +6,12 @@ import '../providers/password_login_notifier.dart';
 
 /// Password login widget
 class PasswordLoginWidget extends ConsumerStatefulWidget {
-  final VoidCallback? onLoginSuccess;
 
   const PasswordLoginWidget({
     super.key,
     this.onLoginSuccess,
   });
+  final VoidCallback? onLoginSuccess;
 
   @override
   ConsumerState<PasswordLoginWidget> createState() =>

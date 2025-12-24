@@ -1,8 +1,8 @@
-import 'package:dio/dio.dart';
 import 'package:cookie_jar/cookie_jar.dart';
+import 'package:dio/dio.dart';
 
-import '../wbi/wbi_sign.dart';
 import '../ticket/bili_ticket_service.dart';
+import '../wbi/wbi_sign.dart';
 
 /// Interceptor for handling authentication-related tasks:
 /// - Injecting CSRF token

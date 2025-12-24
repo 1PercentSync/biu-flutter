@@ -21,7 +21,7 @@ class FullPlayerScreen extends ConsumerStatefulWidget {
 
 class _FullPlayerScreenState extends ConsumerState<FullPlayerScreen> {
   bool _isDragging = false;
-  double _dragValue = 0.0;
+  double _dragValue = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -110,9 +110,7 @@ class _FullPlayerScreenState extends ConsumerState<FullPlayerScreen> {
             clipBehavior: Clip.antiAlias,
             child: AppCachedImage(
               imageUrl: currentItem.displayCover,
-              fit: BoxFit.cover,
               borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
-              fileType: FileType.audio,
             ),
           ),
         ),
@@ -224,7 +222,6 @@ class _FullPlayerScreenState extends ConsumerState<FullPlayerScreen> {
           ),
           child: Slider(
             value: currentTime.clamp(0.0, duration > 0 ? duration : 1.0),
-            min: 0,
             max: duration > 0 ? duration : 1.0,
             onChangeStart: (value) {
               setState(() {
@@ -283,7 +280,7 @@ class _FullPlayerScreenState extends ConsumerState<FullPlayerScreen> {
       children: [
         // Previous button
         IconButton(
-          onPressed: canSkip ? () => notifier.prev() : null,
+          onPressed: canSkip ? notifier.prev : null,
           icon: Icon(
             Icons.skip_previous,
             size: 32,
@@ -300,7 +297,7 @@ class _FullPlayerScreenState extends ConsumerState<FullPlayerScreen> {
             shape: BoxShape.circle,
           ),
           child: IconButton(
-            onPressed: isLoading ? null : () => notifier.togglePlay(),
+            onPressed: isLoading ? null : notifier.togglePlay,
             icon: isLoading
                 ? const SizedBox(
                     width: 32,
@@ -320,7 +317,7 @@ class _FullPlayerScreenState extends ConsumerState<FullPlayerScreen> {
         const SizedBox(width: 24),
         // Next button
         IconButton(
-          onPressed: canSkip ? () => notifier.next() : null,
+          onPressed: canSkip ? notifier.next : null,
           icon: Icon(
             Icons.skip_next,
             size: 32,
@@ -339,7 +336,7 @@ class _FullPlayerScreenState extends ConsumerState<FullPlayerScreen> {
       children: [
         // Play mode button
         IconButton(
-          onPressed: () => notifier.togglePlayMode(),
+          onPressed: notifier.togglePlayMode,
           icon: Icon(
             _getPlayModeIcon(playlistState.playMode),
             color: AppColors.textSecondary,
@@ -348,7 +345,7 @@ class _FullPlayerScreenState extends ConsumerState<FullPlayerScreen> {
         ),
         // Mute button
         IconButton(
-          onPressed: () => notifier.toggleMute(),
+          onPressed: notifier.toggleMute,
           icon: Icon(
             playlistState.isMuted ? Icons.volume_off : Icons.volume_up,
             color: AppColors.textSecondary,
@@ -356,7 +353,7 @@ class _FullPlayerScreenState extends ConsumerState<FullPlayerScreen> {
         ),
         // Rate button
         TextButton(
-          onPressed: () => _showRateDialog(),
+          onPressed: _showRateDialog,
           child: Text(
             '${playlistState.rate}x',
             style: const TextStyle(

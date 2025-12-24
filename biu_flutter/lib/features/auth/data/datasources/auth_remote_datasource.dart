@@ -2,21 +2,21 @@ import 'package:dio/dio.dart';
 
 import '../../../../core/network/dio_client.dart';
 import '../models/captcha_response.dart';
-import '../models/user_info_response.dart';
-import '../models/qrcode_response.dart';
 import '../models/login_response.dart';
+import '../models/qrcode_response.dart';
 import '../models/session_response.dart';
+import '../models/user_info_response.dart';
 
 /// Remote data source for authentication APIs
 class AuthRemoteDatasource {
-  final Dio _dio;
-  final Dio _passportDio;
 
   AuthRemoteDatasource({
     Dio? dio,
     Dio? passportDio,
   })  : _dio = dio ?? DioClient.instance.dio,
         _passportDio = passportDio ?? DioClient.instance.passportDio;
+  final Dio _dio;
+  final Dio _passportDio;
 
   /// Get current user info
   /// GET /x/web-interface/nav

@@ -148,7 +148,7 @@ class AboutScreen extends StatelessWidget {
               title: 'Terms of Service',
               content:
                   'This app is for personal use only. '
-                  'Please respect content creators and Bilibili\'s terms of service.',
+                  "Please respect content creators and Bilibili's terms of service.",
             );
           },
         ),

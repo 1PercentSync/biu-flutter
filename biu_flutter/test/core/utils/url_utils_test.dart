@@ -1,5 +1,5 @@
-import 'package:flutter_test/flutter_test.dart';
 import 'package:biu_flutter/core/utils/url_utils.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('UrlUtils', () {

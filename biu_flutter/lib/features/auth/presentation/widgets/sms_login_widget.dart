@@ -7,12 +7,12 @@ import '../providers/sms_login_notifier.dart';
 
 /// SMS login widget
 class SmsLoginWidget extends ConsumerStatefulWidget {
-  final VoidCallback? onLoginSuccess;
 
   const SmsLoginWidget({
     super.key,
     this.onLoginSuccess,
   });
+  final VoidCallback? onLoginSuccess;
 
   @override
   ConsumerState<SmsLoginWidget> createState() => _SmsLoginWidgetState();

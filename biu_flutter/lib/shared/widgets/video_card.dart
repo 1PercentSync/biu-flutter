@@ -116,7 +116,6 @@ class VideoCard extends StatelessWidget {
           // Cover image
           AppCachedImage(
             imageUrl: coverUrl,
-            fit: BoxFit.cover,
             fileType: FileType.video,
           ),
           // Duration badge
@@ -250,7 +249,7 @@ class VideoCard extends StatelessWidget {
       children: [
         // View count
         if (viewCount != null) ...[
-          Icon(
+          const Icon(
             Icons.play_arrow,
             size: 12,
             color: AppColors.textTertiary,
@@ -264,7 +263,7 @@ class VideoCard extends StatelessWidget {
         ],
         // Danmaku count
         if (danmakuCount != null) ...[
-          Icon(
+          const Icon(
             Icons.comment,
             size: 12,
             color: AppColors.textTertiary,
@@ -390,7 +389,6 @@ class VideoListTile extends StatelessWidget {
             borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
             child: AppCachedImage(
               imageUrl: coverUrl,
-              fit: BoxFit.cover,
               fileType: FileType.video,
             ),
           ),
@@ -426,7 +424,7 @@ class VideoListTile extends StatelessWidget {
 
   Widget _buildActionsButton(BuildContext context) {
     return PopupMenuButton<VideoCardAction>(
-      icon: Icon(
+      icon: const Icon(
         Icons.more_vert,
         color: AppColors.textTertiary,
         size: 20,
@@ -494,7 +492,7 @@ class VideoListTile extends StatelessWidget {
       children: [
         // View count
         if (viewCount != null) ...[
-          Icon(
+          const Icon(
             Icons.play_arrow,
             size: 12,
             color: AppColors.textTertiary,
@@ -508,7 +506,7 @@ class VideoListTile extends StatelessWidget {
         ],
         // Danmaku count
         if (danmakuCount != null) ...[
-          Icon(
+          const Icon(
             Icons.comment,
             size: 12,
             color: AppColors.textTertiary,

@@ -73,8 +73,6 @@ class HotSongCard extends StatelessWidget {
           // Cover image
           AppCachedImage(
             imageUrl: song.cover,
-            fit: BoxFit.cover,
-            fileType: FileType.audio,
           ),
           // Rank badge
           if (rank != null)
@@ -224,7 +222,7 @@ class HotSongListTile extends StatelessWidget {
             color: isActive
                 ? AppColors.primary.withValues(alpha: 0.1)
                 : Colors.transparent,
-            border: Border(
+            border: const Border(
               bottom: BorderSide(
                 color: AppColors.divider,
                 width: 0.5,
@@ -256,8 +254,6 @@ class HotSongListTile extends StatelessWidget {
                   imageUrl: song.cover,
                   width: 48,
                   height: 48,
-                  fit: BoxFit.cover,
-                  fileType: FileType.audio,
                 ),
               ),
               const SizedBox(width: 12),
@@ -296,7 +292,7 @@ class HotSongListTile extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.play_arrow,
                         size: 14,
                         color: AppColors.textTertiary,

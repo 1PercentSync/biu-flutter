@@ -109,7 +109,7 @@ class _ArtistRankScreenState extends ConsumerState<ArtistRankScreen> {
     // TODO: Navigate to user profile screen when implemented
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Opening ${musician.username}\'s profile...'),
+        content: Text("Opening ${musician.username}'s profile..."),
         duration: const Duration(seconds: 1),
       ),
     );

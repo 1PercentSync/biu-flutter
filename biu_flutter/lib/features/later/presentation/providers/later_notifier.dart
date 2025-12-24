@@ -35,8 +35,7 @@ class LaterNotifier extends StateNotifier<LaterState> {
 
     try {
       final response = await _dataSource.getWatchLaterList(
-        pn: 1,
-        ps: _pageSize,
+        
       );
 
       final hasMore = response.list.length >= _pageSize &&
@@ -73,7 +72,6 @@ class LaterNotifier extends StateNotifier<LaterState> {
       final nextPage = state.currentPage + 1;
       final response = await _dataSource.getWatchLaterList(
         pn: nextPage,
-        ps: _pageSize,
       );
 
       final newItems = [...state.items, ...response.list];
@@ -112,8 +110,7 @@ class LaterNotifier extends StateNotifier<LaterState> {
 
     try {
       final response = await _dataSource.getWatchLaterList(
-        pn: 1,
-        ps: _pageSize,
+        
       );
 
       final hasMore = response.list.length >= _pageSize &&

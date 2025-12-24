@@ -1,6 +1,6 @@
+import 'package:biu_flutter/core/utils/color_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:biu_flutter/core/utils/color_utils.dart';
 
 void main() {
   group('ColorUtils', () {
@@ -55,7 +55,7 @@ void main() {
 
     group('darken', () {
       test('darkens color by specified amount', () {
-        final red = const Color(0xFFFF0000);
+        const red = Color(0xFFFF0000);
         final darkened = ColorUtils.darken(red, 0.2);
 
         // Darkened color should have lower lightness
@@ -65,8 +65,8 @@ void main() {
       });
 
       test('clamps lightness to 0', () {
-        final color = const Color(0xFF202020); // Already dark
-        final darkened = ColorUtils.darken(color, 1.0);
+        const color = Color(0xFF202020); // Already dark
+        final darkened = ColorUtils.darken(color, 1);
         final hsl = HSLColor.fromColor(darkened);
         expect(hsl.lightness, 0.0);
       });
@@ -74,7 +74,7 @@ void main() {
 
     group('lighten', () {
       test('lightens color by specified amount', () {
-        final blue = const Color(0xFF0000FF);
+        const blue = Color(0xFF0000FF);
         final lightened = ColorUtils.lighten(blue, 0.2);
 
         // Lightened color should have higher lightness
@@ -84,8 +84,8 @@ void main() {
       });
 
       test('clamps lightness to 1', () {
-        final color = const Color(0xFFF0F0F0); // Already light
-        final lightened = ColorUtils.lighten(color, 1.0);
+        const color = Color(0xFFF0F0F0); // Already light
+        final lightened = ColorUtils.lighten(color, 1);
         final hsl = HSLColor.fromColor(lightened);
         expect(hsl.lightness, 1.0);
       });
@@ -117,7 +117,7 @@ void main() {
 
     group('withOpacity', () {
       test('creates color with modified opacity', () {
-        final color = const Color(0xFFFF0000);
+        const color = Color(0xFFFF0000);
         final transparent = ColorUtils.withOpacity(color, 0.5);
         expect(transparent.a, closeTo(0.5, 0.01));
       });

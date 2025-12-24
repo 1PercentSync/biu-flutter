@@ -95,7 +95,6 @@ class TrackListItem extends StatelessWidget {
           width: 48,
           height: 48,
           borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
-          fileType: FileType.audio,
         ),
         // Playing indicator overlay
         if (isActive && !isPlaying)

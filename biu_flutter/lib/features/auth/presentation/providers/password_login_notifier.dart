@@ -15,15 +15,15 @@ enum PasswordLoginStatus {
 
 /// Password login state
 class PasswordLoginState {
-  final PasswordLoginStatus status;
-  final String? errorMessage;
-  final bool isPasswordVisible;
 
   const PasswordLoginState({
     this.status = PasswordLoginStatus.idle,
     this.errorMessage,
     this.isPasswordVisible = false,
   });
+  final PasswordLoginStatus status;
+  final String? errorMessage;
+  final bool isPasswordVisible;
 
   static const PasswordLoginState initial = PasswordLoginState();
 
@@ -53,11 +53,11 @@ final passwordLoginNotifierProvider = StateNotifierProvider.autoDispose<
 
 /// Password login state notifier
 class PasswordLoginNotifier extends StateNotifier<PasswordLoginState> {
-  final AuthRepository _repository;
-  final AuthNotifier _authNotifier;
 
   PasswordLoginNotifier(this._repository, this._authNotifier)
       : super(PasswordLoginState.initial);
+  final AuthRepository _repository;
+  final AuthNotifier _authNotifier;
 
   /// Toggle password visibility
   void togglePasswordVisibility() {

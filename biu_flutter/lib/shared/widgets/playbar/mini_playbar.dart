@@ -94,7 +94,6 @@ class MiniPlaybar extends ConsumerWidget {
       width: 44,
       height: 44,
       borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
-      fileType: FileType.audio,
     );
   }
 

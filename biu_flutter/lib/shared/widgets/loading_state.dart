@@ -101,7 +101,7 @@ class _ShimmerLoadingItemState extends State<ShimmerLoadingItem>
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     )..repeat();
-    _animation = Tween<double>(begin: -1.0, end: 2.0).animate(
+    _animation = Tween<double>(begin: -1, end: 2).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOutSine),
     );
   }

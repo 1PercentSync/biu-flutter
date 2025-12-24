@@ -1,5 +1,5 @@
-import 'package:flutter_test/flutter_test.dart';
 import 'package:biu_flutter/core/extensions/duration_extensions.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('DurationExtensions', () {

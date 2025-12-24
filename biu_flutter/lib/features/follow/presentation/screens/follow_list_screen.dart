@@ -214,7 +214,7 @@ class _FollowListScreenState extends ConsumerState<FollowListScreen> {
         ],
       ),
     ).then((confirmed) async {
-      if (confirmed == true) {
+      if (confirmed ?? false) {
         final success =
             await ref.read(followProvider.notifier).unfollowUser(user);
         if (mounted) {

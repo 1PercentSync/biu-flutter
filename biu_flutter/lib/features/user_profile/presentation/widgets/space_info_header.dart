@@ -61,7 +61,7 @@ class SpaceInfoHeader extends StatelessWidget {
   }
 
   Widget _buildNormalView(BuildContext context) {
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         image: _getBackgroundImage(),
         color: AppColors.contentBackground,
@@ -130,7 +130,7 @@ class SpaceInfoHeader extends StatelessWidget {
                       child: Icon(
                         Icons.verified,
                         size: 18,
-                        color: spaceInfo.official?.isPersonalVerified == true
+                        color: spaceInfo.official?.isPersonalVerified ?? false
                             ? Colors.amber
                             : Colors.blue,
                       ),
@@ -185,7 +185,6 @@ class SpaceInfoHeader extends StatelessWidget {
             imageUrl: spaceInfo.face,
             width: size,
             height: size,
-            fit: BoxFit.cover,
           ),
         ),
         // VIP badge on avatar

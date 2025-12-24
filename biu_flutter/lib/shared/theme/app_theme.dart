@@ -8,28 +8,28 @@ class AppTheme {
   AppTheme._();
 
   /// Default border radius value
-  static const double borderRadius = 8.0;
+  static const double borderRadius = 8;
 
   /// Large border radius value
-  static const double borderRadiusLarge = 12.0;
+  static const double borderRadiusLarge = 12;
 
   /// Small border radius value
-  static const double borderRadiusSmall = 4.0;
+  static const double borderRadiusSmall = 4;
 
   /// Default padding value
-  static const double padding = 16.0;
+  static const double padding = 16;
 
   /// Small padding value
-  static const double paddingSmall = 8.0;
+  static const double paddingSmall = 8;
 
   /// Large padding value
-  static const double paddingLarge = 24.0;
+  static const double paddingLarge = 24;
 
   /// Mini playbar height
-  static const double miniPlaybarHeight = 64.0;
+  static const double miniPlaybarHeight = 64;
 
   /// Bottom navigation height
-  static const double bottomNavHeight = 80.0;
+  static const double bottomNavHeight = 80;
 
   /// Build the dark theme for the application
   static ThemeData buildDarkTheme() {
@@ -300,10 +300,10 @@ class AppTheme {
       ),
 
       // Tab bar theme
-      tabBarTheme: TabBarThemeData(
+      tabBarTheme: const TabBarThemeData(
         labelColor: AppColors.primary,
         unselectedLabelColor: AppColors.textSecondary,
-        indicator: const UnderlineTabIndicator(
+        indicator: UnderlineTabIndicator(
           borderSide: BorderSide(
             color: AppColors.primary,
             width: 2,

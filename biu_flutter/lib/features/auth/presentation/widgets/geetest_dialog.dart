@@ -11,6 +11,10 @@ bool get _isWebViewSupported =>
 
 /// Dialog that displays Geetest captcha verification
 class GeetestDialog extends StatefulWidget {
+
+  const GeetestDialog({
+    required this.token, required this.gt, required this.challenge, super.key,
+  });
   /// Geetest token from captcha API
   final String token;
 
@@ -19,13 +23,6 @@ class GeetestDialog extends StatefulWidget {
 
   /// Geetest challenge parameter
   final String challenge;
-
-  const GeetestDialog({
-    super.key,
-    required this.token,
-    required this.gt,
-    required this.challenge,
-  });
 
   /// Show Geetest dialog and return verification result
   static Future<GeetestResult?> show(
@@ -66,7 +63,7 @@ class GeetestDialog extends StatefulWidget {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(null),
+            onPressed: () => Navigator.of(context).pop(),
             child: const Text('确定'),
           ),
         ],
@@ -136,7 +133,7 @@ class _GeetestDialogState extends State<GeetestDialog> {
         _error = data.substring(6);
       });
     } else if (data == 'close') {
-      Navigator.of(context).pop(null);
+      Navigator.of(context).pop();
     }
   }
 
@@ -169,7 +166,7 @@ class _GeetestDialogState extends State<GeetestDialog> {
                   ),
                   IconButton(
                     icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.of(context).pop(null),
+                    onPressed: () => Navigator.of(context).pop(),
                   ),
                 ],
               ),
@@ -328,10 +325,10 @@ class _GeetestDialogState extends State<GeetestDialog> {
 
   String _escapeJs(String input) {
     return input
-        .replaceAll('\\', '\\\\')
-        .replaceAll("'", "\\'")
-        .replaceAll('"', '\\"')
-        .replaceAll('\n', '\\n')
-        .replaceAll('\r', '\\r');
+        .replaceAll(r'\', r'\\')
+        .replaceAll("'", r"\'")
+        .replaceAll('"', r'\"')
+        .replaceAll('\n', r'\n')
+        .replaceAll('\r', r'\r');
   }
 }

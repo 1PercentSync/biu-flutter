@@ -102,10 +102,9 @@ void main() {
     });
 
     test('returns null for empty audio list', () {
-      final emptyDash = const DashInfo(
+      const emptyDash = DashInfo(
         duration: 300,
         minBufferTime: 1.5,
-        audio: [],
       );
       final audio = emptyDash.selectAudioByQuality('high');
       expect(audio, isNull);
@@ -122,11 +121,11 @@ void main() {
         codecs: 'flac',
       );
 
-      final dashInfo = DashInfo(
+      const dashInfo = DashInfo(
         duration: 300,
         minBufferTime: 1.5,
         audio: [
-          const DashAudio(
+          DashAudio(
             id: 30280,
             baseUrl: 'https://example.com/192k.m4s',
             bandwidth: 192000,
@@ -134,7 +133,7 @@ void main() {
             codecs: 'mp4a.40.2',
           ),
         ],
-        flac: const FlacInfo(display: true, audio: flacAudio),
+        flac: FlacInfo(display: true, audio: flacAudio),
       );
 
       final audio = dashInfo.selectAudioByQuality('lossless');
@@ -143,11 +142,10 @@ void main() {
     });
 
     test('hasFlac returns true when FLAC available', () {
-      final dashInfo = DashInfo(
+      const dashInfo = DashInfo(
         duration: 300,
         minBufferTime: 1.5,
-        audio: [],
-        flac: const FlacInfo(
+        flac: FlacInfo(
           display: true,
           audio: DashAudio(
             id: 30251,
@@ -166,7 +164,6 @@ void main() {
       const dashInfo = DashInfo(
         duration: 300,
         minBufferTime: 1.5,
-        audio: [],
       );
 
       expect(dashInfo.hasFlac, false);
@@ -175,7 +172,7 @@ void main() {
 
   group('DashInfo with Dolby', () {
     test('auto quality prefers Dolby over standard audio', () {
-      final dolbyAudio = const DashAudio(
+      const dolbyAudio = DashAudio(
         id: 30250, // Dolby
         baseUrl: 'https://example.com/dolby.m4s',
         bandwidth: 384000,
@@ -183,11 +180,11 @@ void main() {
         codecs: 'ec-3',
       );
 
-      final dashInfo = DashInfo(
+      const dashInfo = DashInfo(
         duration: 300,
         minBufferTime: 1.5,
         audio: [
-          const DashAudio(
+          DashAudio(
             id: 30280,
             baseUrl: 'https://example.com/192k.m4s',
             bandwidth: 192000,
@@ -204,11 +201,10 @@ void main() {
     });
 
     test('hasDolby returns true when Dolby available', () {
-      final dashInfo = DashInfo(
+      const dashInfo = DashInfo(
         duration: 300,
         minBufferTime: 1.5,
-        audio: [],
-        dolby: const DolbyInfo(
+        dolby: DolbyInfo(
           type: 2,
           audio: [
             DashAudio(
@@ -228,11 +224,11 @@ void main() {
 
   group('DashInfo.getBestAudio', () {
     test('returns FLAC when available', () {
-      final dashInfo = DashInfo(
+      const dashInfo = DashInfo(
         duration: 300,
         minBufferTime: 1.5,
         audio: [
-          const DashAudio(
+          DashAudio(
             id: 30280,
             baseUrl: 'https://example.com/192k.m4s',
             bandwidth: 192000,
@@ -240,7 +236,7 @@ void main() {
             codecs: 'mp4a.40.2',
           ),
         ],
-        flac: const FlacInfo(
+        flac: FlacInfo(
           display: true,
           audio: DashAudio(
             id: 30251,

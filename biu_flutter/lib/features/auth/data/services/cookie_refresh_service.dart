@@ -7,9 +7,9 @@ import '../datasources/auth_remote_datasource.dart';
 
 /// Service for refreshing Bilibili cookies
 class CookieRefreshService {
-  final AuthRemoteDatasource _datasource;
 
   CookieRefreshService(this._datasource);
+  final AuthRemoteDatasource _datasource;
 
   /// RSA public key for correspond path encryption (from Bilibili)
   /// This is a fixed public key used by Bilibili for cookie refresh
@@ -138,7 +138,7 @@ class CookieRefreshService {
   /// Parse refresh_csrf from HTML response
   String? _parseRefreshCsrf(String html) {
     // Look for <div id="1-name">...</div>
-    final regex = RegExp(r'<div[^>]*id="1-name"[^>]*>([^<]*)</div>', caseSensitive: false);
+    final regex = RegExp('<div[^>]*id="1-name"[^>]*>([^<]*)</div>', caseSensitive: false);
     final match = regex.firstMatch(html);
 
     if (match != null && match.groupCount >= 1) {

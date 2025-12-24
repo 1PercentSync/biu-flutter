@@ -2,9 +2,6 @@ import '../../domain/entities/user.dart';
 
 /// Response from /x/web-interface/nav API
 class UserInfoResponse {
-  final int code;
-  final String message;
-  final UserInfoData? data;
 
   const UserInfoResponse({
     required this.code,
@@ -21,6 +18,9 @@ class UserInfoResponse {
           : null,
     );
   }
+  final int code;
+  final String message;
+  final UserInfoData? data;
 
   bool get isSuccess => code == 0;
   bool get isLoggedIn => isSuccess && (data?.isLogin ?? false);
@@ -28,20 +28,6 @@ class UserInfoResponse {
 
 /// User info data from API
 class UserInfoData {
-  final bool isLogin;
-  final int mid;
-  final String uname;
-  final String face;
-  final int emailVerified;
-  final int mobileVerified;
-  final LevelInfo levelInfo;
-  final double money;
-  final int vipStatus;
-  final int vipType;
-  final int vipDueDate;
-  final Official official;
-  final Wallet wallet;
-  final WbiImg wbiImg;
 
   const UserInfoData({
     required this.isLogin,
@@ -86,6 +72,20 @@ class UserInfoData {
           : const WbiImg(imgUrl: '', subUrl: ''),
     );
   }
+  final bool isLogin;
+  final int mid;
+  final String uname;
+  final String face;
+  final int emailVerified;
+  final int mobileVerified;
+  final LevelInfo levelInfo;
+  final double money;
+  final int vipStatus;
+  final int vipType;
+  final int vipDueDate;
+  final Official official;
+  final Wallet wallet;
+  final WbiImg wbiImg;
 
   /// Convert to domain entity
   User toEntity() {
@@ -109,7 +109,6 @@ class UserInfoData {
 }
 
 class LevelInfo {
-  final int currentLevel;
 
   const LevelInfo({required this.currentLevel});
 
@@ -118,11 +117,10 @@ class LevelInfo {
       currentLevel: json['current_level'] as int? ?? 0,
     );
   }
+  final int currentLevel;
 }
 
 class Official {
-  final int role;
-  final String title;
 
   const Official({required this.role, required this.title});
 
@@ -132,10 +130,11 @@ class Official {
       title: json['title'] as String? ?? '',
     );
   }
+  final int role;
+  final String title;
 }
 
 class Wallet {
-  final double bcoinBalance;
 
   const Wallet({required this.bcoinBalance});
 
@@ -144,11 +143,10 @@ class Wallet {
       bcoinBalance: (json['bcoin_balance'] as num?)?.toDouble() ?? 0,
     );
   }
+  final double bcoinBalance;
 }
 
 class WbiImg {
-  final String imgUrl;
-  final String subUrl;
 
   const WbiImg({required this.imgUrl, required this.subUrl});
 
@@ -158,4 +156,6 @@ class WbiImg {
       subUrl: json['sub_url'] as String? ?? '',
     );
   }
+  final String imgUrl;
+  final String subUrl;
 }

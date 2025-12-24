@@ -237,7 +237,7 @@ class _LaterScreenState extends ConsumerState<LaterScreen> {
         ],
       ),
     ).then((confirmed) async {
-      if (confirmed == true) {
+      if (confirmed ?? false) {
         final success =
             await ref.read(laterProvider.notifier).removeItem(item);
         if (mounted) {

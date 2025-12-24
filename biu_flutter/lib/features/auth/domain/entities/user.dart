@@ -1,5 +1,22 @@
 /// User information entity
 class User {
+
+  const User({
+    required this.mid,
+    required this.uname,
+    required this.face,
+    required this.isLogin,
+    this.level = 0,
+    this.vipStatus = 0,
+    this.vipType = 0,
+    this.vipDueDate = 0,
+    this.money = 0,
+    this.bcoinBalance = 0,
+    this.emailVerified = false,
+    this.mobileVerified = false,
+    this.officialRole = 0,
+    this.officialTitle = '',
+  });
   /// User ID (mid)
   final int mid;
 
@@ -41,23 +58,6 @@ class User {
 
   /// Official verification title
   final String officialTitle;
-
-  const User({
-    required this.mid,
-    required this.uname,
-    required this.face,
-    required this.isLogin,
-    this.level = 0,
-    this.vipStatus = 0,
-    this.vipType = 0,
-    this.vipDueDate = 0,
-    this.money = 0,
-    this.bcoinBalance = 0,
-    this.emailVerified = false,
-    this.mobileVerified = false,
-    this.officialRole = 0,
-    this.officialTitle = '',
-  });
 
   /// Check if user has VIP
   bool get isVip => vipStatus == 1;

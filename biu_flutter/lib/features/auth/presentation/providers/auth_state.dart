@@ -1,5 +1,5 @@
-import '../../domain/entities/user.dart';
 import '../../domain/entities/auth_token.dart';
+import '../../domain/entities/user.dart';
 
 /// Possible authentication states
 enum AuthStatus {
@@ -21,6 +21,14 @@ enum AuthStatus {
 
 /// Authentication state
 class AuthState {
+
+  const AuthState({
+    this.status = AuthStatus.initial,
+    this.user,
+    this.token,
+    this.errorMessage,
+    this.isRefreshing = false,
+  });
   /// Current authentication status
   final AuthStatus status;
 
@@ -35,14 +43,6 @@ class AuthState {
 
   /// Whether a refresh check is in progress
   final bool isRefreshing;
-
-  const AuthState({
-    this.status = AuthStatus.initial,
-    this.user,
-    this.token,
-    this.errorMessage,
-    this.isRefreshing = false,
-  });
 
   /// Initial state
   static const AuthState initial = AuthState();

@@ -6,12 +6,12 @@ import '../providers/qr_login_notifier.dart';
 
 /// QR code login widget
 class QrLoginWidget extends ConsumerWidget {
-  final VoidCallback? onLoginSuccess;
 
   const QrLoginWidget({
     super.key,
     this.onLoginSuccess,
   });
+  final VoidCallback? onLoginSuccess;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -56,7 +56,6 @@ class QrLoginWidget extends ConsumerWidget {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: Theme.of(context).dividerColor,
-          width: 1,
         ),
       ),
       child: ClipRRect(
@@ -106,7 +105,6 @@ class QrLoginWidget extends ConsumerWidget {
       padding: const EdgeInsets.all(8),
       child: QrImageView(
         data: url,
-        version: QrVersions.auto,
         size: 164,
         backgroundColor: Colors.white,
         errorStateBuilder: (context, error) {
@@ -123,7 +121,7 @@ class QrLoginWidget extends ConsumerWidget {
   }
 
   Widget _buildExpiredOverlay(QrLoginNotifier notifier) {
-    return Container(
+    return ColoredBox(
       color: Colors.black.withValues(alpha: 0.7),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -152,7 +150,7 @@ class QrLoginWidget extends ConsumerWidget {
   }
 
   Widget _buildScannedOverlay() {
-    return Container(
+    return ColoredBox(
       color: Colors.black.withValues(alpha: 0.7),
       child: const Column(
         mainAxisAlignment: MainAxisAlignment.center,

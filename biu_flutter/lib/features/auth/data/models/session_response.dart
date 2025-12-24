@@ -1,8 +1,5 @@
 /// Response from /x/passport-login/web/cookie/info
 class CookieInfoResponse {
-  final int code;
-  final String message;
-  final CookieInfoData? data;
 
   const CookieInfoResponse({
     required this.code,
@@ -19,6 +16,9 @@ class CookieInfoResponse {
           : null,
     );
   }
+  final int code;
+  final String message;
+  final CookieInfoData? data;
 
   /// Check if request was successful
   bool get isSuccess => code == 0;
@@ -28,11 +28,6 @@ class CookieInfoResponse {
 }
 
 class CookieInfoData {
-  /// Whether cookie refresh is needed
-  final bool refresh;
-
-  /// Current timestamp in milliseconds
-  final int timestamp;
 
   const CookieInfoData({
     required this.refresh,
@@ -45,13 +40,15 @@ class CookieInfoData {
       timestamp: json['timestamp'] as int? ?? 0,
     );
   }
+  /// Whether cookie refresh is needed
+  final bool refresh;
+
+  /// Current timestamp in milliseconds
+  final int timestamp;
 }
 
 /// Response from /x/passport-login/web/cookie/refresh
 class CookieRefreshResponse {
-  final int code;
-  final String message;
-  final CookieRefreshData? data;
 
   const CookieRefreshResponse({
     required this.code,
@@ -68,20 +65,15 @@ class CookieRefreshResponse {
           : null,
     );
   }
+  final int code;
+  final String message;
+  final CookieRefreshData? data;
 
   /// Check if refresh was successful
   bool get isSuccess => code == 0;
 }
 
 class CookieRefreshData {
-  /// Status code
-  final int status;
-
-  /// Status message
-  final String message;
-
-  /// New refresh token
-  final String refreshToken;
 
   const CookieRefreshData({
     required this.status,
@@ -96,15 +88,18 @@ class CookieRefreshData {
       refreshToken: json['refresh_token'] as String? ?? '',
     );
   }
+  /// Status code
+  final int status;
+
+  /// Status message
+  final String message;
+
+  /// New refresh token
+  final String refreshToken;
 }
 
 /// Response from /login/exit/v2
 class LogoutResponse {
-  final int code;
-  final bool? status;
-  final int? ts;
-  final String? message;
-  final LogoutData? data;
 
   const LogoutResponse({
     required this.code,
@@ -125,13 +120,17 @@ class LogoutResponse {
           : null,
     );
   }
+  final int code;
+  final bool? status;
+  final int? ts;
+  final String? message;
+  final LogoutData? data;
 
   /// Check if logout was successful
   bool get isSuccess => code == 0;
 }
 
 class LogoutData {
-  final String redirectUrl;
 
   const LogoutData({required this.redirectUrl});
 
@@ -140,13 +139,11 @@ class LogoutData {
       redirectUrl: json['redirectUrl'] as String? ?? '',
     );
   }
+  final String redirectUrl;
 }
 
 /// Response from /x/passport-login/web/confirm/refresh
 class ConfirmRefreshResponse {
-  final int code;
-  final String message;
-  final int? ttl;
 
   const ConfirmRefreshResponse({
     required this.code,
@@ -161,6 +158,9 @@ class ConfirmRefreshResponse {
       ttl: json['ttl'] as int?,
     );
   }
+  final int code;
+  final String message;
+  final int? ttl;
 
   /// Check if confirm was successful
   bool get isSuccess => code == 0;

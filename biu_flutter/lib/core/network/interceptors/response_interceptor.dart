@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 
-import '../../errors/app_exception.dart';
 import '../../constants/api.dart';
+import '../../errors/app_exception.dart';
 
 /// Interceptor for handling Bilibili API response format
 ///

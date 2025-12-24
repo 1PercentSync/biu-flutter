@@ -2,16 +2,15 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:flutter/foundation.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:just_audio/just_audio.dart';
-
 import 'package:biu_flutter/core/constants/audio.dart';
 import 'package:biu_flutter/core/storage/storage_service.dart';
 import 'package:biu_flutter/core/utils/url_utils.dart';
 import 'package:biu_flutter/features/player/domain/entities/play_item.dart';
 import 'package:biu_flutter/features/player/presentation/providers/playlist_state.dart';
 import 'package:biu_flutter/features/player/services/audio_player_service.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:just_audio/just_audio.dart';
 
 /// Result of fetching video info for getting cid
 class VideoInfoResult {
@@ -251,7 +250,7 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
     state = state.copyWith(
       list: newList,
       playId: item.id,
-      currentTime: 0.0,
+      currentTime: 0,
       clearDuration: true,
     );
 
@@ -269,7 +268,7 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
       playId: id,
       nextId: state.nextId == id ? null : state.nextId,
       clearNextId: state.nextId == id,
-      currentTime: 0.0,
+      currentTime: 0,
       clearDuration: true,
     );
 
@@ -284,7 +283,7 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
       list: items,
       playId: items.first.id,
       clearNextId: true,
-      currentTime: 0.0,
+      currentTime: 0,
       clearDuration: true,
     );
 
@@ -443,7 +442,7 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
       clearPlayId: true,
       clearNextId: true,
       clearDuration: true,
-      currentTime: 0.0,
+      currentTime: 0,
     );
 
     _saveState();
@@ -613,7 +612,7 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
     debugPrint('[Playlist] Item type: ${currentItem.type}, bvid: ${currentItem.bvid}, sid: ${currentItem.sid}');
 
     // First, try to get a fresh URL if we don't have one or need to refresh
-    String? audioUrl = currentItem.audioUrl;
+    var audioUrl = currentItem.audioUrl;
 
     // Check URL validity using deadline parameter
     // Bilibili URLs have a deadline query param that indicates expiry time
@@ -672,7 +671,7 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
   Future<String?> _fetchAudioUrl(PlayItem item) async {
     if (item.type == PlayDataType.mv && item.bvid != null) {
       // Check if we have cid, if not fetch video info first
-      String? cid = item.cid;
+      var cid = item.cid;
       if (cid == null || cid.isEmpty) {
         debugPrint('[Playlist] No cid, fetching video info...');
         final videoInfo = await onFetchVideoInfo?.call(item.bvid!);
@@ -686,7 +685,7 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
         }
       }
 
-      if (cid != null && cid.isNotEmpty) {
+      if (cid.isNotEmpty) {
         debugPrint('[Playlist] Fetching MV audio URL with cid: $cid');
         return await onFetchMvAudioUrl?.call(item.bvid!, cid);
       }
@@ -798,7 +797,7 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
 
 /// Provider for the playlist notifier
 final playlistProvider =
-    NotifierProvider<PlaylistNotifier, PlaylistState>(() => PlaylistNotifier());
+    NotifierProvider<PlaylistNotifier, PlaylistState>(PlaylistNotifier.new);
 
 /// Provider for the current play item
 final currentPlayItemProvider = Provider<PlayItem?>((ref) {

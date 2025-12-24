@@ -16,11 +16,6 @@ enum SmsLoginStatus {
 
 /// SMS login state
 class SmsLoginState {
-  final SmsLoginStatus status;
-  final String? errorMessage;
-  final String? captchaKey;
-  final int countryCode;
-  final int countdown;
 
   const SmsLoginState({
     this.status = SmsLoginStatus.idle,
@@ -29,6 +24,11 @@ class SmsLoginState {
     this.countryCode = 86, // Default to China
     this.countdown = 0,
   });
+  final SmsLoginStatus status;
+  final String? errorMessage;
+  final String? captchaKey;
+  final int countryCode;
+  final int countdown;
 
   static const SmsLoginState initial = SmsLoginState();
 
@@ -65,12 +65,12 @@ final smsLoginNotifierProvider =
 
 /// SMS login state notifier
 class SmsLoginNotifier extends StateNotifier<SmsLoginState> {
-  final AuthRepository _repository;
-  final AuthNotifier _authNotifier;
-  Timer? _countdownTimer;
 
   SmsLoginNotifier(this._repository, this._authNotifier)
       : super(SmsLoginState.initial);
+  final AuthRepository _repository;
+  final AuthNotifier _authNotifier;
+  Timer? _countdownTimer;
 
   @override
   void dispose() {

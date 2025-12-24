@@ -4,6 +4,55 @@ import '../theme/app_colors.dart';
 
 /// A widget to display error state with retry option.
 class ErrorState extends StatelessWidget {
+
+  /// Create an error state for network errors
+  factory ErrorState.network({
+    VoidCallback? onRetry,
+  }) {
+    return ErrorState(
+      title: 'Network Error',
+      message: 'Please check your internet connection and try again.',
+      icon: const Icon(
+        Icons.wifi_off,
+        size: 48,
+        color: AppColors.textTertiary,
+      ),
+      onRetry: onRetry,
+    );
+  }
+
+  /// Create an error state for server errors
+  factory ErrorState.server({
+    VoidCallback? onRetry,
+  }) {
+    return ErrorState(
+      title: 'Server Error',
+      message: 'The server is temporarily unavailable. Please try again later.',
+      icon: const Icon(
+        Icons.cloud_off,
+        size: 48,
+        color: AppColors.textTertiary,
+      ),
+      onRetry: onRetry,
+    );
+  }
+
+  /// Create an error state for authentication errors
+  factory ErrorState.auth({
+    VoidCallback? onLogin,
+  }) {
+    return ErrorState(
+      title: 'Login Required',
+      message: 'Please log in to access this content.',
+      icon: const Icon(
+        Icons.lock_outline,
+        size: 48,
+        color: AppColors.textTertiary,
+      ),
+      onRetry: onLogin,
+      retryText: 'Log In',
+    );
+  }
   const ErrorState({
     super.key,
     this.title,
@@ -77,55 +126,6 @@ class ErrorState extends StatelessWidget {
       ),
     );
   }
-
-  /// Create an error state for network errors
-  factory ErrorState.network({
-    VoidCallback? onRetry,
-  }) {
-    return ErrorState(
-      title: 'Network Error',
-      message: 'Please check your internet connection and try again.',
-      icon: const Icon(
-        Icons.wifi_off,
-        size: 48,
-        color: AppColors.textTertiary,
-      ),
-      onRetry: onRetry,
-    );
-  }
-
-  /// Create an error state for server errors
-  factory ErrorState.server({
-    VoidCallback? onRetry,
-  }) {
-    return ErrorState(
-      title: 'Server Error',
-      message: 'The server is temporarily unavailable. Please try again later.',
-      icon: const Icon(
-        Icons.cloud_off,
-        size: 48,
-        color: AppColors.textTertiary,
-      ),
-      onRetry: onRetry,
-    );
-  }
-
-  /// Create an error state for authentication errors
-  factory ErrorState.auth({
-    VoidCallback? onLogin,
-  }) {
-    return ErrorState(
-      title: 'Login Required',
-      message: 'Please log in to access this content.',
-      icon: const Icon(
-        Icons.lock_outline,
-        size: 48,
-        color: AppColors.textTertiary,
-      ),
-      onRetry: onLogin,
-      retryText: 'Log In',
-    );
-  }
 }
 
 /// A snackbar-style error message
@@ -158,8 +158,7 @@ class ErrorSnackBar {
 /// A banner-style error message that stays at the top
 class ErrorBanner extends StatelessWidget {
   const ErrorBanner({
-    super.key,
-    required this.message,
+    required this.message, super.key,
     this.onDismiss,
     this.onRetry,
   });

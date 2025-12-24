@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 
 import '../../../../core/network/dio_client.dart';
-import '../models/video_info.dart';
 import '../models/play_url.dart';
+import '../models/video_info.dart';
 
 /// Remote data source for video-related API calls
 class VideoRemoteDataSource {

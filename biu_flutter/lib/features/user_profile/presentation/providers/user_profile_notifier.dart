@@ -93,7 +93,6 @@ class UserProfileNotifier extends StateNotifier<UserProfileState> {
     try {
       final data = await _dataSource.getSpaceVideos(
         mid: _mid,
-        pn: 1,
         keyword: state.videoKeyword.isNotEmpty ? state.videoKeyword : null,
         order: state.videoOrder,
       );

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../widgets/qr_login_widget.dart';
 import '../widgets/password_login_widget.dart';
+import '../widgets/qr_login_widget.dart';
 import '../widgets/sms_login_widget.dart';
 
 /// Login screen with tabbed login methods

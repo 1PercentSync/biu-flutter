@@ -38,10 +38,9 @@ class FollowingCard extends StatelessWidget {
                   ClipOval(
                     child: user.face != null
                         ? AppCachedImage(
-                            imageUrl: user.face!,
+                            imageUrl: user.face,
                             width: 72,
                             height: 72,
-                            fit: BoxFit.cover,
                           )
                         : Container(
                             width: 72,
@@ -55,7 +54,7 @@ class FollowingCard extends StatelessWidget {
                           ),
                   ),
                   // VIP badge
-                  if (user.vip?.isVip == true)
+                  if (user.vip?.isVip ?? false)
                     Positioned(
                       right: 0,
                       bottom: 0,
@@ -105,7 +104,7 @@ class FollowingCard extends StatelessWidget {
               const SizedBox(height: 4),
               // Signature
               Text(
-                user.sign?.isNotEmpty == true ? user.sign! : 'No signature',
+                user.sign?.isNotEmpty ?? false ? user.sign! : 'No signature',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: AppColors.textSecondary,
                     ),
@@ -211,10 +210,9 @@ class FollowingListTile extends StatelessWidget {
         leading: ClipOval(
           child: user.face != null
               ? AppCachedImage(
-                  imageUrl: user.face!,
+                  imageUrl: user.face,
                   width: 48,
                   height: 48,
-                  fit: BoxFit.cover,
                 )
               : Container(
                   width: 48,
@@ -247,7 +245,7 @@ class FollowingListTile extends StatelessWidget {
                       : Colors.blue,
                 ),
               ),
-            if (user.vip?.isVip == true)
+            if (user.vip?.isVip ?? false)
               Padding(
                 padding: const EdgeInsets.only(left: 4),
                 child: Container(
@@ -287,7 +285,7 @@ class FollowingListTile extends StatelessWidget {
           ],
         ),
         subtitle: Text(
-          user.sign?.isNotEmpty == true ? user.sign! : 'No signature',
+          user.sign?.isNotEmpty ?? false ? user.sign! : 'No signature',
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(color: AppColors.textSecondary),

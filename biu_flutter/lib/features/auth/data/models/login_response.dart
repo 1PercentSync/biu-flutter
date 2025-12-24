@@ -1,8 +1,5 @@
 /// Response from /x/passport-login/web/key API
 class WebKeyResponse {
-  final int code;
-  final String message;
-  final WebKeyData? data;
 
   const WebKeyResponse({
     required this.code,
@@ -19,16 +16,14 @@ class WebKeyResponse {
           : null,
     );
   }
+  final int code;
+  final String message;
+  final WebKeyData? data;
 
   bool get isSuccess => code == 0 && data != null;
 }
 
 class WebKeyData {
-  /// Salt hash for password encryption
-  final String hash;
-
-  /// RSA public key (PEM format)
-  final String key;
 
   const WebKeyData({required this.hash, required this.key});
 
@@ -38,13 +33,15 @@ class WebKeyData {
       key: json['key'] as String? ?? '',
     );
   }
+  /// Salt hash for password encryption
+  final String hash;
+
+  /// RSA public key (PEM format)
+  final String key;
 }
 
 /// Response from /x/passport-login/web/login (password login)
 class PasswordLoginResponse {
-  final int code;
-  final String message;
-  final PasswordLoginData? data;
 
   const PasswordLoginResponse({
     required this.code,
@@ -61,16 +58,14 @@ class PasswordLoginResponse {
           : null,
     );
   }
+  final int code;
+  final String message;
+  final PasswordLoginData? data;
 
   bool get isSuccess => code == 0;
 }
 
 class PasswordLoginData {
-  final int? status;
-  final String? url;
-  final String? refreshToken;
-  final int? timestamp;
-  final String? message;
 
   const PasswordLoginData({
     this.status,
@@ -89,13 +84,15 @@ class PasswordLoginData {
       message: json['message'] as String?,
     );
   }
+  final int? status;
+  final String? url;
+  final String? refreshToken;
+  final int? timestamp;
+  final String? message;
 }
 
 /// Response from /x/passport-login/web/sms/send
 class SmsSendResponse {
-  final int code;
-  final String message;
-  final SmsSendData? data;
 
   const SmsSendResponse({
     required this.code,
@@ -112,13 +109,14 @@ class SmsSendResponse {
           : null,
     );
   }
+  final int code;
+  final String message;
+  final SmsSendData? data;
 
   bool get isSuccess => code == 0;
 }
 
 class SmsSendData {
-  /// Captcha key for SMS login
-  final String captchaKey;
 
   const SmsSendData({required this.captchaKey});
 
@@ -127,13 +125,12 @@ class SmsSendData {
       captchaKey: json['captcha_key'] as String? ?? '',
     );
   }
+  /// Captcha key for SMS login
+  final String captchaKey;
 }
 
 /// Response from /x/passport-login/web/login/sms
 class SmsLoginResponse {
-  final int code;
-  final String message;
-  final SmsLoginData? data;
 
   const SmsLoginResponse({
     required this.code,
@@ -150,17 +147,14 @@ class SmsLoginResponse {
           : null,
     );
   }
+  final int code;
+  final String message;
+  final SmsLoginData? data;
 
   bool get isSuccess => code == 0;
 }
 
 class SmsLoginData {
-  final String hint;
-  final bool isNew;
-  final int status;
-  final String url;
-  final String refreshToken;
-  final int timestamp;
 
   const SmsLoginData({
     required this.hint,
@@ -181,4 +175,10 @@ class SmsLoginData {
       timestamp: json['timestamp'] as int? ?? 0,
     );
   }
+  final String hint;
+  final bool isNew;
+  final int status;
+  final String url;
+  final String refreshToken;
+  final int timestamp;
 }

@@ -6,9 +6,7 @@ import '../../domain/entities/app_settings.dart';
 /// Audio quality picker dialog widget
 class AudioQualityPicker extends StatelessWidget {
   const AudioQualityPicker({
-    super.key,
-    required this.currentQuality,
-    required this.onSelected,
+    required this.currentQuality, required this.onSelected, super.key,
   });
 
   final AudioQualitySetting currentQuality;
@@ -76,7 +74,7 @@ class AudioQualityPicker extends StatelessWidget {
       title: Text(quality.label),
       subtitle: Text(
         quality.description,
-        style: TextStyle(
+        style: const TextStyle(
           color: AppColors.textSecondary,
           fontSize: 12,
         ),

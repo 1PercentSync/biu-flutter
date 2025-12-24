@@ -1,7 +1,7 @@
-import '../../../../core/storage/secure_storage_service.dart';
 import '../../../../core/network/dio_client.dart';
-import '../../domain/entities/user.dart';
+import '../../../../core/storage/secure_storage_service.dart';
 import '../../domain/entities/auth_token.dart';
+import '../../domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_remote_datasource.dart';
 
@@ -13,14 +13,14 @@ class AuthStorageKeys {
 
 /// Implementation of AuthRepository
 class AuthRepositoryImpl implements AuthRepository {
-  final AuthRemoteDatasource _remoteDatasource;
-  final SecureStorageService _secureStorage;
 
   AuthRepositoryImpl({
     AuthRemoteDatasource? remoteDatasource,
     SecureStorageService? secureStorage,
   })  : _remoteDatasource = remoteDatasource ?? AuthRemoteDatasource(),
         _secureStorage = secureStorage ?? SecureStorageService.instance;
+  final AuthRemoteDatasource _remoteDatasource;
+  final SecureStorageService _secureStorage;
 
   @override
   Future<User?> getCurrentUser() async {

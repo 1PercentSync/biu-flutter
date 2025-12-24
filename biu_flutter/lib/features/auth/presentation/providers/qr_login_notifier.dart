@@ -27,10 +27,6 @@ enum QrLoginStatus {
 
 /// QR login state
 class QrLoginState {
-  final QrLoginStatus status;
-  final String? qrCodeUrl;
-  final String? qrCodeKey;
-  final String? errorMessage;
 
   const QrLoginState({
     this.status = QrLoginStatus.loading,
@@ -38,6 +34,10 @@ class QrLoginState {
     this.qrCodeKey,
     this.errorMessage,
   });
+  final QrLoginStatus status;
+  final String? qrCodeUrl;
+  final String? qrCodeKey;
+  final String? errorMessage;
 
   static const QrLoginState initial = QrLoginState();
 
@@ -69,15 +69,15 @@ final qrLoginNotifierProvider =
 
 /// QR login state notifier
 class QrLoginNotifier extends StateNotifier<QrLoginState> {
-  final AuthRepository _repository;
-  final AuthNotifier _authNotifier;
-  Timer? _pollTimer;
 
   QrLoginNotifier(this._repository, this._authNotifier)
       : super(QrLoginState.initial) {
     // Generate QR code on initialization
     generateQrCode();
   }
+  final AuthRepository _repository;
+  final AuthNotifier _authNotifier;
+  Timer? _pollTimer;
 
   @override
   void dispose() {

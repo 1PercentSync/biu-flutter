@@ -274,25 +274,25 @@ After completing each phase or major task:
   - For adding videos to favorites
   - Reference: `biu/src/components/favorites-select-modal/`
 
-## Phase 7: Settings
+## Phase 7: Settings ✅
 
 ### 7.1 Settings Data
-- [ ] 7.1.1 Create Settings entity
+- [x] 7.1.1 Create Settings entity
   - Reference: `biu/shared/settings/app-settings.ts`
-- [ ] 7.1.2 Create SettingsNotifier
+- [x] 7.1.2 Create SettingsNotifier
   - Reference: `biu/src/store/settings.ts`
-- [ ] 7.1.3 Implement settings persistence
+- [x] 7.1.3 Implement settings persistence
   - Reference: `biu/src/store/settings.ts`
 
 ### 7.2 Settings UI
-- [ ] 7.2.1 Create Settings screen
+- [x] 7.2.1 Create Settings screen
   - Grouped settings sections
-- [ ] 7.2.2 Implement audio quality picker
-- [ ] 7.2.3 Implement theme color picker
+- [x] 7.2.2 Implement audio quality picker
+- [x] 7.2.3 Implement theme color picker
   - Reference: `biu/src/components/color-picker/`
-- [ ] 7.2.4 Implement account section
+- [x] 7.2.4 Implement account section
   - User info, logout button
-- [ ] 7.2.5 Create About screen
+- [x] 7.2.5 Create About screen
   - Version info, licenses
 
 ## Phase 8: Testing and Polish

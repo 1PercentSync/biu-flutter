@@ -17,6 +17,9 @@ class AppRoutes {
   /// Settings page
   static const String settings = '/settings';
 
+  /// About page
+  static const String about = '/about';
+
   /// Login page
   static const String login = '/login';
 

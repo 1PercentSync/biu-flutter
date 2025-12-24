@@ -74,6 +74,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: 'settings',
         builder: (context, state) => const SettingsScreen(),
       ),
+      // About route
+      GoRoute(
+        path: AppRoutes.about,
+        name: 'about',
+        builder: (context, state) => const AboutScreen(),
+      ),
       // Favorites folder detail route
       GoRoute(
         path: AppRoutes.favoritesFolder,

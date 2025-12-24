@@ -273,6 +273,18 @@ biu-flutter 是从 biu (Electron) 迁移而来的项目。迁移不是一次性�
 - [x] 动态功能评估为不需要（源码只过滤视频动态，与投稿列表重叠）
 - [x] 代表作/置顶视频/合集功能评估为不需要（B站特有，网易云/QQ音乐都没有）
 
+### Final Consistency Audit + Gaia VGate ✅ Completed
+- [x] Gaia VGate 风控验证 - **新增** `GaiaVgateInterceptor` + `gaia_vgate_response.dart`
+  - `registerGaiaVgate` 和 `validateGaiaVgate` API 方法
+  - 全局 Context 持有器用于拦截器显示对话框
+  - 自动检测 `v_voucher` 响应并触发验证流程
+- [x] `audio-song-info.ts` 评估为不需要 - 音频信息来自收藏夹 API
+- [x] `audio-rank.ts` 评估为不需要 - 源项目中的死代码
+- [x] 常量模块最终评估 - video/collection/feed/vip 评估为不需要
+- [x] 工具模块最终评估 - json/fav 已有替代方案
+- [x] FILE_MAPPING.md 所有 ❌ Missing 项已解决（实现或评估为不需要）
+- [x] flutter analyze 通过
+
 ---
 
 ## Success Criteria

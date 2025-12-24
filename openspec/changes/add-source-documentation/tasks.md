@@ -318,7 +318,7 @@ Document any changes that affect upper layers:
 | Video Series Support | ➖ Not needed | B站特有功能 |
 | Dynamic Feed | ➖ Not needed | Overlaps with video posts |
 | User Masterpiece/Top Videos | ➖ Not needed | B站特有功能 |
-| Gaia VGate Verification | ⚠️ Deferred | Needs WebView implementation |
+| Gaia VGate Verification | ✅ Implemented | See Phase 7 |
 | Download Feature | 🖥️ Desktop-only | Requires FFmpeg |
 
 ### Files Created
@@ -362,3 +362,69 @@ Document any changes that affect upper layers:
 - Updated Player Module section: volume, quick-favorite, video-page-list now ✅
 - Updated Missing Features section: reorganized with "Not Needed" table
 - Updated File Mapping Summary: Player 20/20, User Profile 15/24 mapped
+
+---
+
+## Phase 7: Final Consistency Audit + Gaia VGate Implementation ✅ Completed
+
+### Gaia VGate Verification Implementation
+
+**Background:** When Bilibili API returns `v_voucher` in response data, it indicates risk control has been triggered. The app needs to handle this by showing a captcha verification dialog.
+
+**Source Files:**
+- `biu/src/service/gaia-vgate.ts` - Response type definitions
+- `biu/src/service/gaia-vgate-register.ts` - Register for captcha
+- `biu/src/service/gaia-vgate-validate.ts` - Validate captcha result
+- `biu/src/service/request/response-interceptors.ts#geetestInterceptors` - Auto-handling
+
+### Files Created
+
+| File | Source | Notes |
+|------|--------|-------|
+| `data/models/gaia_vgate_response.dart` | `gaia-vgate*.ts` | Register/Validate response models |
+| `interceptors/gaia_vgate_interceptor.dart` | `response-interceptors.ts#geetestInterceptors` | Auto-detect v_voucher, show dialog, retry |
+| `router/navigator_key.dart` | Flutter-only | Global context holder for interceptors |
+
+### Files Modified
+
+| File | Change |
+|------|--------|
+| `auth_remote_datasource.dart` | Added `registerGaiaVgate`, `validateGaiaVgate` methods |
+| `dio_client.dart` | Added `GaiaVgateInterceptor`, updated `setCookie` with domain param |
+| `main.dart` | Set global context via MaterialApp builder |
+
+### Implementation Flow
+
+1. **Detection:** `GaiaVgateInterceptor.onResponse` checks for `v_voucher` in response data
+2. **Register:** Call `/x/gaia-vgate/v1/register` to get Geetest parameters
+3. **Dialog:** Show `GeetestDialog` with WebView-based captcha (Android/iOS)
+4. **Validate:** Call `/x/gaia-vgate/v1/validate` to get `grisk_id` (gaia_vtoken)
+5. **Retry:** Store token in cookie, retry original request with `gaia_vtoken` param
+
+### Missing Items Final Evaluation
+
+| Source File | Status | Reason |
+|-------------|--------|--------|
+| `audio-song-info.ts` | ➖ Not needed | Audio info comes from favorites API response |
+| `audio-rank.ts` | ➖ Not needed | Dead code in source (defined but never imported) |
+| `video.ts` (constants) | ➖ Not needed | Video quality for streaming, not audio playback |
+| `collection.ts` (constants) | ➖ Not needed | Video series type, B站特有 |
+| `feed.ts` (constants) | ➖ Not needed | Dynamic feed feature not needed |
+| `vip.ts` (constants) | ➖ Not needed | VIP type inline in user models |
+| `json.ts` (utils) | ➖ Not needed | Dart has built-in JSON handling |
+| `fav.ts` (utils) | ✅ Exists | `isPrivate` inline in `FavoritesFolder.isPrivate` |
+| `member-web-account.ts` | ➖ Not needed | Dead code (defined but never used) |
+| `user-account.ts` | ➖ Not needed | Used for video series (B站特有) |
+| `fav-resource-infos.ts` | ➖ Not needed | Dead code |
+| `fav-season-*.ts` | ➖ Not needed | Video series collecting, B站特有 |
+| `fav-video-favoured.ts` | ➖ Not needed | Dead code |
+
+### FILE_MAPPING.md Final Updates
+
+- All ❌ Missing items resolved (implemented or evaluated as not needed)
+- Updated File Mapping Summary: ~69% fully mapped, ~7% mobile adapted, ~24% desktop-only/not needed
+- Auth section: gaia-vgate now ✅, member-web-account/user-account marked ➖
+- Player section: audio-song-info/audio-rank marked ➖
+- Constants section: relation.ts now ✅ (mapped to UserRelation), menus.tsx now ✅ (covered by routes)
+- Utils section: fav.ts now ✅ (inline), geetest.ts now ✅ (geetest_dialog.dart)
+- Final Status: No remaining ❌ Missing items

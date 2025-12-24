@@ -91,12 +91,12 @@ biu_flutter/lib/
 
 | Category | Total Source Files | Fully Mapped | Mobile Adapted | Desktop-only/Not needed |
 |----------|-------------------|--------------|----------------|-------------------------|
-| Constants | 7 | 2 | 0 | 5 |
-| Utils/Hooks | 13 | 2 | 4 | 7 |
+| Constants | 8 | 4 | 0 | 4 |
+| Utils/Hooks | 11 | 8 | 0 | 3 |
 | Network/Service | 6 | 6 | 0 | 0 |
-| Auth | 17 | 14 | 0 | 3 |
+| Auth | 19 | 17 | 0 | 2 |
 | Favorites | 18 | 14 | 0 | 4 |
-| Player | 20 | 20 | 0 | 0 |
+| Player | 22 | 18 | 0 | 4 |
 | Search/History/Later | 12 | 12 | 0 | 0 |
 | User Profile/Follow | 24 | 15 | 0 | 9 |
 | Music/Artist Rank | 6 | 6 | 0 | 0 |
@@ -104,11 +104,12 @@ biu_flutter/lib/
 | Shared Components | 26 | 12 | 6 | 8 |
 | Layout | 10 | 4 | 5 | 1 |
 | Video/Download | 9 | 1 | 0 | 8 |
-| **Total** | **175** | **114** | **16** | **45** |
+| **Total** | **178** | **123** | **12** | **43** |
 
-**Overall Migration Rate: ~65% fully mapped, ~9% mobile adapted, ~26% desktop-only or not needed**
+**Overall Migration Rate: ~69% fully mapped, ~7% mobile adapted, ~24% desktop-only or not needed**
 
 *Note: "Mobile Adapted" includes Flutter native alternatives and mobile UI adaptations.*
+*Updated: 2025-12-24 with Gaia VGate implementation and final consistency audit.*
 
 ---
 
@@ -122,12 +123,12 @@ biu_flutter/lib/
 |-----------------|----------------|--------|
 | `common/constants/response-code.ts` | `core/constants/response_code.dart` | ✅ Full |
 | `common/constants/audio.tsx` | `core/constants/audio.dart` | ✅ Full |
-| `common/constants/video.ts` | - | ❌ Missing |
-| `common/constants/collection.ts` | - | ❌ Missing |
-| `common/constants/feed.ts` | - | ❌ Missing |
-| `common/constants/relation.ts` | - | ❌ Missing |
-| `common/constants/vip.ts` | - | ❌ Missing |
-| `common/constants/menus.tsx` | - | ❌ Missing |
+| `common/constants/video.ts` | - | ➖ Not needed (video quality, audio app) |
+| `common/constants/collection.ts` | - | ➖ Not needed (video series) |
+| `common/constants/feed.ts` | - | ➖ Not needed (dynamic feature) |
+| `common/constants/relation.ts` | `features/user_profile/data/models/space_relation.dart#UserRelation` | ✅ Full |
+| `common/constants/vip.ts` | - | ➖ Not needed (inline in user models) |
+| `common/constants/menus.tsx` | `core/router/app_router.dart` | ✅ Routes cover menus |
 | - | `core/constants/api.dart` | 🆕 Flutter-only |
 | - | `core/constants/app.dart` | 🆕 Flutter-only |
 
@@ -142,12 +143,12 @@ biu_flutter/lib/
 | `common/utils/str.ts` | `core/extensions/string_extensions.dart` | ✅ Full | stripHtml function |
 | `common/utils/audio.ts` | `core/utils/url_utils.dart` (partial) | ⚠️ Partial | Only isUrlValid migrated |
 | `common/utils/cookie.ts` | `core/utils/rsa_utils.dart` (partial) | ⚠️ Partial | Only RSA encryption |
-| `common/utils/json.ts` | - | ❌ Missing | Dart has built-in handling |
-| `common/utils/fav.ts` | - | ❌ Missing |
-| `common/utils/geetest.ts` | - | ❌ Missing | Platform-specific |
-| `common/utils/shortcut.ts` | - | ❌ Missing | Desktop-specific |
-| `common/utils/mini-player.ts` | - | ❌ Missing | Desktop-specific |
-| `common/hooks/use-geetest.ts` | - | ❌ Missing | React hook |
+| `common/utils/json.ts` | - | ➖ Not needed | Dart has built-in handling |
+| `common/utils/fav.ts` | `features/favorites/domain/entities/favorites_folder.dart#isPrivate` | ✅ Inline | isPrivate check inline |
+| `common/utils/geetest.ts` | `features/auth/presentation/widgets/geetest_dialog.dart` | ✅ Full | WebView-based on mobile |
+| `common/utils/shortcut.ts` | - | 🖥️ Desktop-only | Desktop keyboard shortcuts |
+| `common/utils/mini-player.ts` | - | 🖥️ Desktop-only | Separate window mode |
+| `common/hooks/use-geetest.ts` | `features/auth/presentation/providers/geetest_notifier.dart` | ✅ Full | React hook → Riverpod |
 | - | `core/utils/debouncer.dart` | 🆕 Flutter-only |
 | - | `core/errors/app_exception.dart` | 🆕 Flutter-only |
 
@@ -184,9 +185,9 @@ biu_flutter/lib/
 | `service/passport-login-web-confirm-refresh.ts` | ↳ (same file, confirmRefresh) | ✅ |
 | `service/user-info.ts` | ↳ (same file, getUserInfo) | ✅ |
 | `service/passport-login-web-country.ts` | ↳ (same file, getCountryList) | ✅ |
-| `service/gaia-vgate*.ts` (3 files) | - | ❌ Missing |
-| `service/member-web-account.ts` | - | ❌ Missing |
-| `service/user-account.ts` | - | ❌ Missing |
+| `service/gaia-vgate*.ts` (3 files) | ↳ (registerGaiaVgate, validateGaiaVgate) + `interceptors/gaia_vgate_interceptor.dart` | ✅ |
+| `service/member-web-account.ts` | - | ➖ Not needed (dead code) |
+| `service/user-account.ts` | - | ➖ Not needed (video series) |
 | `store/token.ts` | `features/auth/domain/entities/auth_token.dart` | ✅ |
 | `store/user.ts` | `features/auth/presentation/providers/auth_notifier.dart` | ✅ |
 | `common/hooks/use-geetest.ts` | `features/auth/presentation/providers/geetest_notifier.dart` | ✅ |
@@ -197,6 +198,8 @@ biu_flutter/lib/
 
 **Models:**
 - `features/auth/data/models/captcha_response.dart`
+- `features/auth/data/models/country_response.dart`
+- `features/auth/data/models/gaia_vgate_response.dart`
 - `features/auth/data/models/login_response.dart`
 - `features/auth/data/models/qrcode_response.dart`
 - `features/auth/data/models/session_response.dart`
@@ -224,16 +227,16 @@ biu_flutter/lib/
 | `service/fav-resource-copy.ts` | ↳ (batchCopyResources) | ✅ |
 | `service/fav-resource-move.ts` | ↳ (batchMoveResources) | ✅ |
 | `service/fav-resource-clean.ts` | ↳ (cleanInvalidResources) | ✅ |
-| `service/fav-resource-infos.ts` | - | ❌ Missing |
-| `service/fav-season-fav.ts` | - | ❌ Missing |
-| `service/fav-season-unfav.ts` | - | ❌ Missing |
-| `service/fav-video-favoured.ts` | - | ❌ Missing |
+| `service/fav-resource-infos.ts` | - | ➖ Not needed (dead code) |
+| `service/fav-season-fav.ts` | - | ➖ Not needed (video series) |
+| `service/fav-season-unfav.ts` | - | ➖ Not needed (video series) |
+| `service/fav-video-favoured.ts` | - | ➖ Not needed (dead code) |
 | `components/favorites-edit-modal/index.tsx` | `features/favorites/presentation/widgets/folder_edit_dialog.dart` | ✅ |
 | `components/favorites-select-modal/index.tsx` | `features/favorites/presentation/widgets/folder_select_sheet.dart` | ✅ |
 | `pages/video-collection/index.tsx` | `features/favorites/presentation/screens/favorites_screen.dart` | ✅ |
 | `pages/video-collection/favorites.tsx` | `features/favorites/presentation/screens/folder_detail_screen.dart` | ✅ |
-| `pages/video-collection/video-series.tsx` | - | ❌ Missing |
-| `layout/side/collection/index.tsx` | - | ❌ Mobile nav different |
+| `pages/video-collection/video-series.tsx` | - | ➖ Not needed (B站特有) |
+| `layout/side/collection/index.tsx` | - | 📱 Mobile nav different |
 
 ---
 
@@ -246,8 +249,8 @@ biu_flutter/lib/
 | `service/player-playurl.ts` | `features/video/data/datasources/video_remote_datasource.dart` | ✅ | |
 | `service/player-pagelist.ts` | (integrated into video_remote_datasource.dart) | ✅ | |
 | `service/audio-web-url.ts` | `features/audio/data/datasources/audio_remote_datasource.dart` | ✅ | |
-| `service/audio-song-info.ts` | - | ❌ Missing | |
-| `service/audio-rank.ts` | - | ❌ Missing | |
+| `service/audio-song-info.ts` | - | ➖ Not needed | Audio info from favorites API |
+| `service/audio-rank.ts` | - | ➖ Not needed | Dead code in source |
 | `layout/playbar/index.tsx` | `shared/widgets/playbar/playbar.dart` (barrel) | ✅ | |
 | `layout/playbar/left/index.tsx` | `shared/widgets/playbar/mini_playbar.dart` | ✅ | |
 | `layout/playbar/center/index.tsx` | ↳ + `full_player_screen.dart` | ✅ | |
@@ -358,8 +361,8 @@ biu_flutter/lib/
 | `pages/settings/system-settings.tsx` | (integrated into settings_screen.dart) | ✅ Full |
 | `pages/settings/menu-settings.tsx` | (simplified: hidden folders only in settings_screen.dart) | ⚠️ Simplified |
 | `pages/settings/export-import.tsx` | `features/settings/presentation/providers/settings_notifier.dart` | ✅ Full |
-| `pages/settings/shortcut-settings.tsx` | - | ❌ Desktop-only |
-| `store/shortcuts.ts` | - | ❌ Desktop-only |
+| `pages/settings/shortcut-settings.tsx` | - | 🖥️ Desktop-only |
+| `store/shortcuts.ts` | - | 🖥️ Desktop-only |
 | `shared/settings/app-settings.ts` | `features/settings/domain/entities/app_settings.dart` | ✅ Full |
 | `components/color-picker/` | `features/settings/presentation/widgets/color_picker.dart` | ✅ Full |
 | - | `features/settings/presentation/screens/about_screen.dart` | 🆕 Flutter-only |
@@ -540,12 +543,6 @@ Several Electron files map to multiple Flutter files due to different patterns:
 ### High Priority (Core Functionality)
 
 1. **Download Feature** - No audio/video download capability (Desktop-only, requires FFmpeg)
-2. **Gaia VGate Verification** - Missing risk control verification (WebView-based on mobile)
-
-### Medium Priority (Enhanced Features)
-
-1. **Audio Song Info** - `audio-song-info.ts` not implemented
-2. **Audio Rank** - `audio-rank.ts` not implemented
 
 ### Low Priority (Desktop-Specific)
 
@@ -572,6 +569,20 @@ Several Electron files map to multiple Flutter files due to different patterns:
 | `web-interface-view-detail.ts` | Tags/Comments/Related are for video detail page, not needed for music player |
 | `web-interface-archive-desc.ts` | Description already in view API response |
 | `web-interface-ranking.ts` | Video ranking, not music ranking. Music uses music-hot-rank |
+| `audio-song-info.ts` | Audio info comes from favorites API response, no separate call needed |
+| `audio-rank.ts` | Dead code in source (defined but never imported/used) |
+| `video.ts` (constants) | Video quality constants for video streaming, not needed for audio playback |
+| `collection.ts` (constants) | Video series type constants, B站特有功能 |
+| `feed.ts` (constants) | Dynamic type constants for dynamic feed, not needed |
+| `vip.ts` (constants) | VIP type enum handled inline in user models |
+| `json.ts` (utils) | Dart has built-in JSON handling |
+| `fav.ts` (utils) | `isPrivate` check already inline in `FavoritesFolder.isPrivate` |
+| `member-web-account.ts` | Dead code in source (defined but never imported/used) |
+| `user-account.ts` | Used for video series feature (B站特有功能) |
+| `fav-resource-infos.ts` | Dead code in source (defined but never imported/used) |
+| `fav-season-fav.ts` | Video series collecting, B站特有功能 |
+| `fav-season-unfav.ts` | Video series uncollecting, B站特有功能 |
+| `fav-video-favoured.ts` | Dead code in source (defined but never imported/used) |
 
 ### Already Implemented (Removed from Missing)
 
@@ -583,13 +594,15 @@ Several Electron files map to multiple Flutter files due to different patterns:
 - ~~Volume Slider~~ → `_buildVolumeControl` with popup vertical slider
 - ~~Quick Favorite~~ → `_showFavoriteSheet` in full_player_screen.dart AppBar
 - ~~User Favorites Tab~~ → `user_favorites_tab.dart` with space-setting API
+- ~~Gaia VGate Verification~~ → `GaiaVgateInterceptor` with global context holder
 
 
 ---
 
 ## Version Information
 
-- **Document Updated:** 2025-12-24
+- **Document Updated:** 2025-12-24 (Final Consistency Audit)
 - **Source Project:** biu (Electron + React + TypeScript)
 - **Target Project:** biu_flutter (Flutter + Dart)
 - **Analysis Method:** Automated subagent file-by-file comparison with source code reading
+- **Final Status:** All missing items resolved - implemented, evaluated as not needed, or marked as desktop-only

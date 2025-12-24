@@ -5,6 +5,7 @@ import 'package:path_provider/path_provider.dart';
 
 import '../constants/api.dart';
 import 'interceptors/auth_interceptor.dart';
+import 'interceptors/gaia_vgate_interceptor.dart';
 import 'interceptors/logging_interceptor.dart';
 import 'interceptors/response_interceptor.dart';
 
@@ -115,6 +116,10 @@ class DioClient {
     // Add response interceptor
     dio.interceptors.add(BiliResponseInterceptor());
 
+    // Add Gaia VGate interceptor for risk control handling
+    // Source: biu/src/service/request/response-interceptors.ts#geetestInterceptors
+    dio.interceptors.add(GaiaVgateInterceptor());
+
     // Add logging interceptor in debug mode
     assert(() {
       dio.interceptors.add(LoggingInterceptor());
@@ -138,12 +143,12 @@ class DioClient {
   }
 
   /// Set a cookie
-  Future<void> setCookie(String name, String value) async {
+  Future<void> setCookie(String name, String value, [String? domain]) async {
     final cookie = Cookie(name, value)
-      ..domain = '.bilibili.com'
+      ..domain = domain ?? '.bilibili.com'
       ..path = '/';
     await _cookieJar.saveFromResponse(
-      Uri.parse('https://bilibili.com'),
+      Uri.parse('https://${domain ?? "bilibili.com"}'),
       [cookie],
     );
   }

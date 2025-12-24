@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/constants/app.dart';
 import 'core/network/dio_client.dart';
 import 'core/router/app_router.dart';
+import 'core/router/navigator_key.dart';
 import 'core/storage/secure_storage_service.dart';
 import 'core/storage/storage_service.dart';
 import 'features/player/services/audio_service_init.dart';
@@ -53,6 +54,11 @@ class BiuApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.buildDarkTheme(),
       routerConfig: router,
+      builder: (context, child) {
+        // Set global context for interceptors to use (e.g., Gaia VGate dialog)
+        GlobalContextHolder.setContext(context);
+        return child ?? const SizedBox.shrink();
+      },
     );
   }
 }

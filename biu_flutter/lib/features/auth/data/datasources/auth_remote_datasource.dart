@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import '../../../../core/network/dio_client.dart';
 import '../models/captcha_response.dart';
 import '../models/country_response.dart';
+import '../models/gaia_vgate_response.dart';
 import '../models/login_response.dart';
 import '../models/qrcode_response.dart';
 import '../models/session_response.dart';
@@ -269,5 +270,59 @@ class AuthRemoteDatasource {
       '/x/passport-login/web/country',
     );
     return CountryListResponse.fromJson(response.data ?? {});
+  }
+
+  /// Register for Gaia VGate captcha verification
+  /// POST /x/gaia-vgate/v1/register
+  /// Source: biu/src/service/gaia-vgate-register.ts#postGaiaVgateRegister
+  ///
+  /// Called when API returns v_voucher (risk control triggered)
+  Future<GaiaVgateRegisterResponse> registerGaiaVgate({
+    required String vVoucher,
+  }) async {
+    // Get CSRF token from cookies
+    final csrf = await DioClient.instance.getCookie('bili_jct');
+
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/x/gaia-vgate/v1/register',
+      data: {
+        'v_voucher': vVoucher,
+        if (csrf != null) 'csrf': csrf,
+      },
+      options: Options(
+        contentType: Headers.formUrlEncodedContentType,
+      ),
+    );
+    return GaiaVgateRegisterResponse.fromJson(response.data ?? {});
+  }
+
+  /// Validate Gaia VGate captcha to get grisk_id (gaia_vtoken)
+  /// POST /x/gaia-vgate/v1/validate
+  /// Source: biu/src/service/gaia-vgate-validate.ts#postGaiaVgateValidate
+  ///
+  /// Called after user completes Geetest verification
+  Future<GaiaVgateValidateResponse> validateGaiaVgate({
+    required String challenge,
+    required String token,
+    required String validate,
+    required String seccode,
+  }) async {
+    // Get CSRF token from cookies
+    final csrf = await DioClient.instance.getCookie('bili_jct');
+
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/x/gaia-vgate/v1/validate',
+      data: {
+        'challenge': challenge,
+        'token': token,
+        'validate': validate,
+        'seccode': seccode,
+        if (csrf != null) 'csrf': csrf,
+      },
+      options: Options(
+        contentType: Headers.formUrlEncodedContentType,
+      ),
+    );
+    return GaiaVgateValidateResponse.fromJson(response.data ?? {});
   }
 }

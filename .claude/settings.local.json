@@ -19,7 +19,8 @@
       "Bash(flutter run:*)",
       "Bash(openspec list:*)",
       "Bash(openspec archive:*)",
-      "Bash(openspec validate:*)"
+      "Bash(openspec validate:*)",
+      "WebFetch(domain:github.com)"
     ]
   }
 }

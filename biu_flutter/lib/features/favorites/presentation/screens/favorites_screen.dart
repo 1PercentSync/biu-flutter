@@ -237,7 +237,7 @@ class _FolderListItem extends StatelessWidget {
           width: 64,
           height: 64,
           child: folder.cover.isNotEmpty
-              ? CachedImage(
+              ? AppCachedImage(
                   imageUrl: folder.cover,
                   fit: BoxFit.cover,
                 )

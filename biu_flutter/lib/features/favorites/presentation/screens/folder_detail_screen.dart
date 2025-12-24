@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/constants/audio.dart';
 import '../../../../core/extensions/duration_extensions.dart';
 import '../../../../shared/theme/theme.dart';
 import '../../../../shared/widgets/cached_image.dart';
 import '../../../../shared/widgets/empty_state.dart';
-import '../../../player/player.dart';
+import '../../../player/domain/entities/play_item.dart';
+import '../../../player/presentation/providers/playlist_notifier.dart';
 import '../../domain/entities/fav_media.dart';
 import '../providers/favorites_notifier.dart';
+import '../providers/favorites_state.dart';
 
 /// Folder detail screen showing folder resources.
 class FolderDetailScreen extends ConsumerWidget {
@@ -77,7 +80,7 @@ class FolderDetailScreen extends ConsumerWidget {
                 fit: StackFit.expand,
                 children: [
                   if (folder.cover.isNotEmpty)
-                    CachedImage(
+                    AppCachedImage(
                       imageUrl: folder.cover,
                       fit: BoxFit.cover,
                     )
@@ -238,12 +241,13 @@ class FolderDetailScreen extends ConsumerWidget {
     }
 
     // Play the media using playlist notifier
-    ref.read(playlistNotifierProvider.notifier).play(
+    ref.read(playlistProvider.notifier).play(
           PlayItem(
+            id: '${media.bvid}_1',
+            type: PlayDataType.mv,
             bvid: media.bvid,
-            cid: 0, // Will be fetched
             title: media.title,
-            author: media.upper.name,
+            ownerName: media.upper.name,
             cover: media.cover,
             duration: media.duration,
           ),
@@ -272,7 +276,7 @@ class _MediaListItem extends StatelessWidget {
               width: 120,
               height: 68,
               child: media.cover.isNotEmpty
-                  ? CachedImage(
+                  ? AppCachedImage(
                       imageUrl: media.cover,
                       fit: BoxFit.cover,
                     )

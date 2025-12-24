@@ -258,6 +258,14 @@ class FolderDetailScreen extends ConsumerWidget {
           );
     } else {
       // Video type - use bvid (cid will be fetched by playlist notifier)
+      // Check if bvid is available
+      if (media.bvid.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Video ID not available')),
+        );
+        return;
+      }
+
       ref.read(playlistProvider.notifier).play(
             PlayItem(
               id: '${media.bvid}_1',

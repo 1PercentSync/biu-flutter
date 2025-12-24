@@ -12,7 +12,10 @@
       "Bash(git push:*)",
       "Bash(flutter test:*)",
       "mcp__auggie-mcp__codebase-retrieval",
-      "Bash(flutter build:*)"
+      "Bash(flutter build:*)",
+      "Bash(pushd:*)",
+      "Bash(dir:*)",
+      "Bash(mkdir:*)"
     ]
   }
 }

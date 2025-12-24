@@ -23,6 +23,9 @@ final hotSearchKeywordsProvider = FutureProvider<List<String>>((ref) async {
   return dataSource.getHotSearchKeywords();
 });
 
+/// Search tab type
+enum SearchTabType { video, user }
+
 /// Search state
 class SearchState {
   const SearchState({
@@ -30,29 +33,55 @@ class SearchState {
     this.isSearching = false,
     this.hasSearched = false,
     this.results = const [],
+    this.userResults = const [],
     this.error,
+    this.musicOnly = true,
+    this.searchTab = SearchTabType.video,
+    this.currentPage = 1,
+    this.totalPages = 0,
+    this.isLoadingMore = false,
   });
 
   final String query;
   final bool isSearching;
   final bool hasSearched;
   final List<SearchVideoItem> results;
+  final List<SearchUserItem> userResults;
   final String? error;
+  final bool musicOnly;
+  final SearchTabType searchTab;
+  final int currentPage;
+  final int totalPages;
+  final bool isLoadingMore;
+
+  bool get hasMore => currentPage < totalPages;
 
   SearchState copyWith({
     String? query,
     bool? isSearching,
     bool? hasSearched,
     List<SearchVideoItem>? results,
+    List<SearchUserItem>? userResults,
     String? error,
     bool clearError = false,
+    bool? musicOnly,
+    SearchTabType? searchTab,
+    int? currentPage,
+    int? totalPages,
+    bool? isLoadingMore,
   }) {
     return SearchState(
       query: query ?? this.query,
       isSearching: isSearching ?? this.isSearching,
       hasSearched: hasSearched ?? this.hasSearched,
       results: results ?? this.results,
+      userResults: userResults ?? this.userResults,
       error: clearError ? null : (error ?? this.error),
+      musicOnly: musicOnly ?? this.musicOnly,
+      searchTab: searchTab ?? this.searchTab,
+      currentPage: currentPage ?? this.currentPage,
+      totalPages: totalPages ?? this.totalPages,
+      isLoadingMore: isLoadingMore ?? this.isLoadingMore,
     );
   }
 }
@@ -71,6 +100,30 @@ class SearchNotifier extends StateNotifier<SearchState> {
     state = const SearchState();
   }
 
+  void setMusicOnly(bool value) {
+    state = state.copyWith(musicOnly: value);
+    // Re-search if we have a query
+    if (state.query.isNotEmpty && state.hasSearched) {
+      search(state.query);
+    }
+  }
+
+  void setSearchTab(SearchTabType tab) {
+    if (state.searchTab == tab) return;
+    state = state.copyWith(
+      searchTab: tab,
+      results: const [],
+      userResults: const [],
+      hasSearched: false,
+      currentPage: 1,
+      totalPages: 0,
+    );
+    // Re-search if we have a query
+    if (state.query.isNotEmpty) {
+      search(state.query);
+    }
+  }
+
   Future<void> search(String query) async {
     if (query.isEmpty) return;
 
@@ -78,19 +131,81 @@ class SearchNotifier extends StateNotifier<SearchState> {
       query: query,
       isSearching: true,
       clearError: true,
+      currentPage: 1,
+      results: const [],
+      userResults: const [],
     );
 
     try {
-      final result = await _dataSource.searchVideo(keyword: query);
-      state = state.copyWith(
-        isSearching: false,
-        hasSearched: true,
-        results: result.result,
-      );
+      if (state.searchTab == SearchTabType.video) {
+        final result = await _dataSource.searchVideo(
+          keyword: query,
+          page: 1,
+          tids: state.musicOnly ? 3 : 0,
+        );
+        state = state.copyWith(
+          isSearching: false,
+          hasSearched: true,
+          results: result.result,
+          currentPage: result.page,
+          totalPages: result.numPages,
+        );
+      } else {
+        final result = await _dataSource.searchUser(
+          keyword: query,
+          page: 1,
+        );
+        state = state.copyWith(
+          isSearching: false,
+          hasSearched: true,
+          userResults: result.result,
+          currentPage: result.page,
+          totalPages: result.numPages,
+        );
+      }
     } catch (e) {
       state = state.copyWith(
         isSearching: false,
         hasSearched: true,
+        error: e.toString(),
+      );
+    }
+  }
+
+  Future<void> loadMore() async {
+    if (!state.hasMore || state.isLoadingMore || state.query.isEmpty) return;
+
+    state = state.copyWith(isLoadingMore: true);
+
+    try {
+      final nextPage = state.currentPage + 1;
+      if (state.searchTab == SearchTabType.video) {
+        final result = await _dataSource.searchVideo(
+          keyword: state.query,
+          page: nextPage,
+          tids: state.musicOnly ? 3 : 0,
+        );
+        state = state.copyWith(
+          isLoadingMore: false,
+          results: [...state.results, ...result.result],
+          currentPage: result.page,
+          totalPages: result.numPages,
+        );
+      } else {
+        final result = await _dataSource.searchUser(
+          keyword: state.query,
+          page: nextPage,
+        );
+        state = state.copyWith(
+          isLoadingMore: false,
+          userResults: [...state.userResults, ...result.result],
+          currentPage: result.page,
+          totalPages: result.numPages,
+        );
+      }
+    } catch (e) {
+      state = state.copyWith(
+        isLoadingMore: false,
         error: e.toString(),
       );
     }
@@ -268,11 +383,21 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   }
 
   void _playVideo(SearchVideoItem video) {
+    // Check if bvid is available
+    if (video.bvid.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Video ID not available')),
+      );
+      return;
+    }
+
+    // Note: Don't pass cid here, it will be fetched from video info
+    // The search result only has aid, not cid
     final playItem = PlayItem(
       id: '${video.bvid}_1',
       type: PlayDataType.mv,
       bvid: video.bvid,
-      cid: video.aid.toString(),
+      aid: video.aid.toString(),
       title: video.title.stripHtml(),
       cover: video.pic,
       ownerName: video.author,

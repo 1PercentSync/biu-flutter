@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:just_audio/just_audio.dart';
 
@@ -157,8 +158,10 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
     if (_playerService.isPlaying) {
       await _playerService.pause();
     } else {
-      await _ensureAudioUrlValid();
-      await _playerService.play();
+      final success = await _ensureAudioUrlValid();
+      if (success) {
+        await _playerService.play();
+      }
     }
   }
 
@@ -213,12 +216,21 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
 
   /// Play a single item (adds to playlist if not present)
   Future<void> play(PlayItem item) async {
+    debugPrint('[Playlist] Play requested: ${item.title} (type: ${item.type})');
+
     // Check if already playing
     final currentItem = state.currentItem;
     if (currentItem != null && currentItem.isSameContent(item)) {
+      debugPrint('[Playlist] Already current item, checking playback state');
       if (!_playerService.isPlaying) {
-        await _ensureAudioUrlValid();
-        await _playerService.play();
+        final success = await _ensureAudioUrlValid();
+        if (success) {
+          debugPrint('[Playlist] Starting player (existing item)');
+          await _playerService.play();
+          debugPrint('[Playlist] Player started');
+        }
+      } else {
+        debugPrint('[Playlist] Already playing');
       }
       return;
     }
@@ -227,11 +239,13 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
     final existingIndex =
         state.list.indexWhere((i) => i.isSameContent(item));
     if (existingIndex != -1) {
+      debugPrint('[Playlist] Item exists in playlist, switching to it');
       await playListItem(state.list[existingIndex].id);
       return;
     }
 
     // Add new item and play
+    debugPrint('[Playlist] Adding new item to playlist');
     final newList = [...state.list, item];
     state = state.copyWith(
       list: newList,
@@ -528,65 +542,126 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
 
   Future<void> _playCurrentItem() async {
     final currentItem = state.currentItem;
-    if (currentItem == null) return;
+    if (currentItem == null) {
+      debugPrint('[Playlist] _playCurrentItem: No current item');
+      return;
+    }
 
-    await _ensureAudioUrlValid();
+    debugPrint('[Playlist] _playCurrentItem: Starting playback for ${currentItem.title}');
+
+    // Clear any previous error
+    state = state.copyWith(clearError: true);
+
+    final success = await _ensureAudioUrlValid();
+    if (!success) {
+      debugPrint('[Playlist] Cannot play: audio URL not available');
+      return;
+    }
 
     // Update media session
+    debugPrint('[Playlist] Updating media session');
     _audioHandler.updateCurrentMediaItem(currentItem);
 
-    await _playerService.play();
+    debugPrint('[Playlist] Starting player');
+    try {
+      await _playerService.play();
+      debugPrint('[Playlist] Player started successfully');
+    } catch (e) {
+      debugPrint('[Playlist] Failed to start player: $e');
+      state = state.copyWith(error: 'Failed to start playback: $e');
+    }
     _saveState();
     _saveCurrentTime();
   }
 
-  Future<void> _ensureAudioUrlValid() async {
+  /// Ensures audio URL is valid and loaded. Returns true if successful.
+  Future<bool> _ensureAudioUrlValid() async {
     final currentItem = state.currentItem;
-    if (currentItem == null) return;
+    if (currentItem == null) {
+      debugPrint('[Playlist] No current item to play');
+      return false;
+    }
 
-    // Check if URL is already valid
-    final audioUrl = currentItem.audioUrl;
-    if (audioUrl != null && audioUrl.isNotEmpty) {
-      try {
-        await _playerService.setUrl(audioUrl);
-        return;
-      } catch (_) {
-        // URL might be expired, try to refresh
+    debugPrint('[Playlist] Ensuring audio URL valid for: ${currentItem.title}');
+    debugPrint('[Playlist] Item type: ${currentItem.type}, bvid: ${currentItem.bvid}, sid: ${currentItem.sid}');
+
+    // First, try to get a fresh URL if we don't have one or need to refresh
+    String? audioUrl = currentItem.audioUrl;
+
+    // Always fetch fresh URL for playback to avoid expired URLs
+    if (audioUrl == null || audioUrl.isEmpty) {
+      audioUrl = await _fetchAudioUrl(currentItem);
+      if (audioUrl != null) {
+        updateCurrentItemAudioUrl(audioUrl: audioUrl);
       }
     }
 
-    // Fetch new URL based on type
-    String? newAudioUrl;
-    if (currentItem.type == PlayDataType.mv && currentItem.bvid != null) {
+    if (audioUrl == null || audioUrl.isEmpty) {
+      debugPrint('[Playlist] Failed to get audio URL');
+      state = state.copyWith(error: 'Failed to get audio URL');
+      return false;
+    }
+
+    // Try to set the URL
+    try {
+      debugPrint('[Playlist] Setting audio URL...');
+      await _playerService.setUrl(audioUrl);
+      // On Windows, setUrl may return null duration but still work
+      // We consider it successful if no exception was thrown
+      debugPrint('[Playlist] Audio URL set successfully');
+      return true;
+    } catch (e) {
+      debugPrint('[Playlist] Failed to set audio URL: $e, trying to refresh...');
+
+      // Try to get a fresh URL
+      final freshUrl = await _fetchAudioUrl(currentItem);
+      if (freshUrl != null && freshUrl.isNotEmpty) {
+        updateCurrentItemAudioUrl(audioUrl: freshUrl);
+        try {
+          await _playerService.setUrl(freshUrl);
+          debugPrint('[Playlist] Fresh audio URL set successfully');
+          return true;
+        } catch (e2) {
+          debugPrint('[Playlist] Failed to set fresh audio URL: $e2');
+          state = state.copyWith(error: 'Failed to load audio');
+          return false;
+        }
+      }
+
+      state = state.copyWith(error: 'Failed to load audio');
+      return false;
+    }
+  }
+
+  /// Fetch audio URL for the given item
+  Future<String?> _fetchAudioUrl(PlayItem item) async {
+    if (item.type == PlayDataType.mv && item.bvid != null) {
       // Check if we have cid, if not fetch video info first
-      String? cid = currentItem.cid;
+      String? cid = item.cid;
       if (cid == null || cid.isEmpty) {
-        // Fetch video info to get cid
-        final videoInfo = await onFetchVideoInfo?.call(currentItem.bvid!);
+        debugPrint('[Playlist] No cid, fetching video info...');
+        final videoInfo = await onFetchVideoInfo?.call(item.bvid!);
         if (videoInfo != null) {
           cid = videoInfo.cid;
-          // Update current item with fetched info
-          _updateCurrentItemWithVideoInfo(currentItem, videoInfo);
+          debugPrint('[Playlist] Got cid: $cid');
+          _updateCurrentItemWithVideoInfo(item, videoInfo);
+        } else {
+          debugPrint('[Playlist] Failed to fetch video info');
+          return null;
         }
       }
 
       if (cid != null && cid.isNotEmpty) {
-        newAudioUrl = await onFetchMvAudioUrl?.call(
-          currentItem.bvid!,
-          cid,
-        );
+        debugPrint('[Playlist] Fetching MV audio URL with cid: $cid');
+        return await onFetchMvAudioUrl?.call(item.bvid!, cid);
       }
-    } else if (currentItem.type == PlayDataType.audio &&
-        currentItem.sid != null) {
-      newAudioUrl = await onFetchAudioUrl?.call(currentItem.sid!);
+    } else if (item.type == PlayDataType.audio && item.sid != null) {
+      debugPrint('[Playlist] Fetching audio stream URL for sid: ${item.sid}');
+      return await onFetchAudioUrl?.call(item.sid!);
     }
 
-    if (newAudioUrl != null && newAudioUrl.isNotEmpty) {
-      updateCurrentItemAudioUrl(audioUrl: newAudioUrl);
-      await _playerService.setUrl(newAudioUrl);
-    } else {
-      state = state.copyWith(error: 'Failed to get audio URL');
-    }
+    debugPrint('[Playlist] Unknown item type or missing identifiers');
+    return null;
   }
 
   /// Update current item with video info from API

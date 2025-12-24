@@ -94,6 +94,57 @@ class DashVideo {
   };
 }
 
+/// Flac audio info
+class FlacInfo {
+  const FlacInfo({
+    required this.display,
+    this.audio,
+  });
+
+  factory FlacInfo.fromJson(Map<String, dynamic> json) {
+    return FlacInfo(
+      display: json['display'] as bool? ?? false,
+      audio: json['audio'] != null
+          ? DashAudio.fromJson(json['audio'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  final bool display;
+  final DashAudio? audio;
+
+  Map<String, dynamic> toJson() => {
+    'display': display,
+    'audio': audio?.toJson(),
+  };
+}
+
+/// Dolby audio info
+class DolbyInfo {
+  const DolbyInfo({
+    required this.type,
+    this.audio = const [],
+  });
+
+  factory DolbyInfo.fromJson(Map<String, dynamic> json) {
+    return DolbyInfo(
+      type: json['type'] as int? ?? 0,
+      audio: (json['audio'] as List<dynamic>?)
+              ?.map((e) => DashAudio.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+    );
+  }
+
+  final int type;
+  final List<DashAudio> audio;
+
+  Map<String, dynamic> toJson() => {
+    'type': type,
+    'audio': audio.map((e) => e.toJson()).toList(),
+  };
+}
+
 /// DASH stream info
 class DashInfo {
   const DashInfo({
@@ -101,6 +152,8 @@ class DashInfo {
     required this.minBufferTime,
     this.video = const [],
     this.audio = const [],
+    this.flac,
+    this.dolby,
   });
 
   factory DashInfo.fromJson(Map<String, dynamic> json) {
@@ -116,6 +169,12 @@ class DashInfo {
               ?.map((e) => DashAudio.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
+      flac: json['flac'] != null
+          ? FlacInfo.fromJson(json['flac'] as Map<String, dynamic>)
+          : null,
+      dolby: json['dolby'] != null
+          ? DolbyInfo.fromJson(json['dolby'] as Map<String, dynamic>)
+          : null,
     );
   }
 
@@ -123,9 +182,23 @@ class DashInfo {
   final double minBufferTime;
   final List<DashVideo> video;
   final List<DashAudio> audio;
+  final FlacInfo? flac;
+  final DolbyInfo? dolby;
 
   /// Get best audio stream by quality
+  /// Priority: FLAC > Dolby > highest quality standard audio
   DashAudio? getBestAudio() {
+    // Try FLAC first (lossless)
+    if (flac?.audio != null) {
+      return flac!.audio;
+    }
+
+    // Try Dolby
+    if (dolby != null && dolby!.audio.isNotEmpty) {
+      return dolby!.audio.first;
+    }
+
+    // Fall back to standard audio
     if (audio.isEmpty) return null;
     // Sort by id (higher = better quality) and bandwidth
     final sorted = List<DashAudio>.from(audio)
@@ -136,6 +209,12 @@ class DashInfo {
       });
     return sorted.first;
   }
+
+  /// Check if FLAC audio is available
+  bool get hasFlac => flac?.audio != null;
+
+  /// Check if Dolby audio is available
+  bool get hasDolby => dolby != null && dolby!.audio.isNotEmpty;
 
   /// Get audio stream by quality id
   DashAudio? getAudioByQuality(int qualityId) {
@@ -148,6 +227,8 @@ class DashInfo {
     'minBufferTime': minBufferTime,
     'video': video.map((e) => e.toJson()).toList(),
     'audio': audio.map((e) => e.toJson()).toList(),
+    'flac': flac?.toJson(),
+    'dolby': dolby?.toJson(),
   };
 }
 

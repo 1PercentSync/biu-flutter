@@ -54,6 +54,7 @@ dependencies:
 
   # Audio Playback
   just_audio: ^0.9.43
+  just_audio_windows: ^0.2.2
   audio_service: ^0.18.15
 
   # Image Caching

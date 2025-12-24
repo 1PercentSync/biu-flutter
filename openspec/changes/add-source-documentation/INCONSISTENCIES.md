@@ -39,10 +39,19 @@ Deviations from 1:1 mapping should be **justified by Flutter/Dart conventions**.
 | `biliRequest` in `request/index.ts` | ~~Missing~~ `biliDio` in `dio_client.dart` | ~~No Dio instance for www.bilibili.com~~ | ✅ Fixed: Added `biliDio` getter |
 
 ### Functional Boundary Issues
-_(To be filled during review)_
+
+| Module | Missing Feature | Source Reference | Status |
+|--------|-----------------|------------------|--------|
+| `auth` | Country list API for SMS login | `biu/src/service/passport-login-web-country.ts` | ⚠️ Simplified: Hardcoded 3 common regions |
+| `search` | Article/Photo/Live search types | `biu/src/service/web-interface-search-type.ts` | ⚠️ Simplified: Music player only needs video/user search |
 
 ### Behavioral Differences
-_(To be filled during review)_
+
+| File | Issue | Source Reference | Status |
+|------|-------|------------------|--------|
+| `playlist_notifier.dart` | `addToNext` didn't move existing item to after current | `biu/src/store/play-list.ts:678-690` | ✅ Fixed: Now moves existing item |
+| `playlist_notifier.dart` | `next()` Random mode uses different logic | `biu/src/store/play-list.ts:631-637` | ⚠️ Acceptable: Source shuffles every time, Flutter uses direct random (simpler, equivalent behavior) |
+| `later_remote_datasource.dart` | `addToWatchLater` and `removeFromWatchLater` missing `useCSRF: true` | `biu/src/service/history-toview-*.ts` | ✅ Fixed: Added CSRF option |
 
 ## Breaking Changes
 

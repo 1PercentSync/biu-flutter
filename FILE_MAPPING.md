@@ -504,10 +504,11 @@ Several Electron files map to multiple Flutter files due to different patterns:
 
 | Electron | Flutter Files | Reason |
 |----------|---------------|--------|
-| `utils/number.ts` | `number_utils.dart` + `format_utils.dart` | Different formatting categories |
-| `utils/time.ts` | `datetime_extensions.dart` + `duration_extensions.dart` | Extension pattern |
+| `utils/time.ts` | `datetime_extensions.dart` + `duration_extensions.dart` | Extension pattern by type |
 | `utils/url.ts` | `url_utils.dart` + `string_extensions.dart` | Mixed responsibilities |
 | `response-interceptors.ts` | `response_interceptor.dart` + `logging_interceptor.dart` | Separation of concerns |
+
+**Note:** `utils/number.ts` now maps 1:1 to `number_utils.dart` (duplicate `format_utils.dart` was deleted).
 
 ---
 

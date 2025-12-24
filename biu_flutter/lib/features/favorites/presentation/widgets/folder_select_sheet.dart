@@ -5,6 +5,8 @@ import '../../../../shared/theme/theme.dart';
 import '../providers/favorites_notifier.dart';
 
 /// Bottom sheet for selecting folders to add a resource to.
+///
+/// Source: biu/src/components/favorites-select-modal/index.tsx#FavoritesSelectModal
 class FolderSelectSheet extends ConsumerWidget {
   const FolderSelectSheet({
     required this.resourceId,

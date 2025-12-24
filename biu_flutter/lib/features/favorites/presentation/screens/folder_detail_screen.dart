@@ -18,6 +18,8 @@ import '../providers/favorites_notifier.dart';
 import '../providers/favorites_state.dart';
 
 /// Folder detail screen showing folder resources.
+///
+/// Source: biu/src/pages/video-collection/favorites.tsx#Favorites
 class FolderDetailScreen extends ConsumerStatefulWidget {
   const FolderDetailScreen({
     required this.folderId,

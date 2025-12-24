@@ -31,6 +31,10 @@ enum SearchVideoDuration {
 }
 
 /// Remote data source for search-related API calls
+///
+/// Source: biu/src/service/main-suggest.ts#getMainSuggest (search suggestions)
+/// Source: biu/src/service/web-interface-search-all.ts#getSearchAll
+/// Source: biu/src/service/web-interface-search-type.ts#getSearchType
 class SearchRemoteDataSource {
   SearchRemoteDataSource({Dio? dio}) : _dio = dio ?? DioClient.instance.dio;
 

@@ -12,6 +12,8 @@ const _storageKey = 'search_history';
 const _maxHistoryItems = 50;
 
 /// Search history state
+///
+/// Source: biu/src/store/search-history.ts#useSearchHistory
 class SearchHistoryState {
   const SearchHistoryState({
     this.items = const [],

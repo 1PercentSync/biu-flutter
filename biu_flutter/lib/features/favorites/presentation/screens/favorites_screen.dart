@@ -11,6 +11,8 @@ import '../providers/favorites_notifier.dart';
 import '../widgets/folder_edit_dialog.dart';
 
 /// Favorites screen showing user's favorite collections.
+///
+/// Source: biu/src/pages/video-collection/index.tsx#VideoCollection
 class FavoritesScreen extends ConsumerWidget {
   const FavoritesScreen({super.key});
 

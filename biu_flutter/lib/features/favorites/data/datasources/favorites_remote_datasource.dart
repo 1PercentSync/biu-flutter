@@ -3,10 +3,14 @@ import '../models/folder_response.dart';
 import '../models/resource_response.dart';
 
 /// Remote data source for favorites API.
+///
+/// Consolidates multiple source services into Clean Architecture DataSource pattern.
+/// Source: biu/src/service/fav-*.ts (multiple files consolidated)
 class FavoritesRemoteDataSource extends BaseApiService {
   FavoritesRemoteDataSource() : super();
 
   /// Get folders created by a user.
+  /// Source: biu/src/service/fav-folder-created-list.ts#getFavFolderCreatedList
   Future<CreatedFolderListResponse> getCreatedFolders({
     required int upMid,
     int pageSize = 20,
@@ -31,6 +35,7 @@ class FavoritesRemoteDataSource extends BaseApiService {
   }
 
   /// Get folders collected by a user.
+  /// Source: biu/src/service/fav-folder-collected-list.ts#getFavFolderCollectedList
   Future<CollectedFolderListResponse> getCollectedFolders({
     required int upMid,
     int pageSize = 20,
@@ -55,6 +60,7 @@ class FavoritesRemoteDataSource extends BaseApiService {
   }
 
   /// Get all created folders (for resource selection).
+  /// Source: biu/src/service/fav-folder-created-list-all.ts#getFavFolderCreatedListAll
   Future<AllCreatedFolderListResponse> getAllCreatedFolders({
     required int upMid,
     int? resourceId,
@@ -82,6 +88,7 @@ class FavoritesRemoteDataSource extends BaseApiService {
   }
 
   /// Get folder info.
+  /// Source: biu/src/service/fav-folder-info.ts#getFavFolderInfo
   Future<FolderDetailModel?> getFolderInfo(int mediaId) async {
     final data = await get<Map<String, dynamic>>(
       '/x/v3/fav/folder/info',
@@ -99,6 +106,7 @@ class FavoritesRemoteDataSource extends BaseApiService {
   }
 
   /// Get resources in a folder.
+  /// Source: biu/src/service/fav-resource.ts#getFavResource
   Future<FolderResourceListResponse> getFolderResources({
     required String mediaId,
     int pageSize = 20,
@@ -132,6 +140,7 @@ class FavoritesRemoteDataSource extends BaseApiService {
   }
 
   /// Create a new folder.
+  /// Source: biu/src/service/fav-folder-add.ts#postFavFolderAdd
   Future<FolderDetailModel> createFolder({
     required String title,
     String intro = '',
@@ -156,6 +165,7 @@ class FavoritesRemoteDataSource extends BaseApiService {
   }
 
   /// Edit an existing folder.
+  /// Source: biu/src/service/fav-folder-edit.ts#postFavFolderEdit
   Future<FolderDetailModel> editFolder({
     required int mediaId,
     required String title,
@@ -182,6 +192,7 @@ class FavoritesRemoteDataSource extends BaseApiService {
   }
 
   /// Delete folders.
+  /// Source: biu/src/service/fav-folder-del.ts#postFavFolderDel
   Future<void> deleteFolders(List<int> mediaIds) async {
     await post<Map<String, dynamic>>(
       '/x/v3/fav/folder/del',
@@ -193,6 +204,7 @@ class FavoritesRemoteDataSource extends BaseApiService {
   }
 
   /// Add/remove resource from folders.
+  /// Source: biu/src/service/fav-folder-deal.ts#postFavFolderDeal
   Future<void> dealResource({
     required String resourceId,
     String addMediaIds = '',
@@ -215,6 +227,7 @@ class FavoritesRemoteDataSource extends BaseApiService {
   }
 
   /// Collect (subscribe to) a folder.
+  /// Source: biu/src/service/fav-folder-fav.ts#postFavFolderFav
   Future<void> collectFolder(int mediaId) async {
     await post<Map<String, dynamic>>(
       '/x/v3/fav/folder/fav',
@@ -226,6 +239,7 @@ class FavoritesRemoteDataSource extends BaseApiService {
   }
 
   /// Uncollect (unsubscribe from) a folder.
+  /// Source: biu/src/service/fav-folder-unfav.ts#postFavFolderUnfav
   Future<void> uncollectFolder(int mediaId) async {
     await post<Map<String, dynamic>>(
       '/x/v3/fav/folder/unfav',
@@ -237,6 +251,7 @@ class FavoritesRemoteDataSource extends BaseApiService {
   }
 
   /// Batch delete resources from a folder.
+  /// Source: biu/src/service/fav-resource-batch-del.ts#postFavResourceBatchDel
   ///
   /// [resources] is a comma-separated string of "id:type" pairs, e.g., "123:2,456:2"
   /// Types: 2=video, 12=audio, 21=video collection
@@ -256,6 +271,7 @@ class FavoritesRemoteDataSource extends BaseApiService {
   }
 
   /// Batch move resources from one folder to another.
+  /// Source: biu/src/service/fav-resource-move.ts#postFavResourceMove
   ///
   /// [resources] is a comma-separated string of "id:type" pairs, e.g., "123:2,456:2"
   /// Types: 2=video, 12=audio, 21=video collection
@@ -279,6 +295,7 @@ class FavoritesRemoteDataSource extends BaseApiService {
   }
 
   /// Batch copy resources from one folder to another.
+  /// Source: biu/src/service/fav-resource-copy.ts#postFavResourceCopy
   ///
   /// [resources] is a comma-separated string of "id:type" pairs, e.g., "123:2,456:2"
   /// Types: 2=video, 12=audio, 21=video collection
@@ -302,6 +319,7 @@ class FavoritesRemoteDataSource extends BaseApiService {
   }
 
   /// Clean (remove) all invalid/deleted resources from a folder.
+  /// Source: biu/src/service/fav-resource-clean.ts#postFavResourceClean
   Future<void> cleanInvalidResources(int mediaId) async {
     await post<Map<String, dynamic>>(
       '/x/v3/fav/resource/clean',

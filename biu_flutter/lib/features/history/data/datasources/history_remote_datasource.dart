@@ -37,6 +37,8 @@ class HistoryCursorResponse {
 }
 
 /// Remote data source for history API calls
+///
+/// Source: biu/src/service/web-interface-history-cursor.ts#getWebInterfaceHistoryCursor
 class HistoryRemoteDataSource {
   HistoryRemoteDataSource({Dio? dio}) : _dio = dio ?? DioClient.instance.dio;
 

@@ -6,6 +6,11 @@ import '../models/space_arc_search.dart';
 import '../models/space_relation.dart';
 
 /// Remote data source for user profile API calls
+///
+/// Source: biu/src/service/space-wbi-acc-info.ts#getSpaceWbiAccInfo
+/// Source: biu/src/service/space-wbi-acc-relation.ts#getSpaceWbiAccRelation
+/// Source: biu/src/service/space-wbi-arc-search.ts#getSpaceWbiArcSearch
+/// Source: biu/src/service/relation-stat.ts#getRelationStat
 class UserProfileRemoteDataSource {
   UserProfileRemoteDataSource({Dio? dio})
       : _dio = dio ?? DioClient.instance.dio;

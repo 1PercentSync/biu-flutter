@@ -48,6 +48,9 @@ enum UserRelationAction {
 }
 
 /// Remote data source for follow/relation API calls
+///
+/// Source: biu/src/service/relation-followings.ts#getRelationFollowings
+/// Source: biu/src/service/relation-modify.ts#postRelationModify
 class FollowRemoteDataSource {
   FollowRemoteDataSource({Dio? dio}) : _dio = dio ?? DioClient.instance.dio;
 

@@ -27,6 +27,11 @@ class WatchLaterListResponse {
 }
 
 /// Remote data source for watch later API calls
+///
+/// Source: biu/src/service/history-toview-list.ts#getHistoryToviewList
+/// Source: biu/src/service/history-toview-add.ts#postHistoryToviewAdd
+/// Source: biu/src/service/history-toview-del.ts#postHistoryToviewDel
+/// Source: biu/src/service/history-toview-clear.ts#postHistoryToviewClear
 class LaterRemoteDataSource {
   LaterRemoteDataSource({Dio? dio}) : _dio = dio ?? DioClient.instance.dio;
 
@@ -100,6 +105,7 @@ class LaterRemoteDataSource {
       },
       options: Options(
         contentType: Headers.formUrlEncodedContentType,
+        extra: {'useCSRF': true},
       ),
     );
 
@@ -147,6 +153,7 @@ class LaterRemoteDataSource {
       },
       options: Options(
         contentType: Headers.formUrlEncodedContentType,
+        extra: {'useCSRF': true},
       ),
     );
 

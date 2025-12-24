@@ -8,6 +8,10 @@ import '../models/session_response.dart';
 import '../models/user_info_response.dart';
 
 /// Remote data source for authentication APIs
+///
+/// Consolidates multiple source services into Clean Architecture DataSource pattern.
+/// Source: biu/src/service/passport-login-*.ts (multiple files consolidated)
+/// Source: biu/src/service/user-info.ts#getUserInfo
 class AuthRemoteDatasource {
 
   AuthRemoteDatasource({
@@ -20,6 +24,7 @@ class AuthRemoteDatasource {
 
   /// Get current user info
   /// GET /x/web-interface/nav
+  /// Source: biu/src/service/user-info.ts#getUserInfo
   Future<UserInfoResponse> getUserInfo() async {
     final response = await _dio.get<Map<String, dynamic>>(
       '/x/web-interface/nav',
@@ -29,6 +34,7 @@ class AuthRemoteDatasource {
 
   /// Generate QR code for login
   /// GET /x/passport-login/web/qrcode/generate
+  /// Source: biu/src/service/passport-login-web-qrcode-generate.ts#getPassportLoginWebQrcodeGenerate
   Future<QrCodeGenerateResponse> generateQrCode() async {
     final response = await _passportDio.get<Map<String, dynamic>>(
       '/x/passport-login/web/qrcode/generate',
@@ -38,6 +44,7 @@ class AuthRemoteDatasource {
 
   /// Poll QR code login status
   /// GET /x/passport-login/web/qrcode/poll
+  /// Source: biu/src/service/passport-login-web-qrcode-poll.ts#getPassportLoginWebQrcodePoll
   Future<QrCodePollResponse> pollQrCodeStatus(String qrcodeKey) async {
     final response = await _passportDio.get<Map<String, dynamic>>(
       '/x/passport-login/web/qrcode/poll',
@@ -48,6 +55,7 @@ class AuthRemoteDatasource {
 
   /// Get RSA public key for password encryption
   /// GET /x/passport-login/web/key
+  /// Source: biu/src/service/passport-login-web-key.ts#getPassportLoginWebKey
   Future<WebKeyResponse> getWebKey() async {
     final response = await _passportDio.get<Map<String, dynamic>>(
       '/x/passport-login/web/key',
@@ -57,6 +65,7 @@ class AuthRemoteDatasource {
 
   /// Get captcha challenge for Geetest verification
   /// GET /x/passport-login/captcha
+  /// Source: biu/src/service/passport-login-captcha.ts#getPassportLoginCaptcha
   Future<CaptchaResponse> getCaptcha({String source = 'main_web'}) async {
     final response = await _passportDio.get<Map<String, dynamic>>(
       '/x/passport-login/captcha',
@@ -67,6 +76,7 @@ class AuthRemoteDatasource {
 
   /// Login with password
   /// POST /x/passport-login/web/login
+  /// Source: biu/src/service/passport-login-web-login-passport.ts#passportLoginWebLoginPassport
   Future<PasswordLoginResponse> loginWithPassword({
     required String username,
     required String password,
@@ -96,6 +106,7 @@ class AuthRemoteDatasource {
 
   /// Send SMS verification code
   /// POST /x/passport-login/web/sms/send
+  /// Source: biu/src/service/passport-login-web-sms-send.ts#postPassportLoginWebSmsSend
   Future<SmsSendResponse> sendSmsCode({
     required int cid,
     required int tel,
@@ -124,6 +135,7 @@ class AuthRemoteDatasource {
 
   /// Login with SMS code
   /// POST /x/passport-login/web/login/sms
+  /// Source: biu/src/service/passport-login-web-login-sms.ts#postPassportLoginWebLoginSms
   Future<SmsLoginResponse> loginWithSms({
     required int cid,
     required int tel,
@@ -149,6 +161,7 @@ class AuthRemoteDatasource {
 
   /// Check if cookie needs refresh
   /// GET /x/passport-login/web/cookie/info
+  /// Source: biu/src/service/passport-login-web-cookie-info.ts#getPassportLoginWebCookieInfo
   Future<CookieInfoResponse> getCookieInfo() async {
     final response = await _passportDio.get<Map<String, dynamic>>(
       '/x/passport-login/web/cookie/info',
@@ -158,6 +171,7 @@ class AuthRemoteDatasource {
 
   /// Refresh cookie
   /// POST /x/passport-login/web/cookie/refresh
+  /// Source: biu/src/service/passport-login-web-cookie-refresh.ts#postPassportLoginWebCookieRefresh
   Future<CookieRefreshResponse> refreshCookie({
     required String refreshCsrf,
     required String refreshToken,
@@ -182,6 +196,7 @@ class AuthRemoteDatasource {
 
   /// Confirm cookie refresh (invalidates old refresh_token)
   /// POST /x/passport-login/web/confirm/refresh
+  /// Source: biu/src/service/passport-login-web-confirm-refresh.ts#postPassportLoginWebConfirmRefresh
   Future<ConfirmRefreshResponse> confirmRefresh({
     required String refreshToken,
   }) async {
@@ -228,6 +243,7 @@ class AuthRemoteDatasource {
 
   /// Logout
   /// POST /login/exit/v2
+  /// Source: biu/src/service/passport-login-exit.ts#passportLoginExit
   Future<LogoutResponse> logout() async {
     // Get CSRF token from cookies
     final csrf = await DioClient.instance.getCookie('bili_jct');

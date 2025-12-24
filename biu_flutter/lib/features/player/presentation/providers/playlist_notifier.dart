@@ -50,6 +50,9 @@ class _StorageKeys {
 }
 
 /// Notifier for managing playlist state and audio playback.
+///
+/// Source: biu/src/store/play-list.ts#usePlayList
+/// Source: biu/src/store/play-progress.ts (progress state integrated here)
 class PlaylistNotifier extends Notifier<PlaylistState> {
   late AudioPlayerService _playerService;
 
@@ -309,10 +312,30 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
     }
 
     // Check if item already exists
+    // Source: biu/src/store/play-list.ts:678-690
+    // When item exists, also move it to after current item (not just set nextId)
     final existingIndex =
         state.list.indexWhere((i) => i.isSameContent(item));
     if (existingIndex != -1) {
-      state = state.copyWith(nextId: state.list[existingIndex].id);
+      final existingItem = state.list[existingIndex];
+      final currentIndex = state.currentIndex;
+
+      // Check if item is already right after current item
+      if (currentIndex != -1 && existingIndex != currentIndex + 1) {
+        // Move the existing item to after current item
+        final newList = [...state.list]..removeAt(existingIndex);
+        // Adjust insert index if removed item was before current
+        final adjustedCurrentIndex = existingIndex < currentIndex
+            ? currentIndex - 1
+            : currentIndex;
+        newList.insert(adjustedCurrentIndex + 1, existingItem);
+        state = state.copyWith(
+          list: newList,
+          nextId: existingItem.id,
+        );
+      } else {
+        state = state.copyWith(nextId: existingItem.id);
+      }
       unawaited(_saveState());
       return;
     }

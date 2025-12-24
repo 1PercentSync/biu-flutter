@@ -6,6 +6,9 @@ import 'package:pointycastle/export.dart';
 import '../datasources/auth_remote_datasource.dart';
 
 /// Service for refreshing Bilibili cookies
+///
+/// Source: biu/src/common/utils/cookie.ts (cookie refresh logic)
+/// Source: biu/src/service/passport-login-web-cookie-refresh.ts#postPassportLoginWebCookieRefresh
 class CookieRefreshService {
 
   CookieRefreshService(this._datasource);

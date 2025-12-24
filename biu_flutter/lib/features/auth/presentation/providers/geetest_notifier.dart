@@ -6,6 +6,8 @@ import '../../data/models/captcha_response.dart';
 import '../widgets/geetest_dialog.dart';
 
 /// State for Geetest verification
+///
+/// Source: biu/src/common/hooks/use-geetest.ts#useGeetest
 class GeetestState {
 
   const GeetestState({

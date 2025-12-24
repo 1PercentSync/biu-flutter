@@ -5,6 +5,8 @@ import '../providers/geetest_notifier.dart';
 import '../providers/password_login_notifier.dart';
 
 /// Password login widget
+///
+/// Source: biu/src/layout/navbar/login/password-login.tsx#PasswordLogin
 class PasswordLoginWidget extends ConsumerStatefulWidget {
 
   const PasswordLoginWidget({

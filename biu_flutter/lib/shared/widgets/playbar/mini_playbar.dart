@@ -9,6 +9,8 @@ import '../cached_image.dart';
 /// Mini playbar widget that shows at the bottom of the screen.
 ///
 /// Displays current track info, progress, and basic controls.
+/// Source: biu/src/layout/playbar/left/index.tsx#Left
+/// Source: biu/src/layout/playbar/center/progress.tsx#Progress
 class MiniPlaybar extends ConsumerWidget {
   const MiniPlaybar({
     super.key,

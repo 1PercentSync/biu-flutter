@@ -8,6 +8,8 @@ typedef FolderSubmitCallback = Future<bool> Function({
 });
 
 /// Dialog for creating or editing a favorites folder.
+///
+/// Source: biu/src/components/favorites-edit-modal/index.tsx#FavoritesEditModal
 class FolderEditDialog extends StatefulWidget {
   const FolderEditDialog({
     required this.onSubmit,

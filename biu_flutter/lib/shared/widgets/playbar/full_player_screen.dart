@@ -12,6 +12,9 @@ import '../cached_image.dart';
 /// Full-screen player widget.
 ///
 /// Shows large cover image, detailed controls, progress slider, and playlist.
+/// Source: biu/src/layout/playbar/center/index.tsx#Center
+/// Source: biu/src/layout/playbar/right/index.tsx#Right
+/// Source: biu/src/layout/playbar/right/play-list-drawer/* (playlist sheet)
 class FullPlayerScreen extends ConsumerStatefulWidget {
   const FullPlayerScreen({super.key});
 

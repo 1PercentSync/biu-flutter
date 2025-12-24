@@ -5,6 +5,8 @@ import 'package:qr_flutter/qr_flutter.dart';
 import '../providers/qr_login_notifier.dart';
 
 /// QR code login widget
+///
+/// Source: biu/src/layout/navbar/login/qrcode-login.tsx#QrcodeLogin
 class QrLoginWidget extends ConsumerWidget {
 
   const QrLoginWidget({

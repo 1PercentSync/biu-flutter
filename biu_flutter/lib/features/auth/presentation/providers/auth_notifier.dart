@@ -30,6 +30,10 @@ final currentUserProvider = Provider((ref) {
 });
 
 /// Auth state notifier
+///
+/// Manages authentication state including login, logout, and session refresh.
+/// Source: biu/src/store/user.ts#useUser (auth-related state management)
+/// Source: biu/src/store/token.ts (token storage logic)
 class AuthNotifier extends StateNotifier<AuthState> {
 
   AuthNotifier(this._repository)

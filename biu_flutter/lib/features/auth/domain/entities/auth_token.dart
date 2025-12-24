@@ -1,4 +1,6 @@
 /// Authentication token storage
+///
+/// Source: biu/src/store/token.ts (token state structure)
 class AuthToken {
 
   const AuthToken({

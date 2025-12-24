@@ -15,6 +15,8 @@ import '../providers/history_state.dart';
 import '../widgets/history_item_card.dart';
 
 /// Screen displaying watch history with infinite scroll
+///
+/// Source: biu/src/pages/history/index.tsx#History
 class HistoryScreen extends ConsumerStatefulWidget {
   const HistoryScreen({super.key});
 

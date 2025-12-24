@@ -223,6 +223,10 @@ final searchNotifierProvider =
 });
 
 /// Search screen for finding content.
+///
+/// Source: biu/src/pages/search/index.tsx#Search
+/// Source: biu/src/pages/search/search-type.tsx#SearchType
+/// Source: biu/src/pages/search/video-list.tsx#VideoList
 class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({super.key});
 

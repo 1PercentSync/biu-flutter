@@ -7,6 +7,8 @@ import '../widgets/qr_login_widget.dart';
 import '../widgets/sms_login_widget.dart';
 
 /// Login screen with tabbed login methods
+///
+/// Source: biu/src/layout/navbar/login/index.tsx#Login
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 

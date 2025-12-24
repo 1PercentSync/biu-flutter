@@ -1,7 +1,8 @@
 import 'package:biu_flutter/core/constants/audio.dart';
 
 /// Represents a playable item in the playlist.
-/// Maps to PlayData interface from the source project.
+///
+/// Source: biu/src/store/play-list.ts#PlayData (interface)
 class PlayItem {
 
   const PlayItem({

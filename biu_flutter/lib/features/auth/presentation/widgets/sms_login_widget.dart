@@ -6,6 +6,8 @@ import '../providers/geetest_notifier.dart';
 import '../providers/sms_login_notifier.dart';
 
 /// SMS login widget
+///
+/// Source: biu/src/layout/navbar/login/code-login.tsx#CodeLogin
 class SmsLoginWidget extends ConsumerStatefulWidget {
 
   const SmsLoginWidget({

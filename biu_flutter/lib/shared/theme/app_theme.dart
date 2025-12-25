@@ -31,11 +31,24 @@ class AppTheme {
   /// Bottom navigation height
   static const double bottomNavHeight = 80;
 
+  /// Font family for proper Chinese character rendering
+  /// Uses system-ui with fallbacks for Chinese fonts on different platforms
+  static const String fontFamily = 'Microsoft YaHei';
+  static const List<String> fontFamilyFallback = [
+    'PingFang SC',     // macOS
+    'Hiragino Sans GB', // macOS fallback
+    'Noto Sans SC',    // Cross-platform
+    'Source Han Sans CN',
+    'sans-serif',
+  ];
+
   /// Build the dark theme for the application
   static ThemeData buildDarkTheme() {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
+      fontFamily: fontFamily,
+      fontFamilyFallback: fontFamilyFallback,
 
       // Color scheme
       colorScheme: const ColorScheme.dark(

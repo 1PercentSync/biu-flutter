@@ -85,23 +85,30 @@ class AudioPlayerService {
   /// Wait for player to be ready then play
   /// This is needed on Windows where play() may fail if called immediately after load()
   Future<void> playWhenReady() async {
-    // If already ready, just play
-    if (_player.processingState == ProcessingState.ready) {
-      await _player.play();
-      return;
+    // On Windows, we need to wait a moment after load() for the player to be truly ready
+    // Even if processingState shows ready, the native player might not be ready yet
+
+    // First, ensure we're in a valid state
+    final currentState = _player.processingState;
+
+    if (currentState == ProcessingState.loading ||
+        currentState == ProcessingState.buffering) {
+      // Wait for ready state (with timeout)
+      try {
+        await _player.processingStateStream
+            .where((state) => state == ProcessingState.ready)
+            .first
+            .timeout(const Duration(seconds: 5));
+      } catch (e) {
+        // Timeout, continue anyway
+      }
     }
 
-    // Wait for ready state (with timeout)
-    try {
-      await _player.processingStateStream
-          .where((state) => state == ProcessingState.ready)
-          .first
-          .timeout(const Duration(seconds: 5));
-      await _player.play();
-    } catch (e) {
-      // Timeout or error, try to play anyway
-      await _player.play();
-    }
+    // Small delay to ensure Windows native player is ready
+    // This fixes the first-play issue after app startup
+    await Future<void>.delayed(const Duration(milliseconds: 50));
+
+    await _player.play();
   }
 
   /// Pause playback

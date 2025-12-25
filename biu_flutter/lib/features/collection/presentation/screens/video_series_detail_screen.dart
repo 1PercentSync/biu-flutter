@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../../core/constants/audio.dart';
@@ -9,7 +8,10 @@ import '../../../../core/router/routes.dart';
 import '../../../../shared/theme/theme.dart';
 import '../../../../shared/utils/global_snackbar.dart';
 import '../../../../shared/widgets/cached_image.dart';
+import '../../../../shared/widgets/media_action_menu.dart';
 import '../../../player/player.dart';
+import '../../../settings/domain/entities/app_settings.dart';
+import '../../../settings/presentation/providers/settings_notifier.dart';
 import '../../data/datasources/collection_remote_datasource.dart';
 import '../../data/models/video_series_detail.dart';
 
@@ -147,6 +149,63 @@ class _VideoSeriesDetailScreenState
     GlobalSnackbar.showSuccess('已添加 ${playItems.length} 个视频到播放列表');
   }
 
+  void _showHeaderActionMenu(BuildContext context, VideoSeriesInfo info) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: AppColors.contentBackground,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Handle bar
+            Container(
+              margin: const EdgeInsets.symmetric(vertical: 12),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.divider,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            // Title
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Text(
+                info.title,
+                style: Theme.of(context).textTheme.titleMedium,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const Divider(height: 1),
+            // Add to playlist
+            ListTile(
+              leading: const Icon(Icons.playlist_add),
+              title: const Text('添加到播放列表'),
+              onTap: () {
+                Navigator.pop(context);
+                _addAllToPlaylist();
+              },
+            ),
+            // Collect (favorite)
+            ListTile(
+              leading: const Icon(Icons.star_border, color: AppColors.primary),
+              title: const Text('收藏', style: TextStyle(color: AppColors.primary)),
+              onTap: () {
+                Navigator.pop(context);
+                GlobalSnackbar.showInfo('收藏功能开发中');
+              },
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _playMedia(SeriesMediaItem media) {
     final playItem = _mediaToPlayItem(media);
     ref.read(playlistProvider.notifier).play(playItem);
@@ -168,13 +227,15 @@ class _VideoSeriesDetailScreenState
 
   @override
   Widget build(BuildContext context) {
+    final displayMode = ref.watch(displayModeProvider);
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _hasError
               ? _buildError()
-              : _buildContent(),
+              : _buildContent(displayMode),
     );
   }
 
@@ -196,7 +257,7 @@ class _VideoSeriesDetailScreenState
     );
   }
 
-  Widget _buildContent() {
+  Widget _buildContent(DisplayMode displayMode) {
     final info = _data!.info;
     final medias = _filteredMedias;
 
@@ -216,13 +277,35 @@ class _VideoSeriesDetailScreenState
         SliverToBoxAdapter(
           child: _buildSearchFilter(),
         ),
-        // Media list
+        // Media list/grid
         if (medias.isEmpty)
           const SliverFillRemaining(
             child: Center(
               child: Text(
                 '没有找到视频',
                 style: TextStyle(color: AppColors.textSecondary),
+              ),
+            ),
+          )
+        else if (displayMode == DisplayMode.card)
+          SliverPadding(
+            padding: const EdgeInsets.all(12),
+            sliver: SliverGrid(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                childAspectRatio: 0.75,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+              ),
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  final media = medias[index];
+                  return _MediaCardItem(
+                    media: media,
+                    onTap: () => _playMedia(media),
+                  );
+                },
+                childCount: medias.length,
               ),
             ),
           )
@@ -323,10 +406,10 @@ class _VideoSeriesDetailScreenState
                         ),
                       ),
                     const SizedBox(width: 8),
+                    // Action menu button
                     IconButton(
-                      onPressed: _addAllToPlaylist,
-                      icon: const Icon(Icons.playlist_add),
-                      tooltip: '添加到播放列表',
+                      onPressed: () => _showHeaderActionMenu(context, info),
+                      icon: const Icon(Icons.more_horiz),
                       style: IconButton.styleFrom(
                         backgroundColor: AppColors.surface,
                       ),
@@ -426,6 +509,7 @@ class _VideoSeriesDetailScreenState
 }
 
 /// Media list item widget
+/// Source: biu/src/components/music-list-item/index.tsx
 class _MediaListItem extends StatelessWidget {
   const _MediaListItem({
     required this.media,
@@ -442,45 +526,15 @@ class _MediaListItem extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Thumbnail with duration
+            // Square thumbnail
             SizedBox(
-              width: 120,
-              child: AspectRatio(
-                aspectRatio: 16 / 9,
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: AppCachedImage(
-                        imageUrl: media.cover,
-                      ),
-                    ),
-                    // Duration badge
-                    Positioned(
-                      right: 4,
-                      bottom: 4,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 4,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.black54,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          media.formattedDuration,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+              width: 48,
+              height: 48,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
+                child: AppCachedImage(
+                  imageUrl: media.cover,
                 ),
               ),
             ),
@@ -489,12 +543,15 @@ class _MediaListItem extends StatelessWidget {
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   // Title
                   Text(
                     media.title,
-                    style: Theme.of(context).textTheme.titleSmall,
-                    maxLines: 2,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w500,
+                        ),
+                    maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
@@ -504,28 +561,183 @@ class _MediaListItem extends StatelessWidget {
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: AppColors.textSecondary,
                         ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            // Play count
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Text(
+                _formatNumber(media.cntInfo.play),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+              ),
+            ),
+            // Duration
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: Text(
+                media.formattedDuration,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: AppColors.textSecondary,
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                    ),
+              ),
+            ),
+            // Action menu
+            MediaActionMenu(
+              title: media.title,
+              bvid: media.bvid,
+              aid: media.id.toString(),
+              cover: media.cover,
+              ownerName: media.upper.name,
+              ownerMid: media.upper.mid,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _formatNumber(int num) {
+    if (num >= 100000000) {
+      return '${(num / 100000000).toStringAsFixed(2)}亿';
+    } else if (num >= 10000) {
+      return '${(num / 10000).toStringAsFixed(2)}万';
+    }
+    return num.toString();
+  }
+}
+
+/// Media card item widget for grid view
+class _MediaCardItem extends StatelessWidget {
+  const _MediaCardItem({
+    required this.media,
+    required this.onTap,
+  });
+
+  final SeriesMediaItem media;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      color: AppColors.contentBackground,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppTheme.borderRadius),
+      ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppTheme.borderRadius),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Cover image with play count badge
+            AspectRatio(
+              aspectRatio: 16 / 9,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  ClipRRect(
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(AppTheme.borderRadius),
+                    ),
+                    child: AppCachedImage(
+                      imageUrl: media.cover,
+                    ),
+                  ),
+                  // Play count badge
+                  Positioned(
+                    left: 4,
+                    bottom: 4,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 4,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.black54,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.play_arrow,
+                            size: 12,
+                            color: Colors.white,
+                          ),
+                          const SizedBox(width: 2),
+                          Text(
+                            _formatNumber(media.cntInfo.play),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Video info
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Title with action menu
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          media.title,
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                fontWeight: FontWeight.w500,
+                              ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      MediaActionMenu(
+                        title: media.title,
+                        bvid: media.bvid,
+                        aid: media.id.toString(),
+                        cover: media.cover,
+                        ownerName: media.upper.name,
+                        ownerMid: media.upper.mid,
+                        iconSize: 18,
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 4),
-                  // Stats row
+                  // Footer: author and duration
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Icon(
-                        Icons.play_arrow,
-                        size: 14,
-                        color: AppColors.textTertiary,
+                      Expanded(
+                        child: Text(
+                          media.upper.name,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                      const SizedBox(width: 2),
                       Text(
-                        _formatNumber(media.cntInfo.play),
+                        media.formattedDuration,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppColors.textTertiary,
-                            ),
-                      ),
-                      const SizedBox(width: 12),
-                      Text(
-                        _formatDate(media.publishDate),
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppColors.textTertiary,
+                              color: AppColors.textSecondary,
                             ),
                       ),
                     ],
@@ -546,9 +758,5 @@ class _MediaListItem extends StatelessWidget {
       return '${(num / 10000).toStringAsFixed(1)}万';
     }
     return num.toString();
-  }
-
-  String _formatDate(DateTime date) {
-    return DateFormat('yyyy-MM-dd').format(date);
   }
 }

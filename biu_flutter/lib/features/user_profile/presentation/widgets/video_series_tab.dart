@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/extensions/datetime_extensions.dart';
@@ -7,14 +8,16 @@ import '../../../../shared/theme/theme.dart';
 import '../../../../shared/widgets/cached_image.dart';
 import '../../../../shared/widgets/empty_state.dart';
 import '../../../../shared/widgets/error_state.dart';
+import '../../../settings/domain/entities/app_settings.dart';
+import '../../../settings/presentation/providers/settings_notifier.dart';
 import '../../data/datasources/user_profile_remote_datasource.dart';
 import '../../data/models/video_series.dart';
 
 /// Video series (seasons/collections) tab for user profile.
 ///
-/// Displays user's video series in a grid layout.
+/// Displays user's video series in a grid or list layout based on displayMode.
 /// Source: biu/src/pages/user-profile/video-series.tsx
-class VideoSeriesTab extends StatefulWidget {
+class VideoSeriesTab extends ConsumerStatefulWidget {
   const VideoSeriesTab({
     required this.mid,
     super.key,
@@ -23,10 +26,10 @@ class VideoSeriesTab extends StatefulWidget {
   final int mid;
 
   @override
-  State<VideoSeriesTab> createState() => _VideoSeriesTabState();
+  ConsumerState<VideoSeriesTab> createState() => _VideoSeriesTabState();
 }
 
-class _VideoSeriesTabState extends State<VideoSeriesTab> {
+class _VideoSeriesTabState extends ConsumerState<VideoSeriesTab> {
   final List<VideoSeriesItem> _items = [];
   bool _isLoading = true;
   bool _hasError = false;
@@ -137,6 +140,8 @@ class _VideoSeriesTabState extends State<VideoSeriesTab> {
 
   @override
   Widget build(BuildContext context) {
+    final displayMode = ref.watch(displayModeProvider);
+
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -162,35 +167,66 @@ class _VideoSeriesTabState extends State<VideoSeriesTab> {
 
     return RefreshIndicator(
       onRefresh: _loadData,
-      child: GridView.builder(
-        controller: _scrollController,
-        padding: const EdgeInsets.all(12),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          // Cover 16:9 (~112px) + info (~60px) = ~172px for 200px width
-          // Aspect ratio = 200/172 ≈ 1.16
-          childAspectRatio: 1.1,
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
-        ),
-        itemCount: _items.length + (_isLoadingMore ? 1 : 0),
-        itemBuilder: (context, index) {
-          if (index >= _items.length) {
-            return const Center(
-              child: Padding(
-                padding: EdgeInsets.all(16),
-                child: CircularProgressIndicator(),
-              ),
-            );
-          }
+      child: displayMode == DisplayMode.card
+          ? _buildGridView()
+          : _buildListView(),
+    );
+  }
 
-          final item = _items[index];
-          return _VideoSeriesCard(
+  Widget _buildGridView() {
+    return GridView.builder(
+      controller: _scrollController,
+      padding: const EdgeInsets.all(12),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: 1.1,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+      ),
+      itemCount: _items.length + (_isLoadingMore ? 1 : 0),
+      itemBuilder: (context, index) {
+        if (index >= _items.length) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(16),
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+
+        final item = _items[index];
+        return _VideoSeriesCard(
+          item: item,
+          onTap: () => _onSeriesTap(item),
+        );
+      },
+    );
+  }
+
+  Widget _buildListView() {
+    return ListView.builder(
+      controller: _scrollController,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      itemCount: _items.length + (_isLoadingMore ? 1 : 0),
+      itemBuilder: (context, index) {
+        if (index >= _items.length) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(16),
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+
+        final item = _items[index];
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: _VideoSeriesListTile(
             item: item,
             onTap: () => _onSeriesTap(item),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -270,6 +306,83 @@ class _VideoSeriesCard extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// List tile widget for displaying a video series item.
+class _VideoSeriesListTile extends StatelessWidget {
+  const _VideoSeriesListTile({
+    required this.item,
+    required this.onTap,
+  });
+
+  final VideoSeriesItem item;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      color: AppColors.contentBackground,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppTheme.borderRadius),
+      ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppTheme.borderRadius),
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Row(
+            children: [
+              // Square thumbnail
+              SizedBox(
+                width: 48,
+                height: 48,
+                child: ClipRRect(
+                  borderRadius:
+                      BorderRadius.circular(AppTheme.borderRadiusSmall),
+                  child: AppCachedImage(
+                    imageUrl: item.cover,
+                    fileType: FileType.video,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              // Series info
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Title
+                    Text(
+                      item.name,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w500,
+                          ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    // Video count
+                    Text(
+                      '${item.total}个视频',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                    ),
+                  ],
+                ),
+              ),
+              // Arrow indicator
+              const Icon(
+                Icons.chevron_right,
+                color: AppColors.textTertiary,
+              ),
+            ],
+          ),
         ),
       ),
     );

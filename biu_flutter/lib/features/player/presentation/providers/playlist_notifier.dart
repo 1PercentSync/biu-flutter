@@ -618,7 +618,9 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
 
     debugPrint('[Playlist] Starting player');
     try {
-      await _playerService.play();
+      // Use playWhenReady to ensure player is ready before playing
+      // This fixes an issue on Windows where play() fails after load()
+      await _playerService.playWhenReady();
       debugPrint('[Playlist] Player started successfully');
     } catch (e) {
       debugPrint('[Playlist] Failed to start player: $e');

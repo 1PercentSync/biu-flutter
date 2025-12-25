@@ -74,9 +74,34 @@ class AudioPlayerService {
     return setUrl(item.audioUrl!);
   }
 
+  /// Current processing state
+  ProcessingState get processingState => _player.processingState;
+
   /// Start or resume playback
   Future<void> play() async {
     await _player.play();
+  }
+
+  /// Wait for player to be ready then play
+  /// This is needed on Windows where play() may fail if called immediately after load()
+  Future<void> playWhenReady() async {
+    // If already ready, just play
+    if (_player.processingState == ProcessingState.ready) {
+      await _player.play();
+      return;
+    }
+
+    // Wait for ready state (with timeout)
+    try {
+      await _player.processingStateStream
+          .where((state) => state == ProcessingState.ready)
+          .first
+          .timeout(const Duration(seconds: 5));
+      await _player.play();
+    } catch (e) {
+      // Timeout or error, try to play anyway
+      await _player.play();
+    }
   }
 
   /// Pause playback

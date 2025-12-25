@@ -172,6 +172,38 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           },
         ),
       ),
+      // Collection route (video series, etc.)
+      GoRoute(
+        path: AppRoutes.collection,
+        name: 'collection',
+        builder: (context, state) {
+          final id = int.tryParse(state.pathParameters['id'] ?? '');
+          final type = state.uri.queryParameters['type'] ?? '';
+          if (id == null) {
+            return const Scaffold(
+              body: Center(child: Text('无效的合集ID')),
+            );
+          }
+          // TODO: Implement CollectionScreen for video_series and other types
+          return Scaffold(
+            appBar: AppBar(
+              title: Text(type == 'video_series' ? '视频合集' : '合集'),
+            ),
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.construction, size: 64, color: Colors.grey),
+                  const SizedBox(height: 16),
+                  Text('合集功能开发中', style: Theme.of(context).textTheme.titleMedium),
+                  const SizedBox(height: 8),
+                  Text('ID: $id, 类型: $type', style: const TextStyle(color: Colors.grey)),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
     ],
     errorBuilder: (context, state) => Scaffold(
       body: Center(

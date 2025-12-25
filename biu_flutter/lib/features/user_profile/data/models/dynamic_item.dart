@@ -3,6 +3,19 @@
 /// Source: biu/src/service/web-dynamic.ts
 library;
 
+/// Helper to safely parse int from dynamic value (handles String and int)
+int? _parseInt(dynamic value) {
+  if (value == null) return null;
+  if (value is int) return value;
+  if (value is String) return int.tryParse(value);
+  return null;
+}
+
+/// Helper to safely parse int with default value
+int _parseIntOrDefault(dynamic value, [int defaultValue = 0]) {
+  return _parseInt(value) ?? defaultValue;
+}
+
 /// Dynamic type constants
 /// Source: biu/src/common/constants/feed.ts
 class DynamicType {
@@ -152,11 +165,11 @@ class ModuleAuthor {
 
   factory ModuleAuthor.fromJson(Map<String, dynamic> json) {
     return ModuleAuthor(
-      mid: json['mid'] as int? ?? 0,
+      mid: _parseIntOrDefault(json['mid']),
       name: json['name'] as String? ?? '',
       face: json['face'] as String? ?? '',
       pubTime: json['pub_time'] as String? ?? '',
-      pubTs: json['pub_ts'] as int? ?? 0,
+      pubTs: _parseIntOrDefault(json['pub_ts']),
       following: json['following'] as bool?,
       label: json['label'] as String?,
       pubAction: json['pub_action'] as String?,
@@ -296,7 +309,7 @@ class RichTextEmoji {
   factory RichTextEmoji.fromJson(Map<String, dynamic> json) {
     return RichTextEmoji(
       iconUrl: json['icon_url'] as String? ?? '',
-      size: json['size'] as int? ?? 1,
+      size: _parseIntOrDefault(json['size'], 1),
       text: json['text'] as String? ?? '',
     );
   }
@@ -420,7 +433,7 @@ class MajorArchive {
       badge: json['badge'] != null
           ? ArchiveBadge.fromJson(json['badge'] as Map<String, dynamic>)
           : null,
-      type: json['type'] as int?,
+      type: _parseInt(json['type']),
     );
   }
   const MajorArchive({
@@ -511,7 +524,7 @@ class MajorUgcSeason {
 
   factory MajorUgcSeason.fromJson(Map<String, dynamic> json) {
     return MajorUgcSeason(
-      aid: json['aid'] as int? ?? 0,
+      aid: _parseIntOrDefault(json['aid']),
       bvid: json['bvid'] as String? ?? '',
       title: json['title'] as String? ?? '',
       cover: json['cover'] as String? ?? '',
@@ -563,7 +576,7 @@ class MajorDraw {
 
   factory MajorDraw.fromJson(Map<String, dynamic> json) {
     return MajorDraw(
-      id: json['id'] as int? ?? 0,
+      id: _parseIntOrDefault(json['id']),
       items: (json['items'] as List<dynamic>?)
               ?.map((e) => DrawItem.fromJson(e as Map<String, dynamic>))
               .toList() ??
@@ -585,9 +598,9 @@ class DrawItem {
   factory DrawItem.fromJson(Map<String, dynamic> json) {
     return DrawItem(
       src: json['src'] as String? ?? '',
-      width: json['width'] as int? ?? 0,
-      height: json['height'] as int? ?? 0,
-      size: json['size'] as int?,
+      width: _parseIntOrDefault(json['width']),
+      height: _parseIntOrDefault(json['height']),
+      size: _parseInt(json['size']),
     );
   }
   const DrawItem({
@@ -638,8 +651,8 @@ class OpusPic {
   factory OpusPic.fromJson(Map<String, dynamic> json) {
     return OpusPic(
       src: json['src'] as String? ?? '',
-      width: json['width'] as int? ?? 0,
-      height: json['height'] as int? ?? 0,
+      width: _parseIntOrDefault(json['width']),
+      height: _parseIntOrDefault(json['height']),
     );
   }
   const OpusPic({
@@ -678,7 +691,7 @@ class MajorArticle {
 
   factory MajorArticle.fromJson(Map<String, dynamic> json) {
     return MajorArticle(
-      id: json['id'] as int? ?? 0,
+      id: _parseIntOrDefault(json['id']),
       title: json['title'] as String? ?? '',
       desc: json['desc'] as String? ?? '',
       covers: (json['covers'] as List<dynamic>?)
@@ -708,7 +721,7 @@ class MajorMusic {
 
   factory MajorMusic.fromJson(Map<String, dynamic> json) {
     return MajorMusic(
-      id: json['id'] as int? ?? 0,
+      id: _parseIntOrDefault(json['id']),
       title: json['title'] as String? ?? '',
       cover: json['cover'] as String? ?? '',
       label: json['label'] as String?,
@@ -759,11 +772,11 @@ class MajorLive {
 
   factory MajorLive.fromJson(Map<String, dynamic> json) {
     return MajorLive(
-      id: json['id'] as int? ?? 0,
+      id: _parseIntOrDefault(json['id']),
       title: json['title'] as String? ?? '',
       cover: json['cover'] as String? ?? '',
-      roomId: json['room_id'] as int?,
-      liveState: json['live_state'] as int?,
+      roomId: _parseInt(json['room_id']),
+      liveState: _parseInt(json['live_state']),
     );
   }
   const MajorLive({
@@ -845,7 +858,7 @@ class DynamicTopic {
 
   factory DynamicTopic.fromJson(Map<String, dynamic> json) {
     return DynamicTopic(
-      id: json['id'] as int? ?? 0,
+      id: _parseIntOrDefault(json['id']),
       name: json['name'] as String? ?? '',
       jumpUrl: json['jump_url'] as String?,
     );
@@ -893,7 +906,7 @@ class StatItem {
 
   factory StatItem.fromJson(Map<String, dynamic> json) {
     return StatItem(
-      count: json['count'] as int? ?? 0,
+      count: _parseIntOrDefault(json['count']),
       forbidden: json['forbidden'] as bool? ?? false,
       status: json['status'] as bool?,
     );
@@ -973,7 +986,7 @@ class InteractionItem {
     return InteractionItem(
       desc: InteractionDesc.fromJson(
           json['desc'] as Map<String, dynamic>? ?? {}),
-      type: json['type'] as int? ?? 0,
+      type: _parseIntOrDefault(json['type']),
     );
   }
   const InteractionItem({
@@ -1010,7 +1023,7 @@ class DynamicFeedResponse {
 
   factory DynamicFeedResponse.fromJson(Map<String, dynamic> json) {
     return DynamicFeedResponse(
-      code: json['code'] as int? ?? -1,
+      code: _parseIntOrDefault(json['code'], -1),
       message: json['message'] as String? ?? '',
       data: json['data'] != null
           ? DynamicFeedData.fromJson(json['data'] as Map<String, dynamic>)
@@ -1042,7 +1055,7 @@ class DynamicFeedData {
       hasMore: json['has_more'] as bool? ?? false,
       offset: json['offset'] as String?,
       updateBaseline: json['update_baseline'] as String?,
-      updateNum: json['update_num'] as int?,
+      updateNum: _parseInt(json['update_num']),
     );
   }
   const DynamicFeedData({

@@ -3,13 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/audio.dart';
 import '../../../core/extensions/duration_extensions.dart';
+import '../../../features/favorites/presentation/widgets/folder_select_sheet.dart';
 import '../../../features/player/domain/entities/play_item.dart';
 import '../../../features/player/presentation/providers/playlist_notifier.dart';
 import '../../../features/player/presentation/providers/playlist_state.dart';
 import '../../theme/theme.dart';
 import '../audio_visualizer.dart';
 import '../cached_image.dart';
-import '../folder_select_sheet.dart';
 
 /// Full-screen player widget.
 ///
@@ -17,6 +17,13 @@ import '../folder_select_sheet.dart';
 /// Source: biu/src/layout/playbar/center/index.tsx#Center
 /// Source: biu/src/layout/playbar/right/index.tsx#Right
 /// Source: biu/src/layout/playbar/right/play-list-drawer/* (playlist sheet)
+///
+/// NOTE: This widget imports from features/player/ which is technically
+/// a cross-layer dependency (shared -> features). This is accepted because:
+/// 1. Source project has same pattern: layout/playbar/ imports from store/play-list.ts
+/// 2. Player state is a cross-cutting concern used by many features
+/// 3. Playbar widgets are inherently player-dependent by design
+/// See: openspec/changes/align-parity-report-decisions/tasks.md (Phase 5.2)
 class FullPlayerScreen extends ConsumerStatefulWidget {
   const FullPlayerScreen({super.key});
 

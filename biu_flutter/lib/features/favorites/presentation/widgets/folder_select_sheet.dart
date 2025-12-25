@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../shared/theme/theme.dart';
+import '../../../../shared/widgets/folder_select_sheet.dart' as shared;
 import '../providers/favorites_notifier.dart';
 
 /// Bottom sheet for selecting folders to add a resource to.
+///
+/// This is a connector widget that bridges the shared FolderSelectSheet with
+/// the favorites provider, maintaining proper layer separation.
 ///
 /// Source: biu/src/components/favorites-select-modal/index.tsx#FavoritesSelectModal
 class FolderSelectSheet extends ConsumerWidget {
@@ -50,132 +54,35 @@ class FolderSelectSheet extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(folderSelectProvider(resourceId));
 
-    return DraggableScrollableSheet(
-      initialChildSize: 0.6,
-      minChildSize: 0.4,
-      maxChildSize: 0.9,
-      expand: false,
-      builder: (context, scrollController) {
-        return Column(
-          children: [
-            // Header
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: const BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(color: AppColors.divider),
-                ),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  TextButton(
-                    onPressed:
-                        state.isSubmitting || !state.hasChanges ? null : () => _submit(context, ref),
-                    child: state.isSubmitting
-                        ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Text('Confirm'),
-                  ),
-                ],
-              ),
-            ),
-            // Content
-            Expanded(
-              child: state.isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : state.folders.isEmpty
-                      ? _buildEmpty()
-                      : ListView.builder(
-                          controller: scrollController,
-                          itemCount: state.folders.length,
-                          itemBuilder: (context, index) {
-                            final folder = state.folders[index];
-                            final isSelected =
-                                state.selectedIds.contains(folder.id);
+    // Convert FolderSelectState to shared.FolderSelectSheetState
+    final sheetState = shared.FolderSelectSheetState(
+      folders: state.folders
+          .map((folder) => shared.FolderSelectItem(
+                id: folder.id,
+                title: folder.title,
+                mediaCount: folder.mediaCount,
+                isPrivate: folder.isPrivate,
+              ))
+          .toList(),
+      selectedIds: state.selectedIds,
+      isLoading: state.isLoading,
+      isSubmitting: state.isSubmitting,
+      hasChanges: state.hasChanges,
+    );
 
-                            return CheckboxListTile(
-                              value: isSelected,
-                              onChanged: state.isSubmitting
-                                  ? null
-                                  : (_) => ref
-                                      .read(folderSelectProvider(resourceId)
-                                          .notifier)
-                                      .toggleSelection(folder.id),
-                              title: Text(
-                                folder.title,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              subtitle: Text(
-                                '${folder.mediaCount} items',
-                                style: const TextStyle(
-                                  color: AppColors.textSecondary,
-                                  fontSize: 12,
-                                ),
-                              ),
-                              secondary: folder.isPrivate
-                                  ? const Icon(
-                                      Icons.lock,
-                                      size: 18,
-                                      color: AppColors.textTertiary,
-                                    )
-                                  : null,
-                              controlAffinity: ListTileControlAffinity.leading,
-                            );
-                          },
-                        ),
-            ),
-          ],
-        );
+    return shared.FolderSelectSheet(
+      title: title,
+      state: sheetState,
+      onToggleSelection: (folderId) {
+        ref.read(folderSelectProvider(resourceId).notifier).toggleSelection(folderId);
+      },
+      onSubmit: () async {
+        final success = await ref.read(folderSelectProvider(resourceId).notifier).submit();
+        if (success) {
+          onComplete?.call();
+        }
+        return success;
       },
     );
-  }
-
-  Widget _buildEmpty() {
-    return const Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.folder_off_outlined,
-            size: 48,
-            color: AppColors.textTertiary,
-          ),
-          SizedBox(height: 16),
-          Text(
-            'No folders',
-            style: TextStyle(color: AppColors.textSecondary),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _submit(BuildContext context, WidgetRef ref) async {
-    final success = await ref
-        .read(folderSelectProvider(resourceId).notifier)
-        .submit();
-
-    if (success && context.mounted) {
-      Navigator.of(context).pop();
-      onComplete?.call();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Updated successfully')),
-      );
-    }
   }
 }

@@ -11,6 +11,13 @@ import '../cached_image.dart';
 /// Displays current track info, progress, and basic controls.
 /// Source: biu/src/layout/playbar/left/index.tsx#Left
 /// Source: biu/src/layout/playbar/center/progress.tsx#Progress
+///
+/// NOTE: This widget imports from features/player/ which is technically
+/// a cross-layer dependency (shared -> features). This is accepted because:
+/// 1. Source project has same pattern: layout/playbar/ imports from store/play-list.ts
+/// 2. Player state is a cross-cutting concern used by many features
+/// 3. Playbar widgets are inherently player-dependent by design
+/// See: openspec/changes/align-parity-report-decisions/tasks.md (Phase 5.2)
 class MiniPlaybar extends ConsumerWidget {
   const MiniPlaybar({
     super.key,

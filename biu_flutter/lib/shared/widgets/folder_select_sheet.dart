@@ -1,55 +1,74 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../features/favorites/presentation/providers/favorites_notifier.dart';
 import '../theme/theme.dart';
+
+/// Data model for a folder item in the selection sheet.
+///
+/// This is a simplified model that only contains the fields needed for display,
+/// decoupling the widget from the features layer.
+class FolderSelectItem {
+  const FolderSelectItem({
+    required this.id,
+    required this.title,
+    required this.mediaCount,
+    required this.isPrivate,
+  });
+
+  final int id;
+  final String title;
+  final int mediaCount;
+  final bool isPrivate;
+}
+
+/// State for the folder selection sheet.
+///
+/// This is a presentation-only state that does not depend on any features layer.
+class FolderSelectSheetState {
+  const FolderSelectSheetState({
+    this.folders = const [],
+    this.selectedIds = const [],
+    this.isLoading = false,
+    this.isSubmitting = false,
+    this.hasChanges = false,
+  });
+
+  final List<FolderSelectItem> folders;
+  final List<int> selectedIds;
+  final bool isLoading;
+  final bool isSubmitting;
+  final bool hasChanges;
+}
 
 /// Bottom sheet for selecting a favorites folder.
 ///
+/// This widget is decoupled from the features layer and receives state and
+/// callbacks as parameters, making it reusable across different contexts.
+///
 /// Source: biu/src/layout/playbar/right/mv-fav-folder-select.tsx
-class FolderSelectSheet extends ConsumerWidget {
+class FolderSelectSheet extends StatelessWidget {
   const FolderSelectSheet({
-    required this.resourceId,
     required this.title,
-    this.onComplete,
+    required this.state,
+    required this.onToggleSelection,
+    required this.onSubmit,
     super.key,
   });
-
-  /// Resource id (avid or bvid)
-  final String resourceId;
 
   /// Title shown in the header
   final String title;
 
-  /// Callback when selection is completed
-  final VoidCallback? onComplete;
+  /// Current state of the folder selection
+  final FolderSelectSheetState state;
 
-  /// Show the folder select sheet.
-  static Future<void> show({
-    required BuildContext context,
-    required String resourceId,
-    required String title,
-    VoidCallback? onComplete,
-  }) {
-    return showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: AppColors.contentBackground,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (context) => FolderSelectSheet(
-        resourceId: resourceId,
-        title: title,
-        onComplete: onComplete,
-      ),
-    );
-  }
+  /// Callback when a folder selection is toggled
+  final void Function(int folderId) onToggleSelection;
+
+  /// Callback when the submit button is pressed
+  /// Should return true on success, false on failure
+  final Future<bool> Function() onSubmit;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(folderSelectProvider(resourceId));
-
+  Widget build(BuildContext context) {
     return DraggableScrollableSheet(
       initialChildSize: 0.6,
       minChildSize: 0.4,
@@ -80,8 +99,9 @@ class FolderSelectSheet extends ConsumerWidget {
                     ),
                   ),
                   TextButton(
-                    onPressed:
-                        state.isSubmitting || !state.hasChanges ? null : () => _submit(context, ref),
+                    onPressed: state.isSubmitting || !state.hasChanges
+                        ? null
+                        : () => _submit(context),
                     child: state.isSubmitting
                         ? const SizedBox(
                             width: 16,
@@ -111,10 +131,7 @@ class FolderSelectSheet extends ConsumerWidget {
                               value: isSelected,
                               onChanged: state.isSubmitting
                                   ? null
-                                  : (_) => ref
-                                      .read(folderSelectProvider(resourceId)
-                                          .notifier)
-                                      .toggleSelection(folder.id),
+                                  : (_) => onToggleSelection(folder.id),
                               title: Text(
                                 folder.title,
                                 maxLines: 1,
@@ -165,14 +182,11 @@ class FolderSelectSheet extends ConsumerWidget {
     );
   }
 
-  Future<void> _submit(BuildContext context, WidgetRef ref) async {
-    final success = await ref
-        .read(folderSelectProvider(resourceId).notifier)
-        .submit();
+  Future<void> _submit(BuildContext context) async {
+    final success = await onSubmit();
 
     if (success && context.mounted) {
       Navigator.of(context).pop();
-      onComplete?.call();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Updated successfully')),
       );

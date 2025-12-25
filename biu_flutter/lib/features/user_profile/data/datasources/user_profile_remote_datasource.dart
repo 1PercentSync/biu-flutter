@@ -1,10 +1,12 @@
 import 'package:dio/dio.dart';
 
 import '../../../../core/network/dio_client.dart';
+import '../models/dynamic_item.dart';
 import '../models/space_acc_info.dart';
 import '../models/space_arc_search.dart';
 import '../models/space_relation.dart';
 import '../models/space_setting.dart';
+import '../models/video_series.dart';
 
 /// Remote data source for user profile API calls
 ///
@@ -13,6 +15,8 @@ import '../models/space_setting.dart';
 /// Source: biu/src/service/space-wbi-arc-search.ts#getSpaceWbiArcSearch
 /// Source: biu/src/service/relation-stat.ts#getRelationStat
 /// Source: biu/src/service/space-setting.ts#getXSpaceSettings
+/// Source: biu/src/service/space-seasons-series-list.ts#getSpaceSeasonsSeriesList
+/// Source: biu/src/service/web-dynamic.ts#getWebDynamicFeedSpace
 class UserProfileRemoteDataSource {
   UserProfileRemoteDataSource({Dio? dio})
       : _dio = dio ?? DioClient.instance.dio;
@@ -235,6 +239,66 @@ class UserProfileRemoteDataSource {
     }
 
     return SpacePrivacy.fromJson(privacy);
+  }
+
+  /// Fetch user's video series (seasons) list
+  /// GET /x/polymer/web-space/seasons_series_list
+  ///
+  /// [mid] - Target user mid (required)
+  /// [pageNum] - Page number (1-based, default: 1)
+  /// [pageSize] - Page size (default: 20)
+  ///
+  /// Source: biu/src/service/space-seasons-series-list.ts
+  Future<SeasonsSeriesListResponse> getSeasonsSeriesList({
+    required int mid,
+    int pageNum = 1,
+    int pageSize = defaultPageSize,
+  }) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/x/polymer/web-space/seasons_series_list',
+      queryParameters: {
+        'mid': mid,
+        'page_num': pageNum,
+        'page_size': pageSize,
+      },
+    );
+
+    final data = response.data;
+    if (data == null) {
+      throw Exception('Failed to fetch seasons series list');
+    }
+
+    return SeasonsSeriesListResponse.fromJson(data);
+  }
+
+  /// Fetch user dynamic feed
+  /// GET /x/polymer/web-dynamic/v1/feed/space
+  ///
+  /// [hostMid] - Target user mid (required)
+  /// [offset] - Pagination offset cursor (optional, for loading more)
+  /// [timezoneOffset] - Timezone offset in minutes (default: -480 for UTC+8)
+  ///
+  /// Source: biu/src/service/web-dynamic.ts#getWebDynamicFeedSpace
+  Future<DynamicFeedResponse> getDynamicFeed({
+    required int hostMid,
+    String? offset,
+    int timezoneOffset = -480,
+  }) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/x/polymer/web-dynamic/v1/feed/space',
+      queryParameters: {
+        'host_mid': hostMid,
+        if (offset != null && offset.isNotEmpty) 'offset': offset,
+        'timezone_offset': timezoneOffset,
+      },
+    );
+
+    final data = response.data;
+    if (data == null) {
+      throw Exception('Failed to fetch dynamic feed');
+    }
+
+    return DynamicFeedResponse.fromJson(data);
   }
 }
 

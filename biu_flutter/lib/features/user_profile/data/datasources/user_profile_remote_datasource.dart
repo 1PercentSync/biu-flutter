@@ -300,6 +300,43 @@ class UserProfileRemoteDataSource {
 
     return DynamicFeedResponse.fromJson(data);
   }
+
+  /// Like or unlike a dynamic
+  /// POST /x/dynamic/feed/dyn/thumb
+  ///
+  /// [dynIdStr] - Dynamic ID string
+  /// [like] - true to like, false to unlike
+  ///
+  /// Source: biu/src/service/web-dynamic-feed-thumb.ts
+  Future<bool> likeDynamic({
+    required String dynIdStr,
+    required bool like,
+  }) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/x/dynamic/feed/dyn/thumb',
+      data: {
+        'dyn_id_str': dynIdStr,
+        'up': like ? 1 : 2, // 1: like, 2: unlike
+      },
+      options: Options(
+        contentType: Headers.formUrlEncodedContentType,
+        extra: {'useCSRF': true},
+      ),
+    );
+
+    final data = response.data;
+    if (data == null) {
+      throw Exception('Failed to like dynamic');
+    }
+
+    final code = data['code'] as int?;
+    if (code == 0) {
+      return true;
+    }
+
+    final message = data['message'] as String? ?? 'Unknown error';
+    throw Exception('Failed to like: $message (code: $code)');
+  }
 }
 
 /// Exception thrown when not logged in

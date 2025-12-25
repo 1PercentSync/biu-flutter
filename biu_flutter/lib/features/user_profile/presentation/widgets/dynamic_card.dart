@@ -8,13 +8,14 @@ import '../../../../shared/theme/theme.dart';
 import '../../../../shared/utils/global_snackbar.dart';
 import '../../../../shared/widgets/cached_image.dart';
 import '../../../player/player.dart';
+import '../../data/datasources/user_profile_remote_datasource.dart';
 import '../../data/models/dynamic_item.dart';
 
 const _uuid = Uuid();
 
 /// Card widget for displaying a dynamic item.
 /// Source: biu/src/pages/user-profile/dynamic-list/item.tsx
-class DynamicCard extends ConsumerWidget {
+class DynamicCard extends ConsumerStatefulWidget {
   const DynamicCard({
     required this.item,
     super.key,
@@ -23,10 +24,28 @@ class DynamicCard extends ConsumerWidget {
   final DynamicItem item;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DynamicCard> createState() => _DynamicCardState();
+}
+
+class _DynamicCardState extends ConsumerState<DynamicCard> {
+  late bool _isLiked;
+  late int _likeCount;
+  bool _isLiking = false;
+
+  DynamicItem get item => widget.item;
+
+  @override
+  void initState() {
+    super.initState();
+    final stat = item.modules.moduleStat;
+    _isLiked = stat?.like?.status ?? false;
+    _likeCount = stat?.like?.count ?? 0;
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final author = item.modules.moduleAuthor;
     final dynamic = item.modules.moduleDynamic;
-    final stat = item.modules.moduleStat;
     final archive = dynamic.major?.videoInfo;
     final opus = dynamic.major?.opus;
 
@@ -79,7 +98,7 @@ class DynamicCard extends ConsumerWidget {
                 ],
                 // Video content
                 if (archive != null)
-                  _buildVideoContent(context, ref, archive),
+                  _buildVideoContent(context, archive),
                 // Image content (from opus or draw)
                 if (archive == null && opus != null && opus.pics.isNotEmpty)
                   _buildImageGrid(context, opus.pics),
@@ -92,17 +111,16 @@ class DynamicCard extends ConsumerWidget {
           ),
           // Footer: Action buttons
           const Divider(height: 1, color: AppColors.divider),
-          _buildActionFooter(context, ref, archive, stat),
+          _buildActionFooter(context, archive),
         ],
       ),
     );
   }
 
   /// Build video content section.
-  Widget _buildVideoContent(
-      BuildContext context, WidgetRef ref, MajorArchive archive) {
+  Widget _buildVideoContent(BuildContext context, MajorArchive archive) {
     return InkWell(
-      onTap: () => _playVideo(ref, archive),
+      onTap: () => _playVideo(archive),
       borderRadius: BorderRadius.circular(AppTheme.borderRadius),
       child: DecoratedBox(
         decoration: BoxDecoration(
@@ -306,10 +324,7 @@ class DynamicCard extends ConsumerWidget {
 
   /// Build footer with action buttons.
   /// Source: biu/src/components/dynamic-feed/item.tsx
-  Widget _buildActionFooter(
-      BuildContext context, WidgetRef ref, MajorArchive? archive, ModuleStat? stat) {
-    final likeCount = stat?.like?.count ?? 0;
-
+  Widget _buildActionFooter(BuildContext context, MajorArchive? archive) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       child: Row(
@@ -326,28 +341,63 @@ class DynamicCard extends ConsumerWidget {
             ),
           const Spacer(),
           // Like button with count
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(
-                Icons.thumb_up_outlined,
-                size: 18,
-                color: AppColors.textSecondary,
+          InkWell(
+            onTap: _isLiking ? null : _toggleLike,
+            borderRadius: BorderRadius.circular(4),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    _isLiked ? Icons.thumb_up : Icons.thumb_up_outlined,
+                    size: 18,
+                    color: _isLiked ? AppColors.primary : AppColors.textSecondary,
+                  ),
+                  if (_likeCount > 0) ...[
+                    const SizedBox(width: 4),
+                    Text(
+                      _formatNumber(_likeCount),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: _isLiked
+                                ? AppColors.primary
+                                : AppColors.textSecondary,
+                          ),
+                    ),
+                  ],
+                ],
               ),
-              if (likeCount > 0) ...[
-                const SizedBox(width: 4),
-                Text(
-                  _formatNumber(likeCount),
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                ),
-              ],
-            ],
+            ),
           ),
         ],
       ),
     );
+  }
+
+  /// Toggle like state for this dynamic.
+  Future<void> _toggleLike() async {
+    if (_isLiking) return;
+
+    setState(() => _isLiking = true);
+
+    try {
+      final dataSource = UserProfileRemoteDataSource();
+      final newLikeState = !_isLiked;
+      await dataSource.likeDynamic(
+        dynIdStr: item.idStr,
+        like: newLikeState,
+      );
+
+      setState(() {
+        _isLiked = newLikeState;
+        _likeCount += newLikeState ? 1 : -1;
+        if (_likeCount < 0) _likeCount = 0;
+      });
+    } catch (e) {
+      GlobalSnackbar.showError('点赞失败');
+    } finally {
+      setState(() => _isLiking = false);
+    }
   }
 
   /// Format number for display.
@@ -393,7 +443,7 @@ class DynamicCard extends ConsumerWidget {
   }
 
   /// Play video from archive.
-  void _playVideo(WidgetRef ref, MajorArchive archive) {
+  void _playVideo(MajorArchive archive) {
     final playItem = PlayItem(
       id: _uuid.v4(),
       title: archive.title,

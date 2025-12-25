@@ -41,11 +41,18 @@
 | **Low** | 31 | 代码质量、风格或次要问题 |
 | **总计** | **38** | |
 
+### 处理状态统计
+
+| 状态 | 数量 | 说明 |
+|------|------|------|
+| ✅ 直接修复 | 32 | 明确bug、死代码、风格问题 |
+| ❌ 不需要解决 | 6 | 合理设计决策、符合源项目行为 |
+
 ---
 
 ## CRITICAL 问题 (1个)
 
-### 1. artist_rank: uid类型不匹配导致编译错误
+### 1. artist_rank: uid类型不匹配导致编译错误 ✅ 直接修复
 
 **模块**: artist_rank
 **文件**: `biu_flutter/lib/features/artist_rank/presentation/screens/artist_rank_screen.dart:112`
@@ -84,7 +91,7 @@ context.push(AppRoutes.userSpacePath(int.parse(musician.uid)));
 
 ## Medium 问题 (6个)
 
-### 2. later: 缺少WBI签名
+### 2. later: 缺少WBI签名 ✅ 直接修复
 
 **模块**: later
 **文件**: `biu_flutter/lib/features/later/data/datasources/later_remote_datasource.dart`
@@ -122,7 +129,7 @@ final response = await _dio.get<Map<String, dynamic>>(
 
 ---
 
-### 3. favorites: 隐藏收藏夹过滤未实现
+### 3. favorites: 隐藏收藏夹过滤未实现 ✅ 直接修复
 
 **模块**: favorites
 **文件**: `biu_flutter/lib/features/favorites/presentation/screens/favorites_screen.dart`
@@ -152,7 +159,7 @@ final visibleFolders = state.createdFolders
 
 ---
 
-### 4. shared/playbar: 音量滑条在Popup内状态不更新
+### 4. shared/playbar: 音量滑条在Popup内状态不更新 ✅ 直接修复
 
 **模块**: shared/playbar
 **文件**: `biu_flutter/lib/shared/widgets/playbar/full_player_screen.dart:492-545`
@@ -191,7 +198,7 @@ Consumer(
 
 ---
 
-### 5. player: AudioPlayerService在某些代码路径中未释放
+### 5. player: AudioPlayerService在某些代码路径中未释放 ✅ 直接修复
 
 **模块**: player
 **文件**: `biu_flutter/lib/features/player/presentation/providers/playlist_notifier.dart:80-86`
@@ -216,7 +223,9 @@ Future<void> initialize() async {
 
 ---
 
-### 6. settings: 跨功能依赖
+### 6. settings: 跨功能依赖 ❌ 不需要解决
+
+> **决定**: 保持现状。settings是聚合页面，在表示层聚合多功能信息是Clean Architecture可接受的做法。项目中home、user_profile等模块已有相同模式。
 
 **模块**: settings
 **文件**: `biu_flutter/lib/features/settings/presentation/screens/settings_screen.dart:10-12`
@@ -242,7 +251,7 @@ import '../../../favorites/presentation/providers/favorites_notifier.dart';
 
 ---
 
-### 7. core/utils: 未使用的工具类
+### 7. core/utils: 未使用的工具类 ✅ 直接修复（删除死代码）
 
 **模块**: core/utils
 **文件**: `biu_flutter/lib/core/utils/color_utils.dart`, `biu_flutter/lib/core/utils/debouncer.dart`
@@ -263,104 +272,104 @@ import '../../../favorites/presentation/providers/favorites_notifier.dart';
 
 ### auth 模块 (2个)
 
-| # | 问题 | 文件 | 说明 |
-|---|------|------|------|
-| 8 | 硬编码的国家列表降级 | `sms_login_widget.dart:254-282` | 当国家列表API失败时，只有3个国家被硬编码（中国、香港、台湾） |
-| 9 | 平台特定的Geetest限制 | `geetest_dialog.dart:35-72` | Windows/Linux用户无法使用密码/短信登录（WebView所需） |
+| # | 问题 | 文件 | 说明 | 状态 |
+|---|------|------|------|------|
+| 8 | 硬编码的国家列表降级 | `sms_login_widget.dart:254-282` | 当国家列表API失败时，只有3个国家被硬编码（中国、香港、台湾） | ✅ 直接修复（源项目无fallback只有默认"86"，应对齐移除3国fallback） |
+| 9 | 平台特定的Geetest限制 | `geetest_dialog.dart:35-72` | Windows/Linux用户无法使用密码/短信登录（WebView所需） | ✅ 验证UI（移动端不受影响，需确保桌面端UI正确标识不可用） |
 
 ### player 模块 (2个)
 
-| # | 问题 | 文件 | 说明 |
-|---|------|------|------|
-| 10 | URL刷新的潜在竞态条件 | `playlist_notifier.dart:624-688` | URL可能在验证和实际播放之间过期 |
-| 11 | 音频质量选择缺少错误处理 | `audio_service_init.dart:63-100` | 用户不知道为什么没有获得无损音频 |
+| # | 问题 | 文件 | 说明 | 状态 |
+|---|------|------|------|------|
+| 10 | URL刷新的潜在竞态条件 | `playlist_notifier.dart:624-688` | URL可能在验证和实际播放之间过期 | ✅ 直接修复 |
+| 11 | 音频质量选择缺少错误处理 | `audio_service_init.dart:63-100` | 用户不知道为什么没有获得无损音频 | ❌ 不需要解决（源项目静默降级，不通知用户；符合源项目行为） |
 
 ### favorites 模块 (2个)
 
-| # | 问题 | 文件 | 说明 |
-|---|------|------|------|
-| 12 | 某些API调用缺少`platform`参数 | `favorites_remote_datasource.dart` | `collectFolder`和`uncollectFolder`方法没有包含`platform: 'web'`参数 |
-| 13 | 重复的`_showCreateFolderDialog`方法 | `favorites_screen.dart` | 方法在`FavoritesScreen`和`_CreatedFoldersTab`中重复定义 |
+| # | 问题 | 文件 | 说明 | 状态 |
+|---|------|------|------|------|
+| 12 | 某些API调用缺少`platform`参数 | `favorites_remote_datasource.dart` | `collectFolder`和`uncollectFolder`方法没有包含`platform: 'web'`参数 | ✅ 直接修复 |
+| 13 | 重复的`_showCreateFolderDialog`方法 | `favorites_screen.dart` | 方法在`FavoritesScreen`和`_CreatedFoldersTab`中重复定义 | ✅ 直接修复 |
 
 ### search 模块 (5个)
 
-| # | 问题 | 文件 | 说明 |
-|---|------|------|------|
-| 14 | SearchNotifier定义在screen文件中 | `search_screen.dart:31-212` | 应提取到单独的provider文件 |
-| 15 | 缺少Domain层Repository接口 | `domain/` | 表示层直接依赖DataSource |
-| 16 | 错误恢复UI不友好 | `search_screen.dart:411-425` | 显示原始异常字符串 |
-| 17 | 未使用的SearchAllResult | `search_result.dart:238-293` | 死代码 |
-| 18 | Tab切换时缺少加载状态 | `search_screen.dart:112-126` | 短暂的空状态闪烁 |
+| # | 问题 | 文件 | 说明 | 状态 |
+|---|------|------|------|------|
+| 14 | SearchNotifier定义在screen文件中 | `search_screen.dart:31-212` | 应提取到单独的provider文件 | ❌ 不需要解决（源项目直接在页面使用usePagination hook，无单独notifier文件） |
+| 15 | 缺少Domain层Repository接口 | `domain/` | 表示层直接依赖DataSource | ❌ 不需要解决（源项目无repository层，直接调用service；符合源项目） |
+| 16 | 错误恢复UI不友好 | `search_screen.dart:411-425` | 显示原始异常字符串 | ✅ 直接修复 |
+| 17 | 未使用的SearchAllResult | `search_result.dart:238-293` | 死代码 | ✅ 直接修复（删除） |
+| 18 | Tab切换时缺少加载状态 | `search_screen.dart:112-126` | 短暂的空状态闪烁 | ✅ 直接修复 |
 
 ### home 模块 (3个)
 
-| # | 问题 | 文件 | 说明 |
-|---|------|------|------|
-| 19 | 架构耦合问题 | `home_screen.dart` | 跨功能依赖music_rank模块 |
-| 20 | 硬编码字符串 | `home_screen.dart` | UI字符串硬编码 |
-| 21 | 缺少刷新指示器反馈 | `home_screen.dart` | 下拉刷新时没有视觉反馈 |
+| # | 问题 | 文件 | 说明 | 状态 |
+|---|------|------|------|------|
+| 19 | 架构耦合问题 | `home_screen.dart` | 跨功能依赖music_rank模块 | ❌ 不需要解决（聚合页面合理设计） |
+| 20 | 硬编码字符串 | `home_screen.dart` | UI字符串硬编码 | ✅ 直接修复（当前为英文，源项目为中文，应对齐改为中文） |
+| 21 | 缺少刷新指示器反馈 | `home_screen.dart` | 下拉刷新时没有视觉反馈 | ✅ 直接修复 |
 
 ### artist_rank 模块 (1个)
 
-| # | 问题 | 文件 | 说明 |
-|---|------|------|------|
-| 22 | 硬编码UI字符串 | `artist_rank_screen.dart` | 考虑提取为常量以支持i18n |
+| # | 问题 | 文件 | 说明 | 状态 |
+|---|------|------|------|------|
+| 22 | 硬编码UI字符串 | `artist_rank_screen.dart` | 考虑提取为常量以支持i18n | ✅ 直接修复（当前为英文，源项目为中文，应对齐改为中文） |
 
 ### history 模块 (1个)
 
-| # | 问题 | 文件 | 说明 |
-|---|------|------|------|
-| 23 | 代码风格 - 函数调用中的空行 | `history_notifier.dart:35-37, 104-106` | 违反Dart风格指南 |
+| # | 问题 | 文件 | 说明 | 状态 |
+|---|------|------|------|------|
+| 23 | 代码风格 - 函数调用中的空行 | `history_notifier.dart:35-37, 104-106` | 违反Dart风格指南 | ✅ 直接修复 |
 
 ### later 模块 (1个)
 
-| # | 问题 | 文件 | 说明 |
-|---|------|------|------|
-| 24 | 代码风格 - 函数调用中的空行 | `later_notifier.dart:37-39, 112-114` | 违反Dart风格指南 |
+| # | 问题 | 文件 | 说明 | 状态 |
+|---|------|------|------|------|
+| 24 | 代码风格 - 函数调用中的空行 | `later_notifier.dart:37-39, 112-114` | 违反Dart风格指南 | ✅ 直接修复 |
 
 ### user_profile 模块 (3个)
 
-| # | 问题 | 文件 | 说明 |
-|---|------|------|------|
-| 25 | 视频合集导航使用硬编码路由 | `video_series_tab.dart:198` | 使用硬编码字符串而非常量 |
-| 26 | UserProfileNotifier依赖其他功能 | `user_profile_notifier.dart:4-5` | 跨功能导入 |
-| 27 | 缺少user_favorites_tab的barrel导出 | `user_profile.dart` | 外部使用时需要导出 |
+| # | 问题 | 文件 | 说明 | 状态 |
+|---|------|------|------|------|
+| 25 | 视频合集导航使用硬编码路由 | `video_series_tab.dart:198` | 使用硬编码字符串而非常量 | ✅ 直接修复 |
+| 26 | UserProfileNotifier依赖其他功能 | `user_profile_notifier.dart:4-5` | 跨功能导入 | ❌ 不需要解决（聚合页面合理设计） |
+| 27 | 缺少user_favorites_tab的barrel导出 | `user_profile.dart` | 外部使用时需要导出 | ✅ 直接修复 |
 
 ### settings 模块 (1个)
 
-| # | 问题 | 文件 | 说明 |
-|---|------|------|------|
-| 28 | 硬编码版本字符串 | `settings_screen.dart:178`, `about_screen.dart:11` | 应从package_info_plus读取 |
+| # | 问题 | 文件 | 说明 | 状态 |
+|---|------|------|------|------|
+| 28 | 硬编码版本字符串 | `settings_screen.dart:178`, `about_screen.dart:11` | 应从package_info_plus读取 | ✅ 直接修复 |
 
 ### shared/playbar 模块 (3个)
 
-| # | 问题 | 文件 | 说明 |
-|---|------|------|------|
-| 29 | Notifier参数使用dynamic类型 | `full_player_screen.dart:474` | 失去类型安全 |
-| 30 | 静音按钮过早关闭Popup | `full_player_screen.dart:527-530` | UX不一致 |
-| 31 | 跨层依赖未完全文档化 | `full_player_screen.dart:6` | NOTE注释只提到player依赖，未提到favorites |
+| # | 问题 | 文件 | 说明 | 状态 |
+|---|------|------|------|------|
+| 29 | Notifier参数使用dynamic类型 | `full_player_screen.dart:474` | 失去类型安全 | ✅ 直接修复 |
+| 30 | 静音按钮过早关闭Popup | `full_player_screen.dart:527-530` | UX不一致 | ✅ 直接修复 |
+| 31 | 跨层依赖未完全文档化 | `full_player_screen.dart:6` | NOTE注释只提到player依赖，未提到favorites | ✅ 直接修复 |
 
 ### core/network 模块 (3个)
 
-| # | 问题 | 文件 | 说明 |
-|---|------|------|------|
-| 32 | getCookie中Cookie域不一致 | `dio_client.dart:134` | 使用`https://bilibili.com`而setCookie使用`.bilibili.com` |
-| 33 | GaiaVgateInterceptor中的平台检查顺序 | `gaia_vgate_interceptor.dart:69-73` | 注释可以更清楚 |
-| 34 | WBI密钥提取中潜在的空访问 | `wbi_sign.dart:77` | 如果orig为空可能返回空字符串 |
+| # | 问题 | 文件 | 说明 | 状态 |
+|---|------|------|------|------|
+| 32 | getCookie中Cookie域不一致 | `dio_client.dart:134` | 使用`https://bilibili.com`而setCookie使用`.bilibili.com` | ✅ 直接修复 |
+| 33 | GaiaVgateInterceptor中的平台检查顺序 | `gaia_vgate_interceptor.dart:69-73` | 注释可以更清楚 | ✅ 直接修复 |
+| 34 | WBI密钥提取中潜在的空访问 | `wbi_sign.dart:77` | 如果orig为空可能返回空字符串 | ✅ 直接修复 |
 
 ### core/utils 模块 (2个)
 
-| # | 问题 | 文件 | 说明 |
-|---|------|------|------|
-| 35 | 缺少VideoQuality/VideoFnval常量 | 缺失 | 当前使用魔术数字 |
-| 36 | 缺少VipType常量 | 缺失 | VIP相关功能可能需要 |
+| # | 问题 | 文件 | 说明 | 状态 |
+|---|------|------|------|------|
+| 35 | 缺少VideoQuality/VideoFnval常量 | 缺失 | 当前使用魔术数字 | ✅ 直接修复（VideoFnval只有2个常量，源项目有9个，需补全；VideoQuality暂无使用场景可不添加） |
+| 36 | 缺少VipType常量 | 缺失 | VIP相关功能可能需要 | ✅ 直接修复（有使用场景vipType>=2，添加枚举提高可读性） |
 
 ### video/audio 模块 (2个)
 
-| # | 问题 | 文件 | 说明 |
-|---|------|------|------|
-| 37 | AudioQuality参数文档不匹配 | `audio_remote_datasource.dart:16-17` | 注释与常量定义不一致 |
-| 38 | getAudioInfo返回原始Map | `audio_remote_datasource.dart:54-68` | 应使用类型化模型 |
+| # | 问题 | 文件 | 说明 | 状态 |
+|---|------|------|------|------|
+| 37 | AudioQuality参数文档不匹配 | `audio_remote_datasource.dart:16-17` | 注释与常量定义不一致 | ✅ 直接修复 |
+| 38 | getAudioInfo返回原始Map | `audio_remote_datasource.dart:54-68` | 应使用类型化模型 | ✅ 直接修复（源项目返回类型化对象；应对齐） |
 
 ---
 
@@ -368,38 +377,69 @@ import '../../../favorites/presentation/providers/favorites_notifier.dart';
 
 ### 立即修复 (CRITICAL)
 
-1. **artist_rank uid类型错误** - 修改 `Musician.uid` 为 `int` 类型
+1. **#1 artist_rank uid类型错误** - 修改 `Musician.uid` 为 `int` 类型
 
-### 高优先级 (Medium)
+### 高优先级 (Medium - Bug)
 
-2. **later WBI签名** - 添加 `Options(extra: {'useWbi': true})`
-3. **favorites 隐藏过滤** - 实现收藏夹隐藏过滤逻辑
-4. **shared/playbar 音量滑条** - 修复popup内状态更新问题
+2. **#2 later WBI签名** - 添加 `Options(extra: {'useWbi': true})`
+3. **#3 favorites 隐藏过滤** - 实现收藏夹隐藏过滤逻辑
+4. **#4 shared/playbar 音量滑条** - 修复popup内状态更新问题
+5. **#5 player资源释放** - 添加初始化异常时的清理逻辑
+6. **#7 死代码清理** - 删除未使用的ColorUtils和Throttler
 
-### 中优先级 (Low - 影响UX)
+### 中优先级 (Low - UX/Bug)
 
-5. 修复search模块的错误显示，使用友好的错误消息
-6. 修复home/artist_rank的硬编码字符串，支持i18n
-7. 修复settings硬编码版本，从package info读取
+7. **#8 国家列表** - 移除3国fallback，只用默认"86"对齐源项目
+8. **#9 Geetest UI** - 验证桌面端UI正确标识不可用
+9. **#10 URL竞态** - 添加URL有效性检查
+10. **#12 platform参数** - 添加缺失的API参数
+11. **#16 错误显示** - 使用友好的错误消息
+12. **#17 死代码** - 删除SearchAllResult
+13. **#18 Tab加载** - 添加loading状态
+14. **#20 home中文** - 将英文字符串改为中文
+15. **#21 刷新反馈** - 添加刷新指示器
+16. **#22 artist_rank中文** - 将英文字符串改为中文
+17. **#28 版本字符串** - 从package_info读取
+18. **#30 静音按钮** - 修复Popup行为
+19. **#32 Cookie域** - 保持一致
+20. **#34 WBI空访问** - 添加防御性检查
+21. **#35 VideoFnval补全** - 补全缺失的7个常量
+22. **#36 VipType枚举** - 添加枚举提高可读性
+23. **#38 audio类型化** - 返回类型化对象
 
-### 低优先级 (Low - 代码质量)
+### 低优先级 (代码质量)
 
-8. 清理history/later中的空行代码风格问题
-9. 移除未使用的ColorUtils和Throttler类
-10. 添加缺失的barrel导出文件
-11. 为跨功能依赖添加文档说明
+24. **#13 重复方法** - 消除代码重复
+25. **#23/#24 空行风格** - 删除函数调用中的空行
+26. **#25 硬编码路由** - 改用AppRoutes常量
+27. **#27 barrel导出** - 添加缺失的导出
+28. **#29 dynamic类型** - 添加类型注解
+29. **#31/#33 文档注释** - 补充说明
+30. **#37 文档不匹配** - 修正AudioQuality注释
+
+### 不需要解决 (❌) - 6个
+
+| # | 问题 | 理由 |
+|---|------|------|
+| 6 | settings跨功能依赖 | 聚合页面合理设计 |
+| 11 | 音频质量通知 | 源项目静默降级，符合源项目 |
+| 14 | SearchNotifier位置 | 源项目无单独notifier文件 |
+| 15 | Repository接口 | 源项目无repository层 |
+| 19 | home跨功能依赖 | 聚合页面合理设计 |
+| 26 | user_profile跨功能依赖 | 聚合页面合理设计 |
 
 ---
 
 ## 总结
 
-本次审计覆盖了项目的全部17个模块，发现：
+本次审计覆盖了项目的全部17个模块，发现38个问题：
 
-- **1个CRITICAL问题** - artist_rank的uid类型错误导致编译失败
-- **6个Medium问题** - 主要涉及API签名、状态管理和模块耦合
-- **31个Low问题** - 主要是代码风格、硬编码值和次要改进
+| 分类 | 数量 | 说明 |
+|------|------|------|
+| ✅ 直接修复 | 32 | 明确bug、死代码、风格问题 |
+| ❌ 不需要解决 | 6 | 合理设计决策、符合源项目行为 |
 
-**整体评估**: 项目架构良好，遵循Clean Architecture原则。大部分问题是次要的代码质量问题。最紧急的是修复artist_rank的类型错误以恢复编译。
+**整体评估**: 项目架构良好，遵循Clean Architecture原则。大部分问题是可直接修复的代码质量问题。最紧急的是修复#1 artist_rank的类型错误以恢复编译。
 
 ---
 

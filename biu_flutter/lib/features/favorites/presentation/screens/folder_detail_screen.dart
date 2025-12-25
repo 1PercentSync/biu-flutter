@@ -493,7 +493,7 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
               isPublic: isPublic,
             );
             // Refresh folder detail
-            ref.read(folderDetailProvider(widget.folderId).notifier).refresh();
+            await ref.read(folderDetailProvider(widget.folderId).notifier).refresh();
             if (dialogContext.mounted) {
               Navigator.of(dialogContext).pop();
               GlobalSnackbar.showSuccess('收藏夹更新成功');

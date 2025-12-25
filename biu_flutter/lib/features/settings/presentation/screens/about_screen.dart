@@ -124,35 +124,6 @@ class AboutScreen extends StatelessWidget {
             );
           },
         ),
-        _buildLinkTile(
-          context,
-          icon: Icons.privacy_tip_outlined,
-          title: 'Privacy Policy',
-          onTap: () {
-            _showInfoDialog(
-              context,
-              title: 'Privacy Policy',
-              content:
-                  'This app does not collect any personal data. '
-                  'All data is stored locally on your device. '
-                  'Login credentials are used only to authenticate with Bilibili services.',
-            );
-          },
-        ),
-        _buildLinkTile(
-          context,
-          icon: Icons.info_outline,
-          title: 'Terms of Service',
-          onTap: () {
-            _showInfoDialog(
-              context,
-              title: 'Terms of Service',
-              content:
-                  'This app is for personal use only. '
-                  "Please respect content creators and Bilibili's terms of service.",
-            );
-          },
-        ),
       ],
     );
   }
@@ -232,23 +203,4 @@ class AboutScreen extends StatelessWidget {
     );
   }
 
-  void _showInfoDialog(
-    BuildContext context, {
-    required String title,
-    required String content,
-  }) {
-    showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(title),
-        content: Text(content),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
-  }
 }

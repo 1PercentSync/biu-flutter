@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/audio.dart';
+import '../../../../core/router/routes.dart';
 import '../../../../shared/theme/theme.dart';
 import '../../../../shared/widgets/empty_state.dart';
 import '../../../../shared/widgets/loading_state.dart';
@@ -645,11 +646,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
     }
   }
 
+  /// Navigate to user profile screen.
+  /// Source: biu/src/pages/search/user-list.tsx:25
   void _openUserProfile(SearchUserItem user) {
-    // TODO: Navigate to user profile screen when implemented
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('User: ${user.uname}')),
-    );
+    context.push(AppRoutes.userSpacePath(user.mid));
   }
 
   /// Build search suggestions showing only search history.

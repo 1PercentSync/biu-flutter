@@ -333,13 +333,13 @@ class _VideoSeriesListTile extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(AppTheme.borderRadius),
         child: Padding(
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.all(12),
           child: Row(
             children: [
               // Square thumbnail
               SizedBox(
-                width: 48,
-                height: 48,
+                width: 64,
+                height: 64,
                 child: ClipRRect(
                   borderRadius:
                       BorderRadius.circular(AppTheme.borderRadiusSmall),
@@ -366,20 +366,26 @@ class _VideoSeriesListTile extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
-                    // Video count
-                    Text(
-                      '${item.total}个视频',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
+                    // Video count and date (like source)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '${item.total}个视频',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
+                        ),
+                        Text(
+                          item.ctime.toDateString(),
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ),
-              // Arrow indicator
-              const Icon(
-                Icons.chevron_right,
-                color: AppColors.textTertiary,
               ),
             ],
           ),

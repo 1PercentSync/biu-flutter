@@ -3,13 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/audio.dart';
 import '../../../core/extensions/duration_extensions.dart';
-import '../../../features/favorites/presentation/widgets/folder_select_sheet.dart';
 import '../../../features/player/domain/entities/play_item.dart';
 import '../../../features/player/presentation/providers/playlist_notifier.dart';
 import '../../../features/player/presentation/providers/playlist_state.dart';
 import '../../theme/theme.dart';
 import '../audio_visualizer.dart';
 import '../cached_image.dart';
+import '../folder_select_sheet.dart';
 
 /// Full-screen player widget.
 ///

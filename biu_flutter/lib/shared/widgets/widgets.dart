@@ -8,6 +8,7 @@ export 'async_value_widget.dart';
 export 'cached_image.dart';
 export 'empty_state.dart';
 export 'error_state.dart';
+export 'folder_select_sheet.dart';
 export 'highlighted_text.dart';
 export 'loading_state.dart';
 export 'playbar/playbar.dart';

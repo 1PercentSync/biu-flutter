@@ -13,4 +13,3 @@ export 'presentation/providers/favorites_state.dart';
 export 'presentation/screens/favorites_screen.dart';
 export 'presentation/screens/folder_detail_screen.dart';
 export 'presentation/widgets/folder_edit_dialog.dart';
-export 'presentation/widgets/folder_select_sheet.dart';

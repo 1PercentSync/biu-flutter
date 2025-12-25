@@ -83,40 +83,21 @@ class VideoPostCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
-                  // Stats row
+                  // Stats row - shows date and duration like source
+                  // Source: biu/src/pages/user-profile/video-post.tsx:71-76
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // Play count
-                      const Icon(
-                        Icons.play_arrow,
-                        size: 14,
-                        color: AppColors.textSecondary,
-                      ),
-                      const SizedBox(width: 2),
-                      Text(
-                        _formatNumber(video.play),
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
-                      ),
-                      const SizedBox(width: 12),
-                      // Comment count
-                      const Icon(
-                        Icons.comment,
-                        size: 14,
-                        color: AppColors.textSecondary,
-                      ),
-                      const SizedBox(width: 2),
-                      Text(
-                        _formatNumber(video.comment),
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
-                      ),
-                      const Spacer(),
                       // Date
                       Text(
                         _formatDate(video.createdDate),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                      ),
+                      // Duration
+                      Text(
+                        video.length,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               color: AppColors.textSecondary,
                             ),
@@ -130,15 +111,6 @@ class VideoPostCard extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  String _formatNumber(int num) {
-    if (num >= 100000000) {
-      return '${(num / 100000000).toStringAsFixed(1)}B';
-    } else if (num >= 10000) {
-      return '${(num / 10000).toStringAsFixed(1)}W';
-    }
-    return num.toString();
   }
 
   String _formatDate(DateTime date) {

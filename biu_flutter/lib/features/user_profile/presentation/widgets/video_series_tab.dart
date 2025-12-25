@@ -165,9 +165,11 @@ class _VideoSeriesTabState extends State<VideoSeriesTab> {
       child: GridView.builder(
         controller: _scrollController,
         padding: const EdgeInsets.all(12),
-        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: 200,
-          childAspectRatio: 0.8,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          // Cover 16:9 (~112px) + info (~60px) = ~172px for 200px width
+          // Aspect ratio = 200/172 ≈ 1.16
+          childAspectRatio: 1.1,
           crossAxisSpacing: 12,
           mainAxisSpacing: 12,
         ),
@@ -201,6 +203,7 @@ class _VideoSeriesTabState extends State<VideoSeriesTab> {
 }
 
 /// Card widget for displaying a video series item.
+/// Source: biu/src/pages/user-profile/video-series.tsx:104-116
 class _VideoSeriesCard extends StatelessWidget {
   const _VideoSeriesCard({
     required this.item,
@@ -218,6 +221,7 @@ class _VideoSeriesCard extends StatelessWidget {
         onTap: onTap,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
             // Cover image
             AspectRatio(
@@ -228,42 +232,41 @@ class _VideoSeriesCard extends StatelessWidget {
               ),
             ),
             // Series info
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Title
-                    Text(
-                      item.name,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.w500,
-                          ),
-                    ),
-                    const Spacer(),
-                    // Footer: date and count
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          item.ctime.toDateString(),
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: AppColors.textSecondary,
-                              ),
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Title
+                  Text(
+                    item.name,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w500,
                         ),
-                        Text(
-                          '${item.total} videos',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: AppColors.textSecondary,
-                              ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 4),
+                  // Footer: date and count
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        item.ctime.toDateString(),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                      ),
+                      Text(
+                        '${item.total}个视频',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ],

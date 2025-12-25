@@ -137,11 +137,11 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
         child: CustomScrollView(
           controller: _scrollController,
           slivers: [
-            // App bar
-            SliverAppBar(
+            // App bar - no title shown, only back button
+            // Source: biu/src/pages/user-profile/index.tsx has no AppBar title
+            const SliverAppBar(
               floating: true,
               snap: true,
-              title: Text(state.spaceInfo?.name ?? '用户'),
             ),
             // Header
             if (state.spaceInfo != null)
@@ -340,9 +340,11 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
 
     return GridView.builder(
       padding: const EdgeInsets.all(12),
-      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-        maxCrossAxisExtent: 300,
-        childAspectRatio: 0.75,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        // Aspect ratio calculated: cover 16:9 + ~80px info section
+        // For ~188px width: 188 / (105.75 + 80) ≈ 1.0
+        childAspectRatio: 0.95,
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
       ),

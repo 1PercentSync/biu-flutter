@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/artist_rank/artist_rank.dart';
 import '../../features/auth/auth.dart';
+import '../../features/collection/presentation/screens/video_series_detail_screen.dart';
 import '../../features/favorites/favorites.dart';
 import '../../features/follow/follow.dart';
 import '../../features/history/history.dart';
@@ -180,7 +181,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           },
         ),
       ),
-      // Collection route (video series, etc.)
+      // Collection route (video series, favorites, etc.)
+      // Source: biu/src/pages/video-collection/index.tsx
       GoRoute(
         path: AppRoutes.collection,
         name: 'collection',
@@ -192,24 +194,22 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               body: Center(child: Text('无效的合集ID')),
             );
           }
-          // TODO: Implement CollectionScreen for video_series and other types
-          return Scaffold(
-            appBar: AppBar(
-              title: Text(type == 'video_series' ? '视频合集' : '合集'),
-            ),
-            body: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.construction, size: 64, color: Colors.grey),
-                  const SizedBox(height: 16),
-                  Text('合集功能开发中', style: Theme.of(context).textTheme.titleMedium),
-                  const SizedBox(height: 8),
-                  Text('ID: $id, 类型: $type', style: const TextStyle(color: Colors.grey)),
-                ],
-              ),
-            ),
-          );
+          // Route to appropriate screen based on collection type
+          switch (type) {
+            case 'video_series':
+              return VideoSeriesDetailScreen(seasonId: id);
+            case 'favorite':
+              // Favorite collections use the existing folder detail screen
+              return FolderDetailScreen(folderId: id);
+            default:
+              // Fallback for unknown types
+              return Scaffold(
+                appBar: AppBar(title: const Text('合集')),
+                body: Center(
+                  child: Text('不支持的合集类型: $type'),
+                ),
+              );
+          }
         },
       ),
     ],

@@ -308,24 +308,29 @@ class UserProfileRemoteDataSource {
   /// [like] - true to like, false to unlike
   ///
   /// API params (from source):
-  /// - dyn_id_str: Dynamic ID string
-  /// - up: 1 for like, 2 for unlike
-  /// - csrf: CSRF token (handled by AuthInterceptor)
+  /// - dyn_id_str: Dynamic ID string (body)
+  /// - up: 1 for like, 2 for unlike (body)
+  /// - csrf: CSRF token (query param, NOT body - different from other APIs!)
   ///
   /// Source: biu/src/service/web-dynamic-feed-thumb.ts#postDynamicFeedThumb
   Future<bool> likeDynamic({
     required String dynIdStr,
     required bool like,
   }) async {
+    // Get CSRF token for query param (source project puts csrf in params, not body)
+    final csrfToken = await DioClient.instance.getCookie('bili_jct');
+
     final response = await _dio.post<Map<String, dynamic>>(
       '/x/dynamic/feed/dyn/thumb',
       data: {
         'dyn_id_str': dynIdStr,
         'up': like ? 1 : 2, // 1: like, 2: unlike
       },
+      queryParameters: {
+        if (csrfToken != null) 'csrf': csrfToken,
+      },
       options: Options(
         contentType: Headers.formUrlEncodedContentType,
-        extra: {'useCSRF': true},
       ),
     );
 

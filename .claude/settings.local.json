@@ -22,7 +22,16 @@
       "Bash(openspec validate:*)",
       "WebFetch(domain:github.com)",
       "Bash(cmd /c:*)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(git -C D:/Github/biu-flutter diff --stat)",
+      "Bash(git -C D:/Github/biu-flutter log:*)",
+      "Bash(git -C D:/Github/biu-flutter add biu_flutter/lib/features/user_profile/presentation/screens/user_profile_screen.dart biu_flutter/lib/features/user_profile/presentation/widgets/video_post_card.dart)",
+      "Bash(git -C D:/Github/biu-flutter commit -m \"$(cat <<''EOF''\nfeat(user-profile): add displayMode support and action menu for videos\n\n- User profile videos tab now respects displayMode setting (card/list)\n- Added MediaActionMenu to VideoPostCard and VideoPostListTile\n- Localized date format strings in VideoPostCard (今天/昨天/天前)\n- Localized number format in VideoPostListTile (万/亿)\n- Added empty state with Chinese text\nEOF\n)\")",
+      "Bash(git -C D:/Github/biu-flutter push:*)",
+      "Bash(git -C D:/Github/biu-flutter add biu_flutter/lib/features/user_profile/presentation/widgets/video_post_card.dart)",
+      "Bash(git -C D:/Github/biu-flutter commit:*)",
+      "Bash(git -C D:/Github/biu-flutter status)",
+      "Bash(git -C D:/Github/biu-flutter add:*)"
     ]
   }
 }

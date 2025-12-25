@@ -35,33 +35,3 @@ class Debouncer {
   /// Check if there's a pending callback
   bool get isPending => _timer?.isActive ?? false;
 }
-
-/// A utility class for throttling function calls.
-///
-/// Ensures a minimum duration between executions, ignoring calls during cooldown.
-/// Used for rate-limiting operations like scroll events or button clicks.
-///
-/// Source: Flutter-only (standard throttle pattern)
-class Throttler {
-  Throttler({this.duration = const Duration(milliseconds: 300)});
-
-  /// The minimum duration between calls
-  final Duration duration;
-
-  DateTime? _lastCall;
-
-  /// Run the callback if enough time has passed since the last call
-  void run(void Function() callback) {
-    final now = DateTime.now();
-    if (_lastCall == null ||
-        now.difference(_lastCall!) >= duration) {
-      _lastCall = now;
-      callback();
-    }
-  }
-
-  /// Reset the throttler, allowing the next call to execute immediately
-  void reset() {
-    _lastCall = null;
-  }
-}

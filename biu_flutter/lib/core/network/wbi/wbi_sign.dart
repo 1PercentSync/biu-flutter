@@ -72,7 +72,11 @@ class WbiSign {
   }
 
   /// Get mixin key by encoding imgKey + subKey
+  /// Returns empty string if input is empty or too short
   String _getMixinKey(String orig) {
+    if (orig.isEmpty) {
+      return '';
+    }
     return _mixinKeyEncTab
         .map((n) => n < orig.length ? orig[n] : '')
         .join()
@@ -81,7 +85,11 @@ class WbiSign {
 
   /// Extract key from URL
   /// URL format: https://i0.hdslb.com/bfs/wbi/xxx.png
-  String _extractKeyFromUrl(String url) {
+  /// Returns empty string if URL format is invalid or empty
+  String _extractKeyFromUrl(String? url) {
+    if (url == null || url.isEmpty) {
+      return '';
+    }
     final lastSlash = url.lastIndexOf('/');
     final lastDot = url.lastIndexOf('.');
     if (lastSlash == -1 || lastDot == -1 || lastDot <= lastSlash) {

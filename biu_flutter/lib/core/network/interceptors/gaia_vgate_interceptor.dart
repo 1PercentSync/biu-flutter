@@ -65,7 +65,11 @@ class GaiaVgateInterceptor extends Interceptor {
       return;
     }
 
-    // Check if WebView is supported (Android/iOS only)
+    // Platform check for WebView support:
+    // 1. First check kIsWeb - web platform doesn't support native WebView
+    // 2. Then check for specific platforms - only Android and iOS support WebView
+    // This order is important because kIsWeb must be checked before Platform.is*
+    // (Platform.is* throws on web), and we need WebView for Geetest captcha.
     if (kIsWeb || (!Platform.isAndroid && !Platform.isIOS)) {
       debugPrint('[GaiaVgate] WebView not supported on this platform');
       handler.next(response);

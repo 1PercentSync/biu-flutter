@@ -1,3 +1,5 @@
+import 'package:biu_flutter/core/constants/vip.dart';
+
 /// User information entity
 class User {
 
@@ -36,6 +38,7 @@ class User {
   final int vipStatus;
 
   /// VIP type: 0-none, 1-monthly, 2-annual+
+  /// See [VipType] for constant values
   final int vipType;
 
   /// VIP due date (milliseconds timestamp)
@@ -63,7 +66,7 @@ class User {
   bool get isVip => vipStatus == 1;
 
   /// Check if user is annual VIP or above
-  bool get isAnnualVip => vipType >= 2;
+  bool get isAnnualVip => vipType >= VipType.yearVip.value;
 
   /// Create a copy with updated fields
   User copyWith({

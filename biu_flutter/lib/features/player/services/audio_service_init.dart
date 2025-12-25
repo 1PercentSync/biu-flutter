@@ -8,15 +8,42 @@ import 'package:biu_flutter/features/video/data/datasources/video_remote_datasou
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Video fnval constants for DASH format
+/// Video fnval constants for requesting video streams
+///
+/// These are bitwise flags used to request specific video formats/qualities.
+/// Multiple flags can be combined using OR (|) operator.
+///
+/// Source: biu/src/common/constants/video.ts
 class VideoFnval {
   VideoFnval._();
 
-  /// All available DASH streams (including FLAC and Dolby)
-  static const int allDash = 4048;
+  /// MP4 format, H.264 encoding only
+  static const int mp4 = 1;
 
-  /// Basic DASH format
+  /// DASH format
   static const int dash = 16;
+
+  /// HDR video, H.265 encoding, requires qn=125, VIP membership
+  static const int hdr = 64;
+
+  /// 4K resolution, requires qn=120 and fourk=1, VIP membership
+  static const int fourK = 128;
+
+  /// Dolby Audio, VIP membership
+  static const int dolbyAudio = 256;
+
+  /// Dolby Vision, VIP membership
+  static const int dolbyVideo = 512;
+
+  /// 8K resolution, requires qn=127, VIP membership
+  static const int eightK = 1024;
+
+  /// AV1 encoding
+  static const int av1 = 2048;
+
+  /// All available DASH streams (including FLAC and Dolby)
+  /// = dash | hdr | fourK | dolbyAudio | dolbyVideo | eightK | av1
+  static const int allDash = 4048;
 }
 
 /// Initializes the audio service and player for background playback.

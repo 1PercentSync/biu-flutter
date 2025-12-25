@@ -131,8 +131,9 @@ class DioClient {
 
   /// Get cookie value by name
   Future<String?> getCookie(String name) async {
+    // Use .bilibili.com for consistency with setCookie method
     final cookies = await _cookieJar.loadForRequest(
-      Uri.parse('https://bilibili.com'),
+      Uri.parse('https://.bilibili.com'),
     );
     for (final cookie in cookies) {
       if (cookie.name == name) {
@@ -155,8 +156,9 @@ class DioClient {
 
   /// Get all cookies as a string
   Future<String> getCookieString() async {
+    // Use .bilibili.com for consistency with setCookie method
     final cookies = await _cookieJar.loadForRequest(
-      Uri.parse('https://bilibili.com'),
+      Uri.parse('https://.bilibili.com'),
     );
     return cookies.map((c) => '${c.name}=${c.value}').join('; ');
   }

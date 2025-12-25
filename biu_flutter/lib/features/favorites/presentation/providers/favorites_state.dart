@@ -68,13 +68,13 @@ class FavoritesListState {
 /// Sort order for folder resources.
 enum FolderSortOrder {
   /// Sort by favorite time (most recent first)
-  mtime('mtime', 'Favorite Time'),
+  mtime('mtime', '收藏时间'),
 
   /// Sort by view count (most viewed first)
-  view('view', 'View Count'),
+  view('view', '播放量'),
 
   /// Sort by publish time (most recent first)
-  pubtime('pubtime', 'Publish Time');
+  pubtime('pubtime', '发布时间');
 
   const FolderSortOrder(this.value, this.label);
   final String value;

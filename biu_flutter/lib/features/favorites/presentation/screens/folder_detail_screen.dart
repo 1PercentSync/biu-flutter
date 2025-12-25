@@ -6,16 +6,18 @@ import '../../../../core/constants/audio.dart';
 import '../../../../core/extensions/duration_extensions.dart';
 import '../../../../core/utils/number_utils.dart';
 import '../../../../shared/theme/theme.dart';
+import '../../../../shared/utils/global_snackbar.dart';
 import '../../../../shared/widgets/cached_image.dart';
 import '../../../../shared/widgets/empty_state.dart';
+import '../../../../shared/widgets/media_action_menu.dart';
 import '../../../auth/auth.dart';
-import '../../../later/presentation/providers/later_notifier.dart';
 import '../../../player/domain/entities/play_item.dart';
 import '../../../player/presentation/providers/playlist_notifier.dart';
 import '../../domain/entities/fav_media.dart';
 import '../../domain/entities/favorites_folder.dart';
 import '../providers/favorites_notifier.dart';
 import '../providers/favorites_state.dart';
+import '../widgets/folder_edit_dialog.dart';
 
 /// Folder detail screen showing folder resources.
 ///
@@ -105,61 +107,6 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
             expandedHeight: 200,
             pinned: true,
             backgroundColor: AppColors.background,
-            leading: state.isSelectionMode
-                ? IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => ref
-                        .read(folderDetailProvider(widget.folderId).notifier)
-                        .exitSelectionMode(),
-                  )
-                : null,
-            title: state.isSelectionMode
-                ? Text('${state.selectedCount} selected')
-                : null,
-            actions: state.isSelectionMode
-                ? [
-                    TextButton(
-                      onPressed: state.hasSelection
-                          ? () => ref
-                              .read(folderDetailProvider(widget.folderId).notifier)
-                              .deselectAll()
-                          : () => ref
-                              .read(folderDetailProvider(widget.folderId).notifier)
-                              .selectAll(),
-                      child: Text(state.hasSelection ? 'Deselect All' : 'Select All'),
-                    ),
-                  ]
-                : [
-                    // More menu
-                    PopupMenuButton<String>(
-                      icon: const Icon(Icons.more_vert),
-                      onSelected: (value) => _handleMenuAction(context, ref, value, isOwner),
-                      itemBuilder: (context) => [
-                        if (isOwner) ...[
-                          const PopupMenuItem(
-                            value: 'select',
-                            child: Row(
-                              children: [
-                                Icon(Icons.check_circle_outline, size: 20),
-                                SizedBox(width: 12),
-                                Text('选择'),
-                              ],
-                            ),
-                          ),
-                          const PopupMenuItem(
-                            value: 'clean',
-                            child: Row(
-                              children: [
-                                Icon(Icons.cleaning_services, size: 20),
-                                SizedBox(width: 12),
-                                Text('清理失效'),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ],
             flexibleSpace: FlexibleSpaceBar(
               background: Stack(
                 fit: StackFit.expand,
@@ -209,10 +156,10 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
                   size: 48,
                   color: AppColors.textTertiary,
                 ),
-                title: state.keyword.isNotEmpty ? 'No Results' : 'No Items',
+                title: state.keyword.isNotEmpty ? '无结果' : '暂无内容',
                 message: state.keyword.isNotEmpty
-                    ? 'No items match your search'
-                    : 'This folder is empty',
+                    ? '没有找到匹配的内容'
+                    : '这个收藏夹是空的',
               ),
             )
           else
@@ -237,30 +184,7 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
                   final media = state.medias[index];
                   return _MediaListItem(
                     media: media,
-                    isSelectionMode: state.isSelectionMode,
-                    isSelected: state.selectedIds.contains(media.id),
-                    onTap: () {
-                      if (state.isSelectionMode) {
-                        ref
-                            .read(folderDetailProvider(widget.folderId).notifier)
-                            .toggleSelection(media.id);
-                      } else {
-                        _playMedia(context, ref, media);
-                      }
-                    },
-                    onLongPress: () {
-                      if (!state.isSelectionMode) {
-                        ref
-                            .read(folderDetailProvider(widget.folderId).notifier)
-                            .enterSelectionMode();
-                        ref
-                            .read(folderDetailProvider(widget.folderId).notifier)
-                            .toggleSelection(media.id);
-                      }
-                    },
-                    onAddToLater: state.isSelectionMode
-                        ? null
-                        : () => _addToWatchLater(context, ref, media),
+                    onTap: () => _playMedia(context, ref, media),
                   );
                 },
                 childCount:
@@ -309,44 +233,14 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
             ],
           ),
           const SizedBox(height: 8),
-          Row(
-            children: [
-              if (folder.upper.face.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: GestureDetector(
-                    onTap: () => context.push('/user/${folder.upper.mid}'),
-                    child: CircleAvatar(
-                      radius: 12,
-                      backgroundImage: NetworkImage(folder.upper.face),
-                    ),
-                  ),
-                ),
-              GestureDetector(
-                onTap: () => context.push('/user/${folder.upper.mid}'),
-                child: Text(
-                  folder.upper.name,
-                  style: const TextStyle(
-                    color: AppColors.textSecondary,
-                    fontSize: 14,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 16),
-              const Icon(
-                Icons.video_library_outlined,
-                size: 14,
-                color: AppColors.textTertiary,
-              ),
-              const SizedBox(width: 4),
-              Text(
-                '${folder.mediaCount} items',
-                style: const TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 14,
-                ),
-              ),
-            ],
+          // Show type and count info
+          // Source: biu/src/pages/video-collection/info/index.tsx:109-117
+          Text(
+            '${isOwner && folder.isPrivate ? "私密" : ""}收藏夹 · ${folder.mediaCount}个视频',
+            style: const TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 14,
+            ),
           ),
           if (folder.intro.isNotEmpty) ...[
             const SizedBox(height: 12),
@@ -360,24 +254,24 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
               overflow: TextOverflow.ellipsis,
             ),
           ],
-          // Play buttons
-          if (state.medias.isNotEmpty && !state.isSelectionMode) ...[
+          // Play button and action menu
+          // Source: biu/src/pages/video-collection/info/index.tsx:119-131
+          if (state.medias.isNotEmpty) ...[
             const SizedBox(height: 16),
             Row(
               children: [
-                Expanded(
-                  child: FilledButton.icon(
-                    onPressed: () => _playAll(context, ref, state),
-                    icon: const Icon(Icons.play_arrow),
-                    label: const Text('播放全部'),
-                  ),
+                FilledButton.icon(
+                  onPressed: () => _playAll(context, ref, state),
+                  icon: const Icon(Icons.play_arrow),
+                  label: const Text('播放全部'),
                 ),
                 const SizedBox(width: 12),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () => _addAllToQueue(context, ref, state),
-                    icon: const Icon(Icons.playlist_add),
-                    label: const Text('添加到播放列表'),
+                // Action menu button
+                IconButton(
+                  onPressed: () => _showFolderActionMenu(context, ref, folder, state, isOwner),
+                  icon: const Icon(Icons.more_horiz),
+                  style: IconButton.styleFrom(
+                    backgroundColor: AppColors.surface,
                   ),
                 ),
               ],
@@ -494,6 +388,160 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
     );
   }
 
+  /// Show action menu for the folder.
+  /// Source: biu/src/pages/video-collection/info/menu.tsx
+  void _showFolderActionMenu(
+    BuildContext context,
+    WidgetRef ref,
+    FavoritesFolder folder,
+    FolderDetailState state,
+    bool isOwner,
+  ) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: AppColors.contentBackground,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Handle bar
+            Container(
+              margin: const EdgeInsets.symmetric(vertical: 12),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.divider,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            // Title
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Text(
+                folder.title,
+                style: Theme.of(context).textTheme.titleMedium,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const Divider(height: 1),
+            // Add to playlist
+            ListTile(
+              leading: const Icon(Icons.playlist_add),
+              title: const Text('添加到播放列表'),
+              onTap: () {
+                Navigator.pop(context);
+                _addAllToQueue(context, ref, state);
+              },
+            ),
+            // Edit (only for owner, not default folder)
+            if (isOwner && !folder.isDefault)
+              ListTile(
+                leading: const Icon(Icons.edit_outlined),
+                title: const Text('修改信息'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _showEditFolderDialog(context, ref, folder);
+                },
+              ),
+            // Delete (only for owner, not default folder)
+            if (isOwner && !folder.isDefault)
+              ListTile(
+                leading: const Icon(Icons.delete_outline, color: Colors.red),
+                title: const Text('删除', style: TextStyle(color: Colors.red)),
+                onTap: () {
+                  Navigator.pop(context);
+                  _showDeleteFolderDialog(context, ref, folder);
+                },
+              ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Show edit folder dialog.
+  void _showEditFolderDialog(
+    BuildContext context,
+    WidgetRef ref,
+    FavoritesFolder folder,
+  ) {
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => FolderEditDialog(
+        folderId: folder.id,
+        initialTitle: folder.title,
+        initialIntro: folder.intro,
+        initialIsPublic: !folder.isPrivate,
+        onSubmit: ({
+          required String title,
+          required String intro,
+          required bool isPublic,
+        }) async {
+          final repository = ref.read(favoritesRepositoryProvider);
+          try {
+            await repository.editFolder(
+              mediaId: folder.id,
+              title: title,
+              intro: intro,
+              isPublic: isPublic,
+            );
+            // Refresh folder detail
+            ref.read(folderDetailProvider(widget.folderId).notifier).refresh();
+            if (dialogContext.mounted) {
+              Navigator.of(dialogContext).pop();
+              GlobalSnackbar.showSuccess('收藏夹更新成功');
+            }
+            return true;
+          } catch (e) {
+            GlobalSnackbar.showError('更新收藏夹失败: $e');
+            return false;
+          }
+        },
+      ),
+    );
+  }
+
+  /// Show delete folder confirmation dialog.
+  void _showDeleteFolderDialog(
+    BuildContext context,
+    WidgetRef ref,
+    FavoritesFolder folder,
+  ) {
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('删除收藏夹'),
+        content: Text('确定要删除"${folder.title}"吗？此操作无法撤销。'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('取消'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.of(dialogContext).pop();
+              final success = await ref
+                  .read(favoritesListProvider.notifier)
+                  .deleteFolders([folder.id]);
+              if (success && context.mounted) {
+                GlobalSnackbar.showSuccess('收藏夹已删除');
+                // Go back to favorites list
+                context.pop();
+              }
+            },
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('删除'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildSelectionBar(
     BuildContext context,
     WidgetRef ref,
@@ -576,24 +624,6 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
     );
   }
 
-  void _handleMenuAction(
-    BuildContext context,
-    WidgetRef ref,
-    String action,
-    bool isOwner,
-  ) {
-    switch (action) {
-      case 'select':
-        ref
-            .read(folderDetailProvider(widget.folderId).notifier)
-            .enterSelectionMode();
-        break;
-      case 'clean':
-        _confirmCleanInvalid(context, ref);
-        break;
-    }
-  }
-
   void _playAll(BuildContext context, WidgetRef ref, FolderDetailState state) {
     final validMedias = state.medias.where((m) => !m.isInvalid).toList();
     if (validMedias.isEmpty) {
@@ -663,48 +693,6 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
     ref.read(playlistProvider.notifier).play(_mediaToPlayItem(media));
   }
 
-  Future<void> _addToWatchLater(
-      BuildContext context, WidgetRef ref, FavMedia media) async {
-    if (media.isInvalid) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('该内容已失效')),
-      );
-      return;
-    }
-
-    try {
-      final success = await ref.read(laterProvider.notifier).addItem(
-            aid: media.id,
-            bvid: media.bvid.isNotEmpty ? media.bvid : null,
-          );
-      if (success && context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('已添加到稍后再看'),
-            duration: Duration(seconds: 2),
-          ),
-        );
-      } else if (context.mounted) {
-        final error = ref.read(laterProvider).errorMessage;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(error ?? 'Failed to add to Watch Later'),
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('错误: $e'),
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      }
-    }
-  }
-
   void _confirmBatchDelete(
     BuildContext context,
     WidgetRef ref,
@@ -738,38 +726,6 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
               backgroundColor: Colors.red,
             ),
             child: const Text('删除'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _confirmCleanInvalid(BuildContext context, WidgetRef ref) {
-    showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('清理失效内容'),
-        content: const Text(
-          'This will remove all invalid/deleted items from this folder. This action cannot be undone.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
-          ),
-          FilledButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              final success = await ref
-                  .read(folderDetailProvider(widget.folderId).notifier)
-                  .cleanInvalidResources();
-              if (success && context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('失效内容已清理')),
-                );
-              }
-            },
-            child: const Text('清理'),
           ),
         ],
       ),
@@ -860,94 +816,73 @@ class _MediaListItem extends StatelessWidget {
   const _MediaListItem({
     required this.media,
     required this.onTap,
-    required this.isSelectionMode,
-    required this.isSelected,
-    this.onLongPress,
-    this.onAddToLater,
   });
 
   final FavMedia media;
   final VoidCallback onTap;
-  final bool isSelectionMode;
-  final bool isSelected;
-  final VoidCallback? onLongPress;
-  final VoidCallback? onAddToLater;
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      leading: Row(
-        mainAxisSize: MainAxisSize.min,
+      leading: Stack(
         children: [
-          if (isSelectionMode)
-            Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: Checkbox(
-                value: isSelected,
-                onChanged: (_) => onTap(),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: SizedBox(
+              width: 120,
+              height: 68,
+              child: media.cover.isNotEmpty
+                  ? AppCachedImage(
+                      imageUrl: media.cover,
+                    )
+                  : const ColoredBox(
+                      color: AppColors.contentBackground,
+                      child: Icon(
+                        Icons.video_library,
+                        color: AppColors.textTertiary,
+                      ),
+                    ),
+            ),
+          ),
+          // Duration badge
+          if (media.duration > 0)
+            Positioned(
+              right: 4,
+              bottom: 4,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.black54,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  Duration(seconds: media.duration).formatted,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
               ),
             ),
-          Stack(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: SizedBox(
-                  width: 120,
-                  height: 68,
-                  child: media.cover.isNotEmpty
-                      ? AppCachedImage(
-                          imageUrl: media.cover,
-                        )
-                      : const ColoredBox(
-                          color: AppColors.contentBackground,
-                          child: Icon(
-                            Icons.video_library,
-                            color: AppColors.textTertiary,
-                          ),
-                        ),
+          // Invalid overlay
+          if (media.isInvalid)
+            Positioned.fill(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: Colors.black54,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Center(
+                  child: Icon(
+                    Icons.block,
+                    color: Colors.white54,
+                    size: 24,
+                  ),
                 ),
               ),
-              // Duration badge
-              if (media.duration > 0)
-                Positioned(
-                  right: 4,
-                  bottom: 4,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: Colors.black54,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
-                      Duration(seconds: media.duration).formatted,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ),
-              // Invalid overlay
-              if (media.isInvalid)
-                Positioned.fill(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: Colors.black54,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Center(
-                      child: Icon(
-                        Icons.block,
-                        color: Colors.white54,
-                        size: 24,
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          ),
+            ),
         ],
       ),
       title: Text(
@@ -972,7 +907,7 @@ class _MediaListItem extends StatelessWidget {
           const SizedBox(width: 8),
           if (media.playCount > 0)
             Text(
-              '${NumberUtils.formatCompact(media.playCount)} plays',
+              NumberUtils.formatCompact(media.playCount),
               style: const TextStyle(
                 color: AppColors.textTertiary,
                 fontSize: 12,
@@ -980,18 +915,19 @@ class _MediaListItem extends StatelessWidget {
             ),
         ],
       ),
-      trailing: !isSelectionMode && onAddToLater != null && !media.isInvalid
-          ? IconButton(
-              icon: const Icon(
-                Icons.watch_later_outlined,
-                size: 20,
-              ),
-              tooltip: '稍后再看',
-              onPressed: onAddToLater,
+      // Action menu (replaces watch later button)
+      // Source: biu/src/components/music-list-item/index.tsx:96-108
+      trailing: !media.isInvalid
+          ? MediaActionMenu(
+              title: media.title,
+              bvid: media.bvid,
+              aid: media.id.toString(),
+              cover: media.cover,
+              ownerName: media.upper.name,
+              ownerMid: media.upper.mid,
             )
           : null,
-      onTap: media.isInvalid && !isSelectionMode ? null : onTap,
-      onLongPress: onLongPress,
+      onTap: media.isInvalid ? null : onTap,
     );
   }
 }

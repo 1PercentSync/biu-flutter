@@ -67,9 +67,9 @@ class _FolderEditDialogState extends State<FolderEditDialog> {
     final title = _titleController.text.trim();
     setState(() {
       if (title.isEmpty) {
-        _titleError = 'Title is required';
+        _titleError = '请输入收藏夹名称';
       } else if (title.length > 20) {
-        _titleError = 'Title must be 20 characters or less';
+        _titleError = '名称不能超过20个字符';
       } else {
         _titleError = null;
       }
@@ -104,7 +104,7 @@ class _FolderEditDialogState extends State<FolderEditDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text(_isEditing ? 'Edit Folder' : 'Create Folder'),
+      title: Text(_isEditing ? '编辑收藏夹' : '新建收藏夹'),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -113,7 +113,7 @@ class _FolderEditDialogState extends State<FolderEditDialog> {
             TextField(
               controller: _titleController,
               decoration: InputDecoration(
-                labelText: 'Name',
+                labelText: '名称',
                 hintText: '输入收藏夹名称',
                 errorText: _titleError,
                 border: const OutlineInputBorder(),
@@ -126,7 +126,7 @@ class _FolderEditDialogState extends State<FolderEditDialog> {
             TextField(
               controller: _introController,
               decoration: const InputDecoration(
-                labelText: 'Description (optional)',
+                labelText: '简介（可选）',
                 hintText: '简单描述这个收藏夹',
                 border: OutlineInputBorder(),
               ),
@@ -138,9 +138,7 @@ class _FolderEditDialogState extends State<FolderEditDialog> {
             SwitchListTile(
               title: const Text('公开'),
               subtitle: Text(
-                _isPublic
-                    ? 'Anyone can view this folder'
-                    : 'Only you can view this folder',
+                _isPublic ? '所有人都可以看到这个收藏夹' : '仅自己可见',
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               value: _isPublic,
@@ -169,7 +167,7 @@ class _FolderEditDialogState extends State<FolderEditDialog> {
                   height: 16,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
-              : Text(_isEditing ? 'Save' : 'Create'),
+              : Text(_isEditing ? '保存' : '创建'),
         ),
       ],
     );

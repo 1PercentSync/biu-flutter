@@ -144,7 +144,6 @@ class _CreatedFoldersTab extends ConsumerWidget {
 
           return _FolderListItem(
             folder: visibleFolders[index],
-            showMenu: true,
             onTap: () => context.push(
               AppRoutes.favoritesFolderPath(visibleFolders[index].id),
             ),
@@ -204,7 +203,6 @@ class _CollectedFoldersTab extends ConsumerWidget {
           final folder = visibleFolders[index];
           return _FolderListItem(
             folder: folder,
-            showMenu: false,
             onTap: () {
               // Check folder type: 11 = favorite folder, 21 = video series
               // Source: biu/src/common/constants/collection.ts
@@ -226,12 +224,10 @@ class _CollectedFoldersTab extends ConsumerWidget {
 class _FolderListItem extends StatelessWidget {
   const _FolderListItem({
     required this.folder,
-    required this.showMenu,
     required this.onTap,
   });
 
   final FavoritesFolder folder;
-  final bool showMenu;
   final VoidCallback onTap;
 
   @override
@@ -278,132 +274,13 @@ class _FolderListItem extends StatelessWidget {
         ],
       ),
       subtitle: Text(
-        '${folder.mediaCount} items',
+        '${folder.mediaCount}个视频',
         style: const TextStyle(
           color: AppColors.textSecondary,
           fontSize: 12,
         ),
       ),
-      trailing: showMenu
-          ? IconButton(
-              icon: const Icon(Icons.more_vert),
-              onPressed: () => _showFolderMenu(context),
-            )
-          : null,
       onTap: onTap,
-    );
-  }
-
-  void _showFolderMenu(BuildContext context) {
-    showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: AppColors.contentBackground,
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.edit),
-              title: const Text('编辑'),
-              onTap: () {
-                Navigator.of(context).pop();
-                _showEditDialog(context);
-              },
-            ),
-            if (!folder.isDefault)
-              ListTile(
-                leading: const Icon(Icons.delete, color: Colors.red),
-                title: const Text('删除', style: TextStyle(color: Colors.red)),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  _showDeleteConfirmation(context);
-                },
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showEditDialog(BuildContext context) {
-    showDialog<void>(
-      context: context,
-      builder: (dialogContext) => Consumer(
-        builder: (context, ref, child) => FolderEditDialog(
-          folderId: folder.id,
-          initialTitle: folder.title,
-          initialIntro: folder.intro,
-          initialIsPublic: !folder.isPrivate,
-          onSubmit: ({
-            required String title,
-            required String intro,
-            required bool isPublic,
-          }) async {
-            final repository = ref.read(favoritesRepositoryProvider);
-            try {
-              await repository.editFolder(
-                mediaId: folder.id,
-                title: title,
-                intro: intro,
-                isPublic: isPublic,
-              );
-              ref.read(favoritesListProvider.notifier).updateFolder(
-                    folderId: folder.id,
-                    title: title,
-                    intro: intro,
-                    isPublic: isPublic,
-                  );
-              if (dialogContext.mounted) {
-                Navigator.of(dialogContext).pop();
-                ScaffoldMessenger.of(dialogContext).showSnackBar(
-                  const SnackBar(content: Text('收藏夹更新成功')),
-                );
-              }
-              return true;
-            } catch (e) {
-              if (dialogContext.mounted) {
-                ScaffoldMessenger.of(dialogContext).showSnackBar(
-                  SnackBar(content: Text('更新收藏夹失败: $e')),
-                );
-              }
-              return false;
-            }
-          },
-        ),
-      ),
-    );
-  }
-
-  void _showDeleteConfirmation(BuildContext context) {
-    showDialog<void>(
-      context: context,
-      builder: (dialogContext) => Consumer(
-        builder: (context, ref, child) => AlertDialog(
-          title: const Text('删除收藏夹'),
-          content: Text('确定要删除"${folder.title}"吗？'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('取消'),
-            ),
-            TextButton(
-              onPressed: () async {
-                Navigator.of(dialogContext).pop();
-                final success = await ref
-                    .read(favoritesListProvider.notifier)
-                    .deleteFolders([folder.id]);
-                if (success && context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('收藏夹已删除')),
-                  );
-                }
-              },
-              style: TextButton.styleFrom(foregroundColor: Colors.red),
-              child: const Text('删除'),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

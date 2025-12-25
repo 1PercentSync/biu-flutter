@@ -103,19 +103,25 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.artistRank,
         name: 'artistRank',
-        builder: (context, state) => const ArtistRankScreen(),
+        builder: (context, state) => const PlaybarScaffold(
+          child: ArtistRankScreen(),
+        ),
       ),
       // Music Recommend route
       GoRoute(
         path: AppRoutes.musicRecommend,
         name: 'musicRecommend',
-        builder: (context, state) => const MusicRecommendScreen(),
+        builder: (context, state) => const PlaybarScaffold(
+          child: MusicRecommendScreen(),
+        ),
       ),
       // Follow List route
       GoRoute(
         path: AppRoutes.followList,
         name: 'followList',
-        builder: (context, state) => const FollowListScreen(),
+        builder: (context, state) => const PlaybarScaffold(
+          child: FollowListScreen(),
+        ),
       ),
       // User Space/Profile route
       GoRoute(
@@ -128,14 +134,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               body: Center(child: Text('无效的用户ID')),
             );
           }
-          return UserProfileScreen(mid: mid);
+          return PlaybarScaffold(child: UserProfileScreen(mid: mid));
         },
       ),
       // Watch Later route
       GoRoute(
         path: AppRoutes.later,
         name: 'later',
-        builder: (context, state) => const LaterScreen(),
+        builder: (context, state) => const PlaybarScaffold(
+          child: LaterScreen(),
+        ),
       ),
       // Favorites folder detail route
       GoRoute(
@@ -148,7 +156,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               body: Center(child: Text('无效的收藏夹ID')),
             );
           }
-          return FolderDetailScreen(folderId: folderId);
+          return PlaybarScaffold(child: FolderDetailScreen(folderId: folderId));
         },
       ),
       // Full player route (modal)
@@ -304,5 +312,24 @@ class MainShell extends ConsumerWidget {
       case 4:
         context.go(AppRoutes.profile);
     }
+  }
+}
+
+/// Scaffold wrapper that includes MiniPlaybar for non-shell routes
+class PlaybarScaffold extends StatelessWidget {
+  const PlaybarScaffold({required this.child, super.key});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Expanded(child: child),
+        MiniPlaybar(
+          onTap: () => context.push('/player'),
+        ),
+      ],
+    );
   }
 }

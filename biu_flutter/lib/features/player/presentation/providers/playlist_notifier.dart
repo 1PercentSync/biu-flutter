@@ -8,6 +8,7 @@ import 'package:biu_flutter/core/utils/url_utils.dart';
 import 'package:biu_flutter/features/player/domain/entities/play_item.dart';
 import 'package:biu_flutter/features/player/presentation/providers/playlist_state.dart';
 import 'package:biu_flutter/features/player/services/audio_player_service.dart';
+import 'package:biu_flutter/shared/utils/global_snackbar.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:just_audio/just_audio.dart';
@@ -619,6 +620,7 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
     } catch (e) {
       debugPrint('[Playlist] Failed to start player: $e');
       state = state.copyWith(error: 'Failed to start playback: $e');
+      GlobalSnackbar.showError('播放失败');
     }
     unawaited(_saveState());
     unawaited(_saveCurrentTime());
@@ -665,6 +667,7 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
           if (audioUrl == null || !UrlUtils.isUrlValid(audioUrl)) {
             debugPrint('[Playlist] Failed to get valid URL after retry');
             state = state.copyWith(error: 'Failed to get valid audio URL');
+            GlobalSnackbar.showError('无法获取播放链接');
             return false;
           }
         }
@@ -675,6 +678,7 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
     if (audioUrl == null || audioUrl.isEmpty) {
       debugPrint('[Playlist] Failed to get audio URL');
       state = state.copyWith(error: 'Failed to get audio URL');
+      GlobalSnackbar.showError('无法获取播放链接');
       return false;
     }
 
@@ -696,6 +700,7 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
         if (!UrlUtils.isUrlValid(freshUrl)) {
           debugPrint('[Playlist] Fresh URL is also invalid');
           state = state.copyWith(error: 'Failed to load audio');
+          GlobalSnackbar.showError('无法加载音频');
           return false;
         }
         updateCurrentItemAudioUrl(audioUrl: freshUrl);
@@ -706,11 +711,13 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
         } catch (e2) {
           debugPrint('[Playlist] Failed to set fresh audio URL: $e2');
           state = state.copyWith(error: 'Failed to load audio');
+          GlobalSnackbar.showError('无法加载音频');
           return false;
         }
       }
 
       state = state.copyWith(error: 'Failed to load audio');
+      GlobalSnackbar.showError('无法加载音频');
       return false;
     }
   }

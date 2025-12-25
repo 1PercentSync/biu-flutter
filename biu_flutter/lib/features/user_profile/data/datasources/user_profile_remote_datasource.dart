@@ -326,6 +326,7 @@ class UserProfileRemoteDataSource {
 
     late final Response<Map<String, dynamic>> response;
     try {
+      // Source project uses axios default which sends JSON, not form-urlencoded
       response = await _dio.post<Map<String, dynamic>>(
         '/x/dynamic/feed/dyn/thumb',
         data: {
@@ -335,9 +336,7 @@ class UserProfileRemoteDataSource {
         queryParameters: {
           if (csrfToken != null) 'csrf': csrfToken,
         },
-        options: Options(
-          contentType: Headers.formUrlEncodedContentType,
-        ),
+        // No contentType specified - use Dio default (JSON)
       );
     } on DioException catch (e) {
       debugPrint('[Like] DioException: ${e.type}');

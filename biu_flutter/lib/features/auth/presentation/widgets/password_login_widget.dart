@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../providers/geetest_notifier.dart';
 import '../providers/password_login_notifier.dart';
@@ -102,7 +103,7 @@ class _PasswordLoginWidgetState extends ConsumerState<PasswordLoginWidget> {
                 ),
                 IconButton(
                   icon: const Icon(Icons.help_outline),
-                  onPressed: _showForgotPasswordHint,
+                  onPressed: _openPasswordRecovery,
                 ),
               ],
             ),
@@ -175,22 +176,19 @@ class _PasswordLoginWidgetState extends ConsumerState<PasswordLoginWidget> {
     );
   }
 
-  void _showForgotPasswordHint() {
-    showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('找回密码'),
-        content: const Text(
-          '请访问 bilibili 官网找回密码：\n'
-          'https://passport.bilibili.com/pc/passport/findPassword',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('我知道了'),
-          ),
-        ],
-      ),
-    );
+  /// Open password recovery page in system browser.
+  /// Source: biu/src/layout/navbar/login/password-login.tsx:175-177
+  Future<void> _openPasswordRecovery() async {
+    final uri =
+        Uri.parse('https://passport.bilibili.com/pc/passport/findPassword');
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not open password recovery page')),
+        );
+      }
+    }
   }
 }

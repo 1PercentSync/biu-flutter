@@ -75,6 +75,9 @@ dependencies:
   # QR Code display
   qr_flutter: ^4.1.0
 
+  # URL launcher for opening external links
+  url_launcher: ^6.2.0
+
   # WebView for Geetest captcha (mobile only)
   # Note: Only used on iOS/Android for captcha verification
   webview_flutter: ^4.10.0

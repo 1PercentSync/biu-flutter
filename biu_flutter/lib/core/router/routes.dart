@@ -38,23 +38,11 @@ class AppRoutes {
   /// Follow List page
   static const String followList = '/follow';
 
-  /// Video detail page
-  static const String videoDetail = '/video/:bvid';
-
-  /// Audio detail page
-  static const String audioDetail = '/audio/:sid';
-
   /// User space page
   static const String userSpace = '/user/:mid';
 
   /// Favorites folder detail page
   static const String favoritesFolder = '/favorites/:folderId';
-
-  /// Build video detail path
-  static String videoDetailPath(String bvid) => '/video/$bvid';
-
-  /// Build audio detail path
-  static String audioDetailPath(int sid) => '/audio/$sid';
 
   /// Build user space path
   static String userSpacePath(int mid) => '/user/$mid';

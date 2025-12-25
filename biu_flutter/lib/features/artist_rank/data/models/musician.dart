@@ -26,6 +26,12 @@ class Musician {
   });
 
   factory Musician.fromJson(Map<String, dynamic> json) {
+    // Note: uid comes as string from API (per source project musician-list.ts)
+    final uidValue = json['uid'];
+    final uid = uidValue is int
+        ? uidValue
+        : int.tryParse(uidValue?.toString() ?? '') ?? 0;
+
     return Musician(
       id: json['id'] as int? ?? 0,
       aid: json['aid']?.toString() ?? '',
@@ -39,7 +45,7 @@ class Musician {
       danmuCount: json['danmu_count'] as int? ?? 0,
       selfIntro: json['self_intro'] as String? ?? '',
       title: json['title'] as String? ?? '',
-      uid: json['uid'] as int? ?? 0,
+      uid: uid,
       vtDisplay: json['vt_display'] as String? ?? '',
       vvCount: json['vv_count'] as int? ?? 0,
       isVt: json['is_vt'] as int? ?? 0,

@@ -366,7 +366,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           Text(
-            'Music Only',
+            '仅音乐',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: AppColors.textSecondary,
                 ),

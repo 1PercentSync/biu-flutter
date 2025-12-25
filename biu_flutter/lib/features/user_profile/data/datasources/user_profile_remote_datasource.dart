@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../../../core/network/dio_client.dart';
 import '../models/dynamic_item.dart';
@@ -320,6 +321,9 @@ class UserProfileRemoteDataSource {
     // Get CSRF token for query param (source project puts csrf in params, not body)
     final csrfToken = await DioClient.instance.getCookie('bili_jct');
 
+    debugPrint('[Like] dynIdStr: $dynIdStr, like: $like');
+    debugPrint('[Like] csrf token: ${csrfToken != null ? '${csrfToken.substring(0, 8)}...' : 'null'}');
+
     final response = await _dio.post<Map<String, dynamic>>(
       '/x/dynamic/feed/dyn/thumb',
       data: {
@@ -335,16 +339,20 @@ class UserProfileRemoteDataSource {
     );
 
     final data = response.data;
+    debugPrint('[Like] Response: $data');
+
     if (data == null) {
       throw Exception('Failed to like dynamic');
     }
 
     final code = data['code'] as int?;
     if (code == 0) {
+      debugPrint('[Like] Success!');
       return true;
     }
 
     final message = data['message'] as String? ?? 'Unknown error';
+    debugPrint('[Like] Failed: $message (code: $code)');
     throw Exception('Failed to like: $message (code: $code)');
   }
 }

@@ -196,32 +196,7 @@ class SearchRemoteDataSource {
         .toList();
   }
 
-  /// Get hot search keywords
-  /// GET /x/web-interface/search/square
-  Future<List<String>> getHotSearchKeywords() async {
-    final response = await _dio.get<Map<String, dynamic>>(
-      '/x/web-interface/wbi/search/square',
-      queryParameters: {
-        'limit': 10,
-        'platform': 'web',
-      },
-      options: Options(extra: {'useWbi': true}),
-    );
-
-    final data = response.data;
-    if (data == null) {
-      return [];
-    }
-
-    final dataObj = data['data'] as Map<String, dynamic>?;
-    final trendingObj = dataObj?['trending'] as Map<String, dynamic>?;
-    final trending = trendingObj?['list'] as List<dynamic>?;
-    if (trending == null) return [];
-
-    return trending
-        .map((e) => (e as Map<String, dynamic>)['keyword'] as String?)
-        .where((e) => e != null)
-        .cast<String>()
-        .toList();
-  }
+  // Hot search keywords feature removed - not in source project.
+  // Source project (biu/Electron) does not have hot search/trending feature.
+  // See: openspec/changes/align-parity-report-decisions/specs/search/spec.md
 }

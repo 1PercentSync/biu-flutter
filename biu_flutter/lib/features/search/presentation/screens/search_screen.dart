@@ -23,12 +23,6 @@ final searchDataSourceProvider = Provider<SearchRemoteDataSource>((ref) {
   return SearchRemoteDataSource();
 });
 
-/// Provider for hot search keywords
-final hotSearchKeywordsProvider = FutureProvider<List<String>>((ref) async {
-  final dataSource = ref.watch(searchDataSourceProvider);
-  return dataSource.getHotSearchKeywords();
-});
-
 /// Search tab type
 enum SearchTabType { video, user }
 
@@ -658,9 +652,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
     );
   }
 
+  /// Build search suggestions showing only search history.
+  /// Hot searches feature removed - not in source project.
+  /// Source: biu/src/pages/search/index.tsx (only has search history)
   Widget _buildSearchSuggestions(BuildContext context) {
-    final hotSearches = ref.watch(hotSearchKeywordsProvider);
-
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -673,58 +668,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
               _performSearch(query);
             },
           ),
-          const SizedBox(height: 24),
-          // Hot searches section
-          _buildSectionHeader(context, 'Hot Searches'),
-          const SizedBox(height: 12),
-          hotSearches.when(
-            data: _buildHotSearches,
-            loading: () => const LoadingIndicator(),
-            error: (_, _) => _buildHotSearches(_fallbackHotSearches),
-          ),
         ],
       ),
-    );
-  }
-
-  static const _fallbackHotSearches = [
-    'Popular Music',
-    'Trending Videos',
-    'Game Soundtracks',
-    'Anime Music',
-    'Live Performances',
-  ];
-
-  Widget _buildSectionHeader(BuildContext context, String title) {
-    return Text(
-      title,
-      style: Theme.of(context).textTheme.titleMedium,
-    );
-  }
-
-  Widget _buildHotSearches(List<String> hotSearches) {
-    if (hotSearches.isEmpty) {
-      return const EmptyState(message: 'No hot searches available');
-    }
-
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: hotSearches.map((search) {
-        return ActionChip(
-          label: Text(search),
-          backgroundColor: AppColors.surface,
-          labelStyle: const TextStyle(
-            color: AppColors.textPrimary,
-            fontSize: 13,
-          ),
-          onPressed: () {
-            _searchController.text = search;
-            ref.read(searchNotifierProvider.notifier).setQuery(search);
-            _performSearch(search);
-          },
-        );
-      }).toList(),
     );
   }
 

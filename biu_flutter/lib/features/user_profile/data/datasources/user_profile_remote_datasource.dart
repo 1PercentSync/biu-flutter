@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 
 import '../../../../core/network/dio_client.dart';
 import '../models/dynamic_item.dart';
@@ -321,49 +320,29 @@ class UserProfileRemoteDataSource {
     // Get CSRF token for query param (source project puts csrf in params, not body)
     final csrfToken = await DioClient.instance.getCookie('bili_jct');
 
-    debugPrint('[Like] dynIdStr: $dynIdStr, like: $like');
-    debugPrint('[Like] csrf token: ${csrfToken != null ? '${csrfToken.substring(0, 8)}...' : 'null'}');
-
-    late final Response<Map<String, dynamic>> response;
-    try {
-      // Source project uses axios default which sends JSON, not form-urlencoded
-      response = await _dio.post<Map<String, dynamic>>(
-        '/x/dynamic/feed/dyn/thumb',
-        data: {
-          'dyn_id_str': dynIdStr,
-          'up': like ? 1 : 2, // 1: like, 2: unlike
-        },
-        queryParameters: {
-          if (csrfToken != null) 'csrf': csrfToken,
-        },
-        // No contentType specified - use Dio default (JSON)
-      );
-    } on DioException catch (e) {
-      debugPrint('[Like] DioException: ${e.type}');
-      debugPrint('[Like] DioException message: ${e.message}');
-      debugPrint('[Like] DioException response: ${e.response?.data}');
-      debugPrint('[Like] DioException statusCode: ${e.response?.statusCode}');
-      rethrow;
-    } catch (e) {
-      debugPrint('[Like] Other exception: $e');
-      rethrow;
-    }
+    // Source project uses axios default which sends JSON, not form-urlencoded
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/x/dynamic/feed/dyn/thumb',
+      data: {
+        'dyn_id_str': dynIdStr,
+        'up': like ? 1 : 2, // 1: like, 2: unlike
+      },
+      queryParameters: {
+        if (csrfToken != null) 'csrf': csrfToken,
+      },
+    );
 
     final data = response.data;
-    debugPrint('[Like] Response: $data');
-
     if (data == null) {
       throw Exception('Failed to like dynamic');
     }
 
     final code = data['code'] as int?;
     if (code == 0) {
-      debugPrint('[Like] Success!');
       return true;
     }
 
     final message = data['message'] as String? ?? 'Unknown error';
-    debugPrint('[Like] Failed: $message (code: $code)');
     throw Exception('Failed to like: $message (code: $code)');
   }
 }

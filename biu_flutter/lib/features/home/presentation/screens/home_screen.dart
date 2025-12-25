@@ -45,12 +45,6 @@ class HomeScreen extends ConsumerWidget {
                   tooltip: '音乐大咖',
                   onPressed: () => context.push(AppRoutes.artistRank),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.refresh),
-                  onPressed: musicRankState.isLoading
-                      ? null
-                      : () => ref.read(musicRankProvider.notifier).refresh(),
-                ),
               ],
             ),
             // Content

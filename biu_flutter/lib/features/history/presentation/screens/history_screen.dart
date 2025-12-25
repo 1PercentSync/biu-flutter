@@ -66,18 +66,10 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
           controller: _scrollController,
           slivers: [
             // App Bar
-            SliverAppBar(
+            const SliverAppBar(
               floating: true,
               backgroundColor: AppColors.background,
-              title: const Text('历史记录'),
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.refresh),
-                  onPressed: historyState.isLoading
-                      ? null
-                      : () => ref.read(historyProvider.notifier).refresh(),
-                ),
-              ],
+              title: Text('历史记录'),
             ),
             // Content
             _buildContent(context, historyState),

@@ -64,16 +64,8 @@ class _FollowListScreenState extends ConsumerState<FollowListScreen> {
               floating: true,
               backgroundColor: AppColors.background,
               title: Text(
-                'My Followings${followState.totalCount > 0 ? ' (${followState.totalCount})' : ''}',
+                '我的关注${followState.totalCount > 0 ? ' (${followState.totalCount})' : ''}',
               ),
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.refresh),
-                  onPressed: followState.isLoading
-                      ? null
-                      : () => ref.read(followProvider.notifier).refresh(),
-                ),
-              ],
             ),
             // Content
             _buildContent(context, followState),

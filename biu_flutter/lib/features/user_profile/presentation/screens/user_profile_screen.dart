@@ -142,14 +142,6 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
               floating: true,
               snap: true,
               title: Text(state.spaceInfo?.name ?? '用户'),
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.refresh),
-                  onPressed: () => ref
-                      .read(userProfileProvider(widget.mid).notifier)
-                      .refresh(),
-                ),
-              ],
             ),
             // Header
             if (state.spaceInfo != null)

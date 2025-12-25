@@ -66,18 +66,10 @@ class _LaterScreenState extends ConsumerState<LaterScreen> {
           controller: _scrollController,
           slivers: [
             // App Bar
-            SliverAppBar(
+            const SliverAppBar(
               floating: true,
               backgroundColor: AppColors.background,
-              title: const Text('稍后再看'),
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.refresh),
-                  onPressed: laterState.isLoading
-                      ? null
-                      : () => ref.read(laterProvider.notifier).refresh(),
-                ),
-              ],
+              title: Text('稍后再看'),
             ),
             // Content
             _buildContent(context, laterState),

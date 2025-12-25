@@ -68,19 +68,10 @@ class _MusicRecommendScreenState extends ConsumerState<MusicRecommendScreen> {
           controller: _scrollController,
           slivers: [
             // App Bar
-            SliverAppBar(
+            const SliverAppBar(
               floating: true,
               backgroundColor: AppColors.background,
-              title: const Text('音乐推荐'),
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.refresh),
-                  onPressed: state.isLoading || state.isRefreshing
-                      ? null
-                      : () =>
-                          ref.read(musicRecommendProvider.notifier).refresh(),
-                ),
-              ],
+              title: Text('音乐推荐'),
             ),
             // Content
             _buildContent(context, state),

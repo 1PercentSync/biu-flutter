@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../core/router/routes.dart';
 import '../../../../shared/theme/theme.dart';
 import '../../../../shared/widgets/empty_state.dart';
 import '../../../../shared/widgets/loading_state.dart';
@@ -104,16 +106,9 @@ class _ArtistRankScreenState extends ConsumerState<ArtistRankScreen> {
     );
   }
 
+  /// Navigate to musician's user profile.
+  /// Source: biu/src/pages/artist-rank/index.tsx:62
   void _onMusicianTap(Musician musician) {
-    // Navigate to user profile
-    // TODO: Navigate to user profile screen when implemented
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text("Opening ${musician.username}'s profile..."),
-        duration: const Duration(seconds: 1),
-      ),
-    );
-    // For now, we can try to navigate if the route exists
-    // context.push('/user/${musician.uid}');
+    context.push(AppRoutes.userSpacePath(musician.uid));
   }
 }

@@ -4,10 +4,10 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import '../../../features/auth/data/datasources/auth_remote_datasource.dart';
-import '../../../features/auth/presentation/widgets/geetest_dialog.dart';
 import '../../router/navigator_key.dart';
 import '../dio_client.dart';
+import '../gaia_vgate/gaia_vgate_handler.dart';
+import '../gaia_vgate/gaia_vgate_provider.dart';
 
 /// Interceptor for handling Bilibili Gaia VGate risk control
 ///
@@ -22,11 +22,8 @@ import '../dio_client.dart';
 class GaiaVgateInterceptor extends Interceptor {
   GaiaVgateInterceptor();
 
-  /// Lazily initialized auth datasource to avoid circular dependency
-  /// during DioClient initialization
-  AuthRemoteDatasource? _authDatasource;
-  AuthRemoteDatasource get _datasource =>
-      _authDatasource ??= AuthRemoteDatasource();
+  /// Get the handler from holder (may be null if not initialized)
+  GaiaVgateHandler? get _handler => GaiaVgateHandlerHolder.handler;
 
   /// Track if we're currently handling a v_voucher to prevent recursion
   bool _isHandlingVoucher = false;
@@ -60,6 +57,14 @@ class GaiaVgateInterceptor extends Interceptor {
       return;
     }
 
+    // Check if handler is available
+    final handlerInstance = _handler;
+    if (handlerInstance == null) {
+      debugPrint('[GaiaVgate] Handler not initialized, skipping verification');
+      handler.next(response);
+      return;
+    }
+
     // Check if WebView is supported (Android/iOS only)
     if (kIsWeb || (!Platform.isAndroid && !Platform.isIOS)) {
       debugPrint('[GaiaVgate] WebView not supported on this platform');
@@ -80,6 +85,7 @@ class GaiaVgateInterceptor extends Interceptor {
     _isHandlingVoucher = true;
     try {
       final retryResponse = await _handleGaiaVgate(
+        handler: handlerInstance,
         vVoucher: vVoucher,
         originalResponse: response,
         context: context,
@@ -101,23 +107,21 @@ class GaiaVgateInterceptor extends Interceptor {
 
   /// Handle Gaia VGate risk control verification
   Future<Response<dynamic>?> _handleGaiaVgate({
+    required GaiaVgateHandler handler,
     required String vVoucher,
     required Response<dynamic> originalResponse,
     required BuildContext context,
   }) async {
     // 1. Call register to get Geetest parameters
     debugPrint('[GaiaVgate] Registering...');
-    final registerResponse = await _datasource.registerGaiaVgate(
-      vVoucher: vVoucher,
-    );
+    final registerResult = await handler.register(vVoucher: vVoucher);
 
-    if (!registerResponse.isSuccess || registerResponse.data == null) {
-      debugPrint('[GaiaVgate] Register failed: ${registerResponse.message}');
+    if (registerResult == null) {
+      debugPrint('[GaiaVgate] Register failed');
       return null;
     }
 
-    final registerData = registerResponse.data!;
-    if (registerData.geetest == null) {
+    if (!registerResult.hasGeetest) {
       debugPrint('[GaiaVgate] No geetest data, cannot verify');
       return null;
     }
@@ -126,11 +130,11 @@ class GaiaVgateInterceptor extends Interceptor {
     debugPrint('[GaiaVgate] Showing Geetest dialog...');
     if (!context.mounted) return null;
 
-    final geetestResult = await GeetestDialog.show(
-      context,
-      token: registerData.token,
-      gt: registerData.geetest!.gt,
-      challenge: registerData.geetest!.challenge,
+    final geetestResult = await handler.showVerification(
+      context: context,
+      token: registerResult.token,
+      gt: registerResult.gt!,
+      challenge: registerResult.challenge!,
     );
 
     if (geetestResult == null) {
@@ -140,25 +144,18 @@ class GaiaVgateInterceptor extends Interceptor {
 
     // 3. Call validate to get grisk_id
     debugPrint('[GaiaVgate] Validating...');
-    final validateResponse = await _datasource.validateGaiaVgate(
+    final gaiaVtoken = await handler.validate(
+      token: registerResult.token,
       challenge: geetestResult.challenge,
-      token: registerData.token,
       validate: geetestResult.validate,
       seccode: geetestResult.seccode,
     );
 
-    if (!validateResponse.isSuccess || validateResponse.data == null) {
-      debugPrint('[GaiaVgate] Validate failed: ${validateResponse.message}');
-      return null;
-    }
-
-    final validateData = validateResponse.data!;
-    if (!validateData.isSuccessful || validateData.griskId.isEmpty) {
+    if (gaiaVtoken == null || gaiaVtoken.isEmpty) {
       debugPrint('[GaiaVgate] Validation not successful');
       return null;
     }
 
-    final gaiaVtoken = validateData.griskId;
     debugPrint('[GaiaVgate] Got gaia_vtoken: ${gaiaVtoken.substring(0, 20)}...');
 
     // 4. Store gaia_vtoken in cookie

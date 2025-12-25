@@ -3,10 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/constants/app.dart';
 import 'core/network/dio_client.dart';
+import 'core/network/gaia_vgate/gaia_vgate_provider.dart';
 import 'core/router/app_router.dart';
 import 'core/router/navigator_key.dart';
 import 'core/storage/secure_storage_service.dart';
 import 'core/storage/storage_service.dart';
+import 'features/auth/data/services/gaia_vgate_handler_impl.dart';
 import 'features/player/services/audio_service_init.dart';
 import 'shared/theme/theme.dart';
 
@@ -18,6 +20,10 @@ void main() async {
 
   // Initialize Dio client for network requests
   await DioClient.instance.initialize();
+
+  // Initialize Gaia VGate handler for risk control verification
+  // This must be done after DioClient is initialized
+  GaiaVgateHandlerHolder.handler = GaiaVgateHandlerImpl();
 
   // Initialize storage service
   final storageService = await SharedPreferencesStorage.create();

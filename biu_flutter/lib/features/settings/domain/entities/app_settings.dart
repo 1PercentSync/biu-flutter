@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 /// Source: biu/shared/settings/app-settings.ts#displayMode
 enum DisplayMode {
   /// Card/grid display mode
-  card('card', 'Card'),
+  card('card', '卡片'),
 
   /// List display mode
-  list('list', 'List');
+  list('list', '列表');
 
   const DisplayMode(this.value, this.label);
   final String value;

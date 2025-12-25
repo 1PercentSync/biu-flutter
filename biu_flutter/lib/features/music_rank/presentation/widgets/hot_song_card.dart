@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 
 import '../../../../shared/theme/theme.dart';
 import '../../../../shared/widgets/cached_image.dart';
+import '../../../../shared/widgets/media_action_menu.dart';
 import '../../data/models/hot_song.dart';
 
 /// A card widget for displaying hot song from music rank.
+/// Source: biu/src/pages/home/index.tsx (card mode)
 class HotSongCard extends StatelessWidget {
   const HotSongCard({
     required this.song,
     super.key,
-    this.rank,
     this.isActive = false,
     this.onTap,
     this.onLongPress,
@@ -17,9 +18,6 @@ class HotSongCard extends StatelessWidget {
 
   /// The hot song data
   final HotSong song;
-
-  /// Rank number (1-based)
-  final int? rank;
 
   /// Whether this song is currently playing
   final bool isActive;
@@ -49,15 +47,14 @@ class HotSongCard extends StatelessWidget {
           clipBehavior: Clip.antiAlias,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              // Cover image with rank badge
+              // Cover image with play count badge
               _buildCoverSection(),
-              // Info section - use Expanded to take remaining space
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: _buildInfoSection(context),
-                ),
+              // Info section
+              Padding(
+                padding: const EdgeInsets.all(8),
+                child: _buildInfoSection(context),
               ),
             ],
           ),
@@ -76,35 +73,10 @@ class HotSongCard extends StatelessWidget {
           AppCachedImage(
             imageUrl: song.cover,
           ),
-          // Rank badge
-          if (rank != null)
-            Positioned(
-              left: 8,
-              top: 8,
-              child: Container(
-                width: 28,
-                height: 28,
-                decoration: BoxDecoration(
-                  color: _getRankColor(rank!),
-                  borderRadius:
-                      BorderRadius.circular(AppTheme.borderRadiusSmall),
-                ),
-                child: Center(
-                  child: Text(
-                    rank.toString(),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          // Play count badge
+          // Play count badge (bottom left like source)
           if (song.totalVv != null)
             Positioned(
-              right: 8,
+              left: 8,
               bottom: 8,
               child: Container(
                 padding: const EdgeInsets.symmetric(
@@ -145,18 +117,34 @@ class HotSongCard extends StatelessWidget {
   Widget _buildInfoSection(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
-        // Title
-        Text(
-          song.musicTitle,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w500,
-                height: 1.3,
+        // Title with action menu
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Text(
+                song.musicTitle,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w500,
+                      height: 1.3,
+                    ),
               ),
+            ),
+            MediaActionMenu(
+              title: song.musicTitle,
+              bvid: song.bvid,
+              aid: song.aid,
+              cover: song.cover,
+              ownerName: song.author,
+              iconSize: 18,
+            ),
+          ],
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 2),
         // Author
         Text(
           song.author,
@@ -169,28 +157,14 @@ class HotSongCard extends StatelessWidget {
       ],
     );
   }
-
-  /// Get rank badge color based on position
-  Color _getRankColor(int rank) {
-    switch (rank) {
-      case 1:
-        return const Color(0xFFFF6B6B); // Red/gold for #1
-      case 2:
-        return const Color(0xFFFF9F43); // Orange for #2
-      case 3:
-        return const Color(0xFFFFD93D); // Yellow for #3
-      default:
-        return Colors.black.withValues(alpha: 0.6);
-    }
-  }
 }
 
 /// A list tile variant for hot song display.
+/// Source: biu/src/pages/home/index.tsx (list mode)
 class HotSongListTile extends StatelessWidget {
   const HotSongListTile({
     required this.song,
     super.key,
-    this.rank,
     this.isActive = false,
     this.onTap,
     this.onLongPress,
@@ -198,9 +172,6 @@ class HotSongListTile extends StatelessWidget {
 
   /// The hot song data
   final HotSong song;
-
-  /// Rank number (1-based)
-  final int? rank;
 
   /// Whether this song is currently playing
   final bool isActive;
@@ -233,21 +204,6 @@ class HotSongListTile extends StatelessWidget {
           ),
           child: Row(
             children: [
-              // Rank number
-              if (rank != null)
-                SizedBox(
-                  width: 32,
-                  child: Text(
-                    rank.toString(),
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: rank! <= 3
-                          ? _getRankColor(rank!)
-                          : AppColors.textSecondary,
-                    ),
-                  ),
-                ),
               // Cover image
               ClipRRect(
                 borderRadius:
@@ -291,41 +247,25 @@ class HotSongListTile extends StatelessWidget {
               if (song.totalVv != null)
                 Padding(
                   padding: const EdgeInsets.only(left: 8),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
-                        Icons.play_arrow,
-                        size: 14,
-                        color: AppColors.textTertiary,
-                      ),
-                      const SizedBox(width: 2),
-                      Text(
-                        song.playCountFormatted,
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: AppColors.textTertiary,
-                            ),
-                      ),
-                    ],
+                  child: Text(
+                    song.playCountFormatted,
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: AppColors.textTertiary,
+                        ),
                   ),
                 ),
+              // Action menu
+              MediaActionMenu(
+                title: song.musicTitle,
+                bvid: song.bvid,
+                aid: song.aid,
+                cover: song.cover,
+                ownerName: song.author,
+              ),
             ],
           ),
         ),
       ),
     );
-  }
-
-  Color _getRankColor(int rank) {
-    switch (rank) {
-      case 1:
-        return const Color(0xFFFF6B6B);
-      case 2:
-        return const Color(0xFFFF9F43);
-      case 3:
-        return const Color(0xFFFFD93D);
-      default:
-        return AppColors.textSecondary;
-    }
   }
 }

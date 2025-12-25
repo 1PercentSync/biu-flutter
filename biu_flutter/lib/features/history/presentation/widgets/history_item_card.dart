@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../shared/theme/theme.dart';
 import '../../../../shared/widgets/cached_image.dart';
+import '../../../../shared/widgets/media_action_menu.dart';
 import '../../data/models/history_item.dart';
 
 /// Card widget for displaying a history item
@@ -41,6 +42,17 @@ class HistoryItemCard extends StatelessWidget {
               const SizedBox(width: 12),
               // Info section
               Expanded(child: _buildInfo(context)),
+              // Action menu (only for playable items)
+              if (item.isPlayable)
+                MediaActionMenu(
+                  title: item.title,
+                  bvid: item.history.bvid ?? '',
+                  aid: item.history.oid.toString(),
+                  cover: item.cover,
+                  ownerName: item.authorName,
+                  ownerMid: item.authorMid,
+                  showWatchLater: false, // Already in history
+                ),
             ],
           ),
         ),

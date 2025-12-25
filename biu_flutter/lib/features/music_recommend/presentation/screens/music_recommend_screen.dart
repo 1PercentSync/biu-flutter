@@ -165,7 +165,9 @@ class _MusicRecommendScreenState extends ConsumerState<MusicRecommendScreen> {
           maxCrossAxisExtent: 200,
           mainAxisSpacing: 16,
           crossAxisSpacing: 16,
-          childAspectRatio: 0.72,
+          // Cover 1:1 + info ~70px = ~270px for 200px width
+          // Aspect ratio = 200/270 ≈ 0.74
+          childAspectRatio: 0.74,
         ),
         delegate: SliverChildBuilderDelegate(
           (context, index) {

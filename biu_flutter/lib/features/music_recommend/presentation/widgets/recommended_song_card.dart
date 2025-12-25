@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../shared/theme/theme.dart';
 import '../../../../shared/widgets/cached_image.dart';
+import '../../../../shared/widgets/media_action_menu.dart';
 import '../../data/models/recommended_song.dart';
 
 /// A card widget for displaying recommended song.
@@ -46,12 +47,13 @@ class RecommendedSongCard extends StatelessWidget {
           clipBehavior: Clip.antiAlias,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
               // Cover image
               _buildCoverSection(),
               // Info section
               Padding(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(8),
                 child: _buildInfoSection(context),
               ),
             ],
@@ -71,9 +73,9 @@ class RecommendedSongCard extends StatelessWidget {
           AppCachedImage(
             imageUrl: song.cover,
           ),
-          // Play count badge
+          // Play count badge (bottom left like source)
           Positioned(
-            right: 8,
+            left: 8,
             bottom: 8,
             child: Container(
               padding: const EdgeInsets.symmetric(
@@ -114,18 +116,34 @@ class RecommendedSongCard extends StatelessWidget {
   Widget _buildInfoSection(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
-        // Title
-        Text(
-          song.musicTitle,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w500,
-                height: 1.3,
+        // Title with action menu
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Text(
+                song.musicTitle,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w500,
+                      height: 1.3,
+                    ),
               ),
+            ),
+            MediaActionMenu(
+              title: song.musicTitle,
+              bvid: song.bvid,
+              aid: song.aid,
+              cover: song.cover,
+              ownerName: song.author,
+              iconSize: 18,
+            ),
+          ],
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 2),
         // Author
         Text(
           song.author,
@@ -226,23 +244,20 @@ class RecommendedSongListTile extends StatelessWidget {
               // Play count
               Padding(
                 padding: const EdgeInsets.only(left: 8),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.play_arrow,
-                      size: 14,
-                      color: AppColors.textTertiary,
-                    ),
-                    const SizedBox(width: 2),
-                    Text(
-                      song.playCountFormatted,
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: AppColors.textTertiary,
-                          ),
-                    ),
-                  ],
+                child: Text(
+                  song.playCountFormatted,
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: AppColors.textTertiary,
+                      ),
                 ),
+              ),
+              // Action menu
+              MediaActionMenu(
+                title: song.musicTitle,
+                bvid: song.bvid,
+                aid: song.aid,
+                cover: song.cover,
+                ownerName: song.author,
               ),
             ],
           ),

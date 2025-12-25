@@ -100,7 +100,6 @@ class HomeScreen extends ConsumerWidget {
                 padding: const EdgeInsets.only(bottom: 8),
                 child: HotSongListTile(
                   song: song,
-                  rank: index + 1,
                   onTap: () => _playSong(ref, song),
                 ),
               );
@@ -119,14 +118,15 @@ class HomeScreen extends ConsumerWidget {
           maxCrossAxisExtent: 200,
           mainAxisSpacing: 16,
           crossAxisSpacing: 16,
-          childAspectRatio: 0.72,
+          // Cover 1:1 + info ~70px = ~270px for 200px width
+          // Aspect ratio = 200/270 ≈ 0.74
+          childAspectRatio: 0.74,
         ),
         delegate: SliverChildBuilderDelegate(
           (context, index) {
             final song = state.songs[index];
             return HotSongCard(
               song: song,
-              rank: index + 1,
               onTap: () => _playSong(ref, song),
             );
           },

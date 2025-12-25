@@ -86,14 +86,14 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
     // Build tabs based on privacy settings
     // Source: biu/src/pages/user-profile/index.tsx:96-118
     final newTabs = <_ProfileTab>[
-      const _ProfileTab(key: 'dynamic', label: 'Dynamic'),
-      const _ProfileTab(key: 'video', label: 'Videos'),
+      const _ProfileTab(key: 'dynamic', label: '动态'),
+      const _ProfileTab(key: 'video', label: '视频'),
       _ProfileTab(
         key: 'favorites',
-        label: 'Favorites',
+        label: '收藏',
         hidden: !isSelf && !state.shouldShowFavoritesTab(currentUserId),
       ),
-      const _ProfileTab(key: 'union', label: 'Series'),
+      const _ProfileTab(key: 'union', label: '合集'),
     ].where((tab) => !tab.hidden).toList();
 
     // Only update if tabs changed
@@ -141,7 +141,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
             SliverAppBar(
               floating: true,
               snap: true,
-              title: Text(state.spaceInfo?.name ?? 'User'),
+              title: Text(state.spaceInfo?.name ?? '用户'),
               actions: [
                 IconButton(
                   icon: const Icon(Icons.refresh),

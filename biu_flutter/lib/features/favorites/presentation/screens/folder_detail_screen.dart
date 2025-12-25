@@ -516,19 +516,19 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
             // Delete
             _SelectionActionButton(
               icon: Icons.delete_outline,
-              label: 'Delete',
+              label: '删除',
               enabled: state.hasSelection,
               onPressed: () => _confirmBatchDelete(context, ref, state),
             ),
             // Move
             _SelectionActionButton(
               icon: Icons.drive_file_move_outline,
-              label: 'Move',
+              label: '移动',
               enabled: state.hasSelection,
               onPressed: () => _showFolderPicker(
                 context,
                 ref,
-                'Move to',
+                '移动到',
                 (folderId) async {
                   if (user == null) return;
                   final success = await ref
@@ -548,12 +548,12 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
             // Copy
             _SelectionActionButton(
               icon: Icons.copy_outlined,
-              label: 'Copy',
+              label: '复制',
               enabled: state.hasSelection,
               onPressed: () => _showFolderPicker(
                 context,
                 ref,
-                'Copy to',
+                '复制到',
                 (folderId) async {
                   if (user == null) return;
                   final success = await ref

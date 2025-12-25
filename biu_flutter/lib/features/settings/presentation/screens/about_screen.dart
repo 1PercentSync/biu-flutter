@@ -98,7 +98,7 @@ class AboutScreen extends ConsumerWidget {
         Padding(
           padding: const EdgeInsets.only(left: 8, bottom: 8),
           child: Text(
-            'Information',
+            '信息',
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
                   color: AppColors.textSecondary,
                 ),
@@ -139,7 +139,7 @@ class AboutScreen extends ConsumerWidget {
         Padding(
           padding: const EdgeInsets.only(left: 8, bottom: 8),
           child: Text(
-            'Technical',
+            '技术',
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
                   color: AppColors.textSecondary,
                 ),
@@ -153,11 +153,11 @@ class AboutScreen extends ConsumerWidget {
           ),
           child: Column(
             children: [
-              _buildInfoRow(context, 'App Version', version),
+              _buildInfoRow(context, '应用版本', version),
               const Divider(height: 16),
-              _buildInfoRow(context, 'Build', 'Flutter'),
+              _buildInfoRow(context, '构建', 'Flutter'),
               const Divider(height: 16),
-              _buildInfoRow(context, 'Framework', 'Material 3'),
+              _buildInfoRow(context, '框架', 'Material 3'),
             ],
           ),
         ),

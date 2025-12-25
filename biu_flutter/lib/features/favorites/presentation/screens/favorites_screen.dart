@@ -70,8 +70,8 @@ class FavoritesScreen extends ConsumerWidget {
                 ],
                 bottom: const TabBar(
                   tabs: [
-                    Tab(text: 'Created'),
-                    Tab(text: 'Collected'),
+                    Tab(text: '创建的'),
+                    Tab(text: '收藏的'),
                   ],
                   labelColor: AppColors.primary,
                   unselectedLabelColor: AppColors.textSecondary,

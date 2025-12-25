@@ -94,14 +94,14 @@ class ProfileScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  isLoggedIn ? (user?.uname ?? 'User') : 'Not Logged In',
+                  isLoggedIn ? (user?.uname ?? '用户') : '未登录',
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: 4),
                 Text(
                   isLoggedIn
                       ? 'UID: ${user?.mid ?? ''}'
-                      : 'Login to access all features',
+                      : '登录以使用全部功能',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: AppColors.textSecondary,
                       ),
@@ -153,7 +153,7 @@ class ProfileScreen extends ConsumerWidget {
           icon: Icons.dark_mode,
           title: '主题',
           trailing: const Text(
-            'Dark',
+            '深色',
             style: TextStyle(color: AppColors.textSecondary),
           ),
           onTap: () => context.push(AppRoutes.settings),

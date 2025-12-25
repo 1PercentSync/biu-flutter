@@ -96,7 +96,7 @@ class _LaterScreenState extends ConsumerState<LaterScreen> {
           title: '需要登录',
           message: '请登录查看稍后再看列表',
           onRetry: () => context.go(AppRoutes.login),
-          retryText: 'Login',
+          retryText: '登录',
         ),
       );
     }
@@ -247,7 +247,7 @@ class _LaterScreenState extends ConsumerState<LaterScreen> {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(success ? 'Removed' : 'Failed to remove'),
+              content: Text(success ? '已移除' : '移除失败'),
               duration: const Duration(seconds: 2),
             ),
           );

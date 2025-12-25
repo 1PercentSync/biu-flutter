@@ -396,8 +396,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
       child: TabBar(
         controller: _tabController,
         tabs: const [
-          Tab(text: 'Videos'),
-          Tab(text: 'Users'),
+          Tab(text: '视频'),
+          Tab(text: '用户'),
         ],
         labelColor: AppColors.primary,
         unselectedLabelColor: AppColors.textSecondary,
@@ -491,7 +491,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                   : null,
               actions: [
                 VideoCardAction(
-                  label: 'Watch Later',
+                  label: '稍后再看',
                   icon: Icons.watch_later_outlined,
                   onTap: () => _addToWatchLater(video),
                 ),
@@ -537,7 +537,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
               : null,
           actions: [
             VideoCardAction(
-              label: 'Watch Later',
+              label: '稍后再看',
               icon: Icons.watch_later_outlined,
               onTap: () => _addToWatchLater(video),
             ),

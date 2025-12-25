@@ -86,7 +86,7 @@ class _FullPlayerScreenState extends ConsumerState<FullPlayerScreen> {
       title: Column(
         children: [
           Text(
-            'Now Playing',
+            '正在播放',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: AppColors.textSecondary,
                 ),
@@ -237,20 +237,23 @@ class _FullPlayerScreenState extends ConsumerState<FullPlayerScreen> {
   ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Column(
-        children: [
-          // Track info
-          _buildTrackInfo(context, currentItem),
-          const SizedBox(height: 24),
-          // Progress slider
-          _buildProgressSlider(playlistState),
-          const SizedBox(height: 24),
-          // Main controls
-          _buildMainControls(playlistState),
-          const SizedBox(height: 16),
-          // Secondary controls
-          _buildSecondaryControls(playlistState),
-        ],
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Track info
+            _buildTrackInfo(context, currentItem),
+            const SizedBox(height: 16),
+            // Progress slider
+            _buildProgressSlider(playlistState),
+            const SizedBox(height: 16),
+            // Main controls
+            _buildMainControls(playlistState),
+            const SizedBox(height: 8),
+            // Secondary controls
+            _buildSecondaryControls(playlistState),
+          ],
+        ),
       ),
     );
   }
@@ -285,10 +288,10 @@ class _FullPlayerScreenState extends ConsumerState<FullPlayerScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (currentItem.isLossless == true)
-                _buildBadge('Lossless'),
+                _buildBadge('无损'),
               if (currentItem.isDolby == true) ...[
                 const SizedBox(width: 8),
-                _buildBadge('Dolby'),
+                _buildBadge('杜比'),
               ],
             ],
           ),
@@ -566,13 +569,13 @@ class _FullPlayerScreenState extends ConsumerState<FullPlayerScreen> {
   String _getPlayModeTooltip(PlayMode mode) {
     switch (mode) {
       case PlayMode.sequence:
-        return 'Sequential';
+        return '顺序播放';
       case PlayMode.loop:
-        return 'Loop All';
+        return '列表循环';
       case PlayMode.single:
-        return 'Repeat One';
+        return '单曲循环';
       case PlayMode.random:
-        return 'Shuffle';
+        return '随机播放';
     }
   }
 
@@ -657,7 +660,7 @@ class _PlaylistSheet extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Playlist (${playlistState.length})',
+                    '播放列表 (${playlistState.length})',
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   TextButton(
@@ -778,7 +781,7 @@ class _VideoPageListSheetState extends State<_VideoPageListSheet> {
               child: Row(
                 children: [
                   Text(
-                    'Parts',
+                    '分P列表',
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const Spacer(),
@@ -816,7 +819,7 @@ class _VideoPageListSheetState extends State<_VideoPageListSheet> {
               child: _filteredPages.isEmpty
                   ? const Center(
                       child: Text(
-                        'No matching parts',
+                        '没有匹配的分P',
                         style: TextStyle(color: AppColors.textSecondary),
                       ),
                     )

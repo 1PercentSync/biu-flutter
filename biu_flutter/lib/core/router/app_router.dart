@@ -218,27 +218,27 @@ class MainShell extends ConsumerWidget {
           NavigationDestination(
             icon: Icon(Icons.home_outlined),
             selectedIcon: Icon(Icons.home),
-            label: 'Home',
+            label: '首页',
           ),
           NavigationDestination(
             icon: Icon(Icons.search_outlined),
             selectedIcon: Icon(Icons.search),
-            label: 'Search',
+            label: '搜索',
           ),
           NavigationDestination(
             icon: Icon(Icons.favorite_outline),
             selectedIcon: Icon(Icons.favorite),
-            label: 'Favorites',
+            label: '收藏',
           ),
           NavigationDestination(
             icon: Icon(Icons.history_outlined),
             selectedIcon: Icon(Icons.history),
-            label: 'History',
+            label: '历史',
           ),
           NavigationDestination(
             icon: Icon(Icons.person_outline),
             selectedIcon: Icon(Icons.person),
-            label: 'Profile',
+            label: '我的',
           ),
         ],
         selectedIndex: _calculateSelectedIndex(context),

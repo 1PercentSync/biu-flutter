@@ -150,7 +150,7 @@ class ErrorSnackBar {
         duration: duration,
         action: onRetry != null
             ? SnackBarAction(
-                label: 'Retry',
+                label: '重试',
                 textColor: Colors.white,
                 onPressed: onRetry,
               )

@@ -39,13 +39,13 @@ class SettingsScreen extends ConsumerWidget {
         children: [
           // Account section (only show when logged in)
           if (isLoggedIn) ...[
-            _buildSectionHeader(context, 'Account'),
+            _buildSectionHeader(context, '账户'),
             _buildUserTile(context, ref, user),
             const SizedBox(height: 24),
           ],
 
           // Audio settings
-          _buildSectionHeader(context, 'Audio'),
+          _buildSectionHeader(context, '音频'),
           _buildSettingTile(
             context,
             title: '音频质量',
@@ -55,7 +55,7 @@ class SettingsScreen extends ConsumerWidget {
           const SizedBox(height: 24),
 
           // Appearance settings
-          _buildSectionHeader(context, 'Appearance'),
+          _buildSectionHeader(context, '外观'),
           _buildSettingTile(
             context,
             title: '显示模式',
@@ -120,20 +120,20 @@ class SettingsScreen extends ConsumerWidget {
 
           // Menu customization (only show when logged in)
           if (isLoggedIn) ...[
-            _buildSectionHeader(context, 'Menu Customization'),
+            _buildSectionHeader(context, '菜单定制'),
             _buildSettingTile(
               context,
               title: '隐藏的收藏夹',
               subtitle: settings.hiddenFolderIds.isEmpty
-                  ? 'No folders hidden'
-                  : '${settings.hiddenFolderIds.length} folder(s) hidden',
+                  ? '无隐藏的收藏夹'
+                  : '已隐藏 ${settings.hiddenFolderIds.length} 个收藏夹',
               onTap: () => _showHiddenFoldersDialog(context, ref),
             ),
             const SizedBox(height: 24),
           ],
 
           // Storage settings
-          _buildSectionHeader(context, 'Storage'),
+          _buildSectionHeader(context, '存储'),
           _buildSettingTile(
             context,
             title: '清除缓存',
@@ -143,7 +143,7 @@ class SettingsScreen extends ConsumerWidget {
           const SizedBox(height: 24),
 
           // Data settings (import/export)
-          _buildSectionHeader(context, 'Data'),
+          _buildSectionHeader(context, '数据'),
           _buildSettingTile(
             context,
             title: '导出设置',
@@ -160,7 +160,7 @@ class SettingsScreen extends ConsumerWidget {
 
           // Account actions (only show when logged in)
           if (isLoggedIn) ...[
-            _buildSectionHeader(context, 'Session'),
+            _buildSectionHeader(context, '会话'),
             _buildSettingTile(
               context,
               title: '退出登录',
@@ -171,7 +171,7 @@ class SettingsScreen extends ConsumerWidget {
           ],
 
           // About settings
-          _buildSectionHeader(context, 'About'),
+          _buildSectionHeader(context, '关于'),
           _buildVersionTile(context, ref),
           _buildSettingTile(
             context,
@@ -233,7 +233,7 @@ class SettingsScreen extends ConsumerWidget {
                   ),
                 ),
         ),
-        title: Text(user?.uname ?? 'User'),
+        title: Text(user?.uname ?? '用户'),
         subtitle: Text(
           'UID: ${user?.mid ?? ''}',
           style: const TextStyle(color: AppColors.textSecondary),

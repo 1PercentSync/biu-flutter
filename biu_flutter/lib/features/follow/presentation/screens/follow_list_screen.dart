@@ -92,7 +92,7 @@ class _FollowListScreenState extends ConsumerState<FollowListScreen> {
           title: '需要登录',
           message: '请登录查看你的关注',
           onRetry: () => context.go(AppRoutes.login),
-          retryText: 'Login',
+          retryText: '登录',
         ),
       );
     }
@@ -222,7 +222,7 @@ class _FollowListScreenState extends ConsumerState<FollowListScreen> {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(success ? 'Unfollowed' : 'Failed to unfollow'),
+              content: Text(success ? '已取消关注' : '取消关注失败'),
               duration: const Duration(seconds: 2),
             ),
           );

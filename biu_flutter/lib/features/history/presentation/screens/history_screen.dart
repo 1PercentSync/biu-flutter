@@ -96,7 +96,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
           title: '需要登录',
           message: '请登录查看观看历史',
           onRetry: () => context.go(AppRoutes.login),
-          retryText: 'Login',
+          retryText: '登录',
         ),
       );
     }

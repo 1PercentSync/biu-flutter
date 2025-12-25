@@ -201,12 +201,21 @@ class _CollectedFoldersTab extends ConsumerWidget {
             );
           }
 
+          final folder = visibleFolders[index];
           return _FolderListItem(
-            folder: visibleFolders[index],
+            folder: folder,
             showMenu: false,
-            onTap: () => context.push(
-              AppRoutes.favoritesFolderPath(visibleFolders[index].id),
-            ),
+            onTap: () {
+              // Check folder type: 11 = favorite folder, 21 = video series
+              // Source: biu/src/common/constants/collection.ts
+              if (folder.type == 21) {
+                // Video series - navigate to collection detail
+                context.push(AppRoutes.collectionPath(folder.id, type: 'video_series'));
+              } else {
+                // Regular favorite folder
+                context.push(AppRoutes.favoritesFolderPath(folder.id));
+              }
+            },
           );
         },
       ),

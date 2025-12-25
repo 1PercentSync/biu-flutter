@@ -31,11 +31,18 @@ class AuthInterceptor extends Interceptor {
         if (options.method.toUpperCase() == 'POST') {
           // Add to form data
           if (options.data is Map) {
-            (options.data as Map)['csrf'] = csrfToken;
+            // Create new Map<String, dynamic> to avoid type errors
+            // Original map may be typed (e.g., Map<String, int>)
+            final originalData = options.data as Map;
+            options.data = <String, dynamic>{
+              for (final entry in originalData.entries)
+                entry.key.toString(): entry.value,
+              'csrf': csrfToken,
+            };
           } else if (options.data is FormData) {
             (options.data as FormData).fields.add(MapEntry('csrf', csrfToken));
           } else {
-            options.data = {'csrf': csrfToken};
+            options.data = <String, dynamic>{'csrf': csrfToken};
           }
         } else {
           // Add to query parameters

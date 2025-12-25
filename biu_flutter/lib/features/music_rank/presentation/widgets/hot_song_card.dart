@@ -52,10 +52,12 @@ class HotSongCard extends StatelessWidget {
             children: [
               // Cover image with rank badge
               _buildCoverSection(),
-              // Info section
-              Padding(
-                padding: const EdgeInsets.all(12),
-                child: _buildInfoSection(context),
+              // Info section - use Expanded to take remaining space
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: _buildInfoSection(context),
+                ),
               ),
             ],
           ),

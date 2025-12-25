@@ -307,7 +307,12 @@ class UserProfileRemoteDataSource {
   /// [dynIdStr] - Dynamic ID string
   /// [like] - true to like, false to unlike
   ///
-  /// Source: biu/src/service/web-dynamic-feed-thumb.ts
+  /// API params (from source):
+  /// - dyn_id_str: Dynamic ID string
+  /// - up: 1 for like, 2 for unlike
+  /// - csrf: CSRF token (handled by AuthInterceptor)
+  ///
+  /// Source: biu/src/service/web-dynamic-feed-thumb.ts#postDynamicFeedThumb
   Future<bool> likeDynamic({
     required String dynIdStr,
     required bool like,

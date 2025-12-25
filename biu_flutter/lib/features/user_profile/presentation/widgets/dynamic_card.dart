@@ -14,7 +14,9 @@ import '../../data/models/dynamic_item.dart';
 const _uuid = Uuid();
 
 /// Card widget for displaying a dynamic item.
+///
 /// Source: biu/src/pages/user-profile/dynamic-list/item.tsx
+/// Like API: biu/src/service/web-dynamic-feed-thumb.ts
 class DynamicCard extends ConsumerStatefulWidget {
   const DynamicCard({
     required this.item,
@@ -341,6 +343,7 @@ class _DynamicCardState extends ConsumerState<DynamicCard> {
             ),
           const Spacer(),
           // Like button with count
+          // Source: shows count or "点赞" text when count is 0
           InkWell(
             onTap: _isLiking ? null : _toggleLike,
             borderRadius: BorderRadius.circular(4),
@@ -354,17 +357,15 @@ class _DynamicCardState extends ConsumerState<DynamicCard> {
                     size: 18,
                     color: _isLiked ? AppColors.primary : AppColors.textSecondary,
                   ),
-                  if (_likeCount > 0) ...[
-                    const SizedBox(width: 4),
-                    Text(
-                      _formatNumber(_likeCount),
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: _isLiked
-                                ? AppColors.primary
-                                : AppColors.textSecondary,
-                          ),
-                    ),
-                  ],
+                  const SizedBox(width: 4),
+                  Text(
+                    _likeCount > 0 ? _formatNumber(_likeCount) : '点赞',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: _isLiked
+                              ? AppColors.primary
+                              : AppColors.textSecondary,
+                        ),
+                  ),
                 ],
               ),
             ),
@@ -375,25 +376,40 @@ class _DynamicCardState extends ConsumerState<DynamicCard> {
   }
 
   /// Toggle like state for this dynamic.
+  ///
+  /// Uses optimistic update pattern (matches source project behavior):
+  /// 1. Update UI immediately for responsive feel
+  /// 2. Call API in background
+  /// 3. Revert on error (enhancement over source which ignores errors)
+  ///
+  /// Source: biu/src/pages/user-profile/dynamic-list/item.tsx#handleThumb
   Future<void> _toggleLike() async {
     if (_isLiking) return;
 
-    setState(() => _isLiking = true);
+    final previousLiked = _isLiked;
+    final previousCount = _likeCount;
+    final newLikeState = !_isLiked;
+
+    // Optimistic update - update UI first
+    setState(() {
+      _isLiking = true;
+      _isLiked = newLikeState;
+      _likeCount += newLikeState ? 1 : -1;
+      if (_likeCount < 0) _likeCount = 0;
+    });
 
     try {
       final dataSource = UserProfileRemoteDataSource();
-      final newLikeState = !_isLiked;
       await dataSource.likeDynamic(
         dynIdStr: item.idStr,
         like: newLikeState,
       );
-
-      setState(() {
-        _isLiked = newLikeState;
-        _likeCount += newLikeState ? 1 : -1;
-        if (_likeCount < 0) _likeCount = 0;
-      });
     } catch (e) {
+      // Revert on error
+      setState(() {
+        _isLiked = previousLiked;
+        _likeCount = previousCount;
+      });
       GlobalSnackbar.showError('点赞失败');
     } finally {
       setState(() => _isLiking = false);

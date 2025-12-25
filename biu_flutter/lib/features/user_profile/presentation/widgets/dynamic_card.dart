@@ -26,6 +26,7 @@ class DynamicCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final author = item.modules.moduleAuthor;
     final dynamic = item.modules.moduleDynamic;
+    final stat = item.modules.moduleStat;
     final archive = dynamic.major?.videoInfo;
     final opus = dynamic.major?.opus;
 
@@ -90,10 +91,8 @@ class DynamicCard extends ConsumerWidget {
             ),
           ),
           // Footer: Action buttons
-          if (archive != null) ...[
-            const Divider(height: 1, color: AppColors.divider),
-            _buildActionFooter(context, ref, archive),
-          ],
+          const Divider(height: 1, color: AppColors.divider),
+          _buildActionFooter(context, ref, archive, stat),
         ],
       ),
     );
@@ -306,39 +305,59 @@ class DynamicCard extends ConsumerWidget {
   }
 
   /// Build footer with action buttons.
-  /// Source: biu/src/components/dynamic-feed/more-menu.tsx
+  /// Source: biu/src/components/dynamic-feed/item.tsx
   Widget _buildActionFooter(
-      BuildContext context, WidgetRef ref, MajorArchive archive) {
+      BuildContext context, WidgetRef ref, MajorArchive? archive, ModuleStat? stat) {
+    final likeCount = stat?.like?.count ?? 0;
+
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       child: Row(
         children: [
-          // Open in B站
-          TextButton.icon(
-            onPressed: () => _openInBrowser(archive),
-            icon: const Icon(Icons.open_in_browser, size: 16),
-            label: const Text('在B站打开'),
-            style: TextButton.styleFrom(
-              foregroundColor: AppColors.textSecondary,
-              textStyle: const TextStyle(fontSize: 12),
-              padding: const EdgeInsets.symmetric(horizontal: 8),
+          // Open in browser
+          if (archive != null)
+            IconButton(
+              onPressed: () => _openInBrowser(archive),
+              icon: const Icon(Icons.open_in_new, size: 20),
+              color: AppColors.textSecondary,
+              tooltip: '在B站打开',
+              constraints: const BoxConstraints(),
+              padding: EdgeInsets.zero,
             ),
-          ),
-          const SizedBox(width: 8),
-          // Add to play next
-          TextButton.icon(
-            onPressed: () => _addToPlayNext(ref, archive),
-            icon: const Icon(Icons.playlist_add, size: 16),
-            label: const Text('下一首播放'),
-            style: TextButton.styleFrom(
-              foregroundColor: AppColors.textSecondary,
-              textStyle: const TextStyle(fontSize: 12),
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-            ),
+          const Spacer(),
+          // Like button with count
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.thumb_up_outlined,
+                size: 18,
+                color: AppColors.textSecondary,
+              ),
+              if (likeCount > 0) ...[
+                const SizedBox(width: 4),
+                Text(
+                  _formatNumber(likeCount),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                ),
+              ],
+            ],
           ),
         ],
       ),
     );
+  }
+
+  /// Format number for display.
+  String _formatNumber(int num) {
+    if (num >= 100000000) {
+      return '${(num / 100000000).toStringAsFixed(1)}亿';
+    } else if (num >= 10000) {
+      return '${(num / 10000).toStringAsFixed(1)}万';
+    }
+    return num.toString();
   }
 
   /// Open video in browser.
@@ -350,24 +369,6 @@ class DynamicCard extends ConsumerWidget {
     } else {
       GlobalSnackbar.showError('无法打开浏览器');
     }
-  }
-
-  /// Add video to play next.
-  void _addToPlayNext(WidgetRef ref, MajorArchive archive) {
-    final playItem = PlayItem(
-      id: _uuid.v4(),
-      title: archive.title,
-      type: PlayDataType.mv,
-      bvid: archive.bvid,
-      aid: archive.aid,
-      cover: archive.cover,
-      ownerName: item.modules.moduleAuthor.name,
-      ownerMid: item.modules.moduleAuthor.mid,
-      duration: _parseDuration(archive.durationText),
-    );
-
-    ref.read(playlistProvider.notifier).addToNext(playItem);
-    GlobalSnackbar.showSuccess('已添加到下一首播放');
   }
 
   /// Format timestamp to relative time.

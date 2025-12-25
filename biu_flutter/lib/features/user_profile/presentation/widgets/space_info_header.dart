@@ -178,34 +178,14 @@ class SpaceInfoHeader extends StatelessWidget {
   }
 
   Widget _buildAvatar({required double size}) {
-    return Stack(
-      children: [
-        ClipOval(
-          child: AppCachedImage(
-            imageUrl: spaceInfo.face,
-            width: size,
-            height: size,
-          ),
-        ),
-        // VIP badge on avatar
-        if (spaceInfo.isVip)
-          Positioned(
-            right: 0,
-            bottom: 0,
-            child: Container(
-              padding: const EdgeInsets.all(2),
-              decoration: BoxDecoration(
-                color: Colors.pink,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(
-                Icons.star,
-                size: 12,
-                color: Colors.white,
-              ),
-            ),
-          ),
-      ],
+    // Source: biu/src/pages/user-profile/space-info.tsx:82
+    // Avatar without VIP badge overlay (VIP shown as label next to name)
+    return ClipOval(
+      child: AppCachedImage(
+        imageUrl: spaceInfo.face,
+        width: size,
+        height: size,
+      ),
     );
   }
 

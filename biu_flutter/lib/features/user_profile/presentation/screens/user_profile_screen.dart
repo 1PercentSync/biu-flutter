@@ -85,12 +85,13 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
   void _updateTabs(UserProfileState state, int? currentUserId, bool isSelf) {
     // Build tabs based on privacy settings
     // Source: biu/src/pages/user-profile/index.tsx:96-118
+    // Labels: 动态, 投稿, 收藏夹, 合集
     final newTabs = <_ProfileTab>[
       const _ProfileTab(key: 'dynamic', label: '动态'),
-      const _ProfileTab(key: 'video', label: '视频'),
+      const _ProfileTab(key: 'video', label: '投稿'),
       _ProfileTab(
         key: 'favorites',
-        label: '收藏',
+        label: '收藏夹',
         hidden: !isSelf && !state.shouldShowFavoritesTab(currentUserId),
       ),
       const _ProfileTab(key: 'union', label: '合集'),

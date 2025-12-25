@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -12,6 +13,11 @@ import '../../domain/entities/app_settings.dart';
 
 /// Storage key for settings
 const _settingsStorageKey = 'app_settings';
+
+/// Provider for package info (app version, build number, etc.)
+final packageInfoProvider = FutureProvider<PackageInfo>((ref) async {
+  return PackageInfo.fromPlatform();
+});
 
 /// Provider for settings.
 /// Source: biu/src/store/settings.ts#useSettings

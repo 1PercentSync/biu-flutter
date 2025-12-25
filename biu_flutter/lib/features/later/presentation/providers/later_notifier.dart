@@ -34,9 +34,7 @@ class LaterNotifier extends StateNotifier<LaterState> {
     );
 
     try {
-      final response = await _dataSource.getWatchLaterList(
-        
-      );
+      final response = await _dataSource.getWatchLaterList();
 
       final hasMore = response.list.length >= _pageSize &&
           response.list.length < response.count;
@@ -109,9 +107,7 @@ class LaterNotifier extends StateNotifier<LaterState> {
     );
 
     try {
-      final response = await _dataSource.getWatchLaterList(
-        
-      );
+      final response = await _dataSource.getWatchLaterList();
 
       final hasMore = response.list.length >= _pageSize &&
           response.list.length < response.count;

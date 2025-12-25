@@ -138,3 +138,160 @@ class AudioStreamResponse {
     'data': data?.toJson(),
   };
 }
+
+/// Statistics for an audio song
+class AudioSongStatistic {
+  const AudioSongStatistic({
+    required this.sid,
+    required this.play,
+    required this.collect,
+    required this.comment,
+    required this.share,
+  });
+
+  factory AudioSongStatistic.fromJson(Map<String, dynamic> json) {
+    return AudioSongStatistic(
+      sid: json['sid'] as int? ?? 0,
+      play: json['play'] as int? ?? 0,
+      collect: json['collect'] as int? ?? 0,
+      comment: json['comment'] as int? ?? 0,
+      share: json['share'] as int? ?? 0,
+    );
+  }
+
+  /// Audio song ID
+  final int sid;
+
+  /// Play count
+  final int play;
+
+  /// Collect (favorite) count
+  final int collect;
+
+  /// Comment count
+  final int comment;
+
+  /// Share count
+  final int share;
+
+  Map<String, dynamic> toJson() => {
+    'sid': sid,
+    'play': play,
+    'collect': collect,
+    'comment': comment,
+    'share': share,
+  };
+}
+
+/// Audio song info data
+/// Source: biu/src/service/audio-song-info.ts#AudioSongInfoData
+class AudioSongInfo {
+  const AudioSongInfo({
+    required this.id,
+    required this.uid,
+    required this.uname,
+    required this.author,
+    required this.title,
+    required this.cover,
+    required this.intro,
+    required this.lyric,
+    required this.duration,
+    required this.passtime,
+    required this.curtime,
+    required this.aid,
+    required this.bvid,
+    required this.cid,
+    this.statistic,
+    this.coinNum = 0,
+  });
+
+  factory AudioSongInfo.fromJson(Map<String, dynamic> json) {
+    return AudioSongInfo(
+      id: json['id'] as int? ?? 0,
+      uid: json['uid'] as int? ?? 0,
+      uname: json['uname'] as String? ?? '',
+      author: json['author'] as String? ?? '',
+      title: json['title'] as String? ?? '',
+      cover: json['cover'] as String? ?? '',
+      intro: json['intro'] as String? ?? '',
+      lyric: json['lyric'] as String? ?? '',
+      duration: json['duration'] as int? ?? 0,
+      passtime: json['passtime'] as int? ?? 0,
+      curtime: json['curtime'] as int? ?? 0,
+      aid: json['aid'] as int? ?? 0,
+      bvid: json['bvid'] as String? ?? '',
+      cid: json['cid'] as int? ?? 0,
+      statistic: json['statistic'] != null
+          ? AudioSongStatistic.fromJson(json['statistic'] as Map<String, dynamic>)
+          : null,
+      coinNum: json['coin_num'] as int? ?? 0,
+    );
+  }
+
+  /// Audio song ID
+  final int id;
+
+  /// Uploader user ID
+  final int uid;
+
+  /// Uploader username
+  final String uname;
+
+  /// Author name
+  final String author;
+
+  /// Song title
+  final String title;
+
+  /// Cover image URL
+  final String cover;
+
+  /// Song introduction
+  final String intro;
+
+  /// Lyrics URL (LRC format)
+  final String lyric;
+
+  /// Duration in seconds
+  final int duration;
+
+  /// Publish timestamp
+  final int passtime;
+
+  /// Current request timestamp
+  final int curtime;
+
+  /// Associated video AVID (0 if none)
+  final int aid;
+
+  /// Associated video BVID (empty if none)
+  final String bvid;
+
+  /// Associated video CID (0 if none)
+  final int cid;
+
+  /// Song statistics
+  final AudioSongStatistic? statistic;
+
+  /// Coin count
+  final int coinNum;
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'uid': uid,
+    'uname': uname,
+    'author': author,
+    'title': title,
+    'cover': cover,
+    'intro': intro,
+    'lyric': lyric,
+    'duration': duration,
+    'passtime': passtime,
+    'curtime': curtime,
+    'aid': aid,
+    'bvid': bvid,
+    'cid': cid,
+    'statistic': statistic?.toJson(),
+    'coin_num': coinNum,
+  };
+}

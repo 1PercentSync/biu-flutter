@@ -32,9 +32,7 @@ class HistoryNotifier extends StateNotifier<HistoryState> {
     );
 
     try {
-      final response = await _dataSource.getHistoryCursor(
-        
-      );
+      final response = await _dataSource.getHistoryCursor();
 
       state = state.copyWith(
         items: response.list,
@@ -102,9 +100,7 @@ class HistoryNotifier extends StateNotifier<HistoryState> {
     );
 
     try {
-      final response = await _dataSource.getHistoryCursor(
-        
-      );
+      final response = await _dataSource.getHistoryCursor();
 
       state = state.copyWith(
         items: response.list,

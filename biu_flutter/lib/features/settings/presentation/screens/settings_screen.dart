@@ -172,11 +172,7 @@ class SettingsScreen extends ConsumerWidget {
 
           // About settings
           _buildSectionHeader(context, 'About'),
-          _buildSettingTile(
-            context,
-            title: 'Version',
-            subtitle: '1.0.0',
-          ),
+          _buildVersionTile(context, ref),
           _buildSettingTile(
             context,
             title: 'About',
@@ -186,10 +182,11 @@ class SettingsScreen extends ConsumerWidget {
             context,
             title: 'Open Source Licenses',
             onTap: () {
+              final packageInfo = ref.read(packageInfoProvider).valueOrNull;
               showLicensePage(
                 context: context,
                 applicationName: 'Biu',
-                applicationVersion: '1.0.0',
+                applicationVersion: packageInfo?.version ?? '...',
               );
             },
           ),
@@ -276,6 +273,29 @@ class SettingsScreen extends ConsumerWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppTheme.borderRadius),
         ),
+      ),
+    );
+  }
+
+  /// Build version tile that reads from package_info_plus.
+  Widget _buildVersionTile(BuildContext context, WidgetRef ref) {
+    final packageInfoAsync = ref.watch(packageInfoProvider);
+
+    return packageInfoAsync.when(
+      data: (packageInfo) => _buildSettingTile(
+        context,
+        title: 'Version',
+        subtitle: packageInfo.version,
+      ),
+      loading: () => _buildSettingTile(
+        context,
+        title: 'Version',
+        subtitle: '...',
+      ),
+      error: (error, stack) => _buildSettingTile(
+        context,
+        title: 'Version',
+        subtitle: 'Unknown',
       ),
     );
   }

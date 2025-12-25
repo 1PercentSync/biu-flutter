@@ -1,19 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../shared/theme/theme.dart';
+import '../providers/settings_notifier.dart';
 
 /// About screen showing app version and licenses.
 /// Flutter-only: Source shows version info inline in system-settings.tsx.
-class AboutScreen extends StatelessWidget {
+class AboutScreen extends ConsumerWidget {
   const AboutScreen({super.key});
 
   static const String appName = 'Biu';
-  static const String appVersion = '1.0.0';
   static const String appDescription =
       'A music player for Bilibili audio content.';
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final packageInfoAsync = ref.watch(packageInfoProvider);
+    final version = packageInfoAsync.valueOrNull?.version ?? '...';
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -24,19 +28,19 @@ class AboutScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         children: [
           // App info section
-          _buildAppInfoSection(context),
+          _buildAppInfoSection(context, version),
           const SizedBox(height: 32),
           // Links section
-          _buildLinksSection(context),
+          _buildLinksSection(context, version),
           const SizedBox(height: 32),
           // Version info
-          _buildVersionSection(context),
+          _buildVersionSection(context, version),
         ],
       ),
     );
   }
 
-  Widget _buildAppInfoSection(BuildContext context) {
+  Widget _buildAppInfoSection(BuildContext context, String version) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -68,7 +72,7 @@ class AboutScreen extends StatelessWidget {
           const SizedBox(height: 4),
           // Version
           Text(
-            'Version $appVersion',
+            'Version $version',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: AppColors.textSecondary,
                 ),
@@ -87,7 +91,7 @@ class AboutScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildLinksSection(BuildContext context) {
+  Widget _buildLinksSection(BuildContext context, String version) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -108,7 +112,7 @@ class AboutScreen extends StatelessWidget {
             showLicensePage(
               context: context,
               applicationName: appName,
-              applicationVersion: appVersion,
+              applicationVersion: version,
               applicationIcon: Container(
                 width: 48,
                 height: 48,
@@ -128,7 +132,7 @@ class AboutScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildVersionSection(BuildContext context) {
+  Widget _buildVersionSection(BuildContext context, String version) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -149,7 +153,7 @@ class AboutScreen extends StatelessWidget {
           ),
           child: Column(
             children: [
-              _buildInfoRow(context, 'App Version', appVersion),
+              _buildInfoRow(context, 'App Version', version),
               const Divider(height: 16),
               _buildInfoRow(context, 'Build', 'Flutter'),
               const Divider(height: 16),

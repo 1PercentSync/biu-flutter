@@ -13,7 +13,11 @@ class AudioRemoteDataSource {
   /// GET /audio/music-service-c/url
   ///
   /// [songId] - Audio song ID
-  /// [quality] - Audio quality (2: 192kbps, 3: 320kbps/FLAC for VIP)
+  /// [quality] - Audio quality level:
+  ///   - 0: 128kbps
+  ///   - 1: 192kbps
+  ///   - 2: 320kbps (requires VIP)
+  ///   - 3: FLAC lossless (requires VIP)
   /// [mid] - User mid (optional)
   Future<AudioStreamData> getAudioStreamUrl({
     required int songId,
@@ -49,9 +53,11 @@ class AudioRemoteDataSource {
     return AudioStreamData.fromJson(audioData);
   }
 
-  /// Get audio info
+  /// Get audio song info
   /// GET /audio/music-service-c/songs/playing
-  Future<Map<String, dynamic>> getAudioInfo({required int songId}) async {
+  ///
+  /// Returns typed [AudioSongInfo] instead of raw Map for type safety.
+  Future<AudioSongInfo> getAudioInfo({required int songId}) async {
     final response = await _dio.get<Map<String, dynamic>>(
       '/audio/music-service-c/songs/playing',
       queryParameters: {
@@ -64,7 +70,12 @@ class AudioRemoteDataSource {
       throw Exception('Failed to get audio info');
     }
 
-    return data['data'] as Map<String, dynamic>? ?? {};
+    final songData = data['data'] as Map<String, dynamic>?;
+    if (songData == null) {
+      throw Exception('Audio song data is null');
+    }
+
+    return AudioSongInfo.fromJson(songData);
   }
 }
 

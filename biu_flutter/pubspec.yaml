@@ -78,6 +78,9 @@ dependencies:
   # URL launcher for opening external links
   url_launcher: ^6.2.0
 
+  # Package info for version display
+  package_info_plus: ^8.0.0
+
   # WebView for Geetest captcha (mobile only)
   # Note: Only used on iOS/Android for captcha verification
   webview_flutter: ^4.10.0

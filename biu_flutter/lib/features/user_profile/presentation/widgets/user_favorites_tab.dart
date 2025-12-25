@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/extensions/datetime_extensions.dart';
+import '../../../../core/router/routes.dart';
 import '../../../../shared/theme/theme.dart';
 import '../../../../shared/widgets/cached_image.dart';
 import '../../../../shared/widgets/empty_state.dart';
@@ -76,7 +77,7 @@ class _UserFavoritesTabState extends ConsumerState<UserFavoritesTab> {
   }
 
   void _navigateToFolder(FolderModel folder) {
-    context.push('/collection/${folder.id}?type=favorite');
+    context.push(AppRoutes.collectionPath(folder.id, type: 'favorite'));
   }
 }
 

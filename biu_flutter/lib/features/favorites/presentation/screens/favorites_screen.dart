@@ -6,9 +6,40 @@ import '../../../../core/router/routes.dart';
 import '../../../../shared/theme/theme.dart';
 import '../../../../shared/widgets/cached_image.dart';
 import '../../../../shared/widgets/empty_state.dart';
+import '../../../settings/presentation/providers/settings_notifier.dart';
 import '../../domain/entities/favorites_folder.dart';
 import '../providers/favorites_notifier.dart';
 import '../widgets/folder_edit_dialog.dart';
+
+/// Show dialog to create a new folder.
+///
+/// Extracted to top-level to avoid duplication in FavoritesScreen and _CreatedFoldersTab.
+void _showCreateFolderDialog(BuildContext context, WidgetRef ref) {
+  showDialog<void>(
+    context: context,
+    builder: (context) => FolderEditDialog(
+      onSubmit: ({
+        required String title,
+        required String intro,
+        required bool isPublic,
+      }) async {
+        final notifier = ref.read(favoritesListProvider.notifier);
+        final success = await notifier.createFolder(
+          title: title,
+          intro: intro,
+          isPublic: isPublic,
+        );
+        if (success && context.mounted) {
+          Navigator.of(context).pop();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Folder created successfully')),
+          );
+        }
+        return success;
+      },
+    ),
+  );
+}
 
 /// Favorites screen showing user's favorite collections.
 ///
@@ -60,45 +91,24 @@ class FavoritesScreen extends ConsumerWidget {
       ),
     );
   }
-
-  void _showCreateFolderDialog(BuildContext context, WidgetRef ref) {
-    showDialog<void>(
-      context: context,
-      builder: (context) => FolderEditDialog(
-        onSubmit: ({
-          required String title,
-          required String intro,
-          required bool isPublic,
-        }) async {
-          final notifier = ref.read(favoritesListProvider.notifier);
-          final success = await notifier.createFolder(
-            title: title,
-            intro: intro,
-            isPublic: isPublic,
-          );
-          if (success && context.mounted) {
-            Navigator.of(context).pop();
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Folder created successfully')),
-            );
-          }
-          return success;
-        },
-      ),
-    );
-  }
 }
 
 class _CreatedFoldersTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(favoritesListProvider);
+    final hiddenIds = ref.watch(hiddenFolderIdsProvider);
 
-    if (state.isLoadingCreated && state.createdFolders.isEmpty) {
+    // Filter out hidden folders
+    final visibleFolders = state.createdFolders
+        .where((folder) => !hiddenIds.contains(folder.id))
+        .toList();
+
+    if (state.isLoadingCreated && visibleFolders.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     }
 
-    if (state.createdFolders.isEmpty) {
+    if (visibleFolders.isEmpty) {
       return EmptyState(
         icon: const Icon(
           Icons.folder_special,
@@ -119,9 +129,9 @@ class _CreatedFoldersTab extends ConsumerWidget {
       onRefresh: () => ref.read(favoritesListProvider.notifier).refresh(),
       child: ListView.builder(
         padding: const EdgeInsets.symmetric(vertical: 8),
-        itemCount: state.createdFolders.length + (state.createdHasMore ? 1 : 0),
+        itemCount: visibleFolders.length + (state.createdHasMore ? 1 : 0),
         itemBuilder: (context, index) {
-          if (index >= state.createdFolders.length) {
+          if (index >= visibleFolders.length) {
             // Load more
             WidgetsBinding.instance.addPostFrameCallback((_) {
               ref.read(favoritesListProvider.notifier).loadMoreCreatedFolders();
@@ -133,39 +143,12 @@ class _CreatedFoldersTab extends ConsumerWidget {
           }
 
           return _FolderListItem(
-            folder: state.createdFolders[index],
+            folder: visibleFolders[index],
             showMenu: true,
             onTap: () => context.push(
-              AppRoutes.favoritesFolderPath(state.createdFolders[index].id),
+              AppRoutes.favoritesFolderPath(visibleFolders[index].id),
             ),
           );
-        },
-      ),
-    );
-  }
-
-  void _showCreateFolderDialog(BuildContext context, WidgetRef ref) {
-    showDialog<void>(
-      context: context,
-      builder: (context) => FolderEditDialog(
-        onSubmit: ({
-          required String title,
-          required String intro,
-          required bool isPublic,
-        }) async {
-          final notifier = ref.read(favoritesListProvider.notifier);
-          final success = await notifier.createFolder(
-            title: title,
-            intro: intro,
-            isPublic: isPublic,
-          );
-          if (success && context.mounted) {
-            Navigator.of(context).pop();
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Folder created successfully')),
-            );
-          }
-          return success;
         },
       ),
     );
@@ -176,12 +159,18 @@ class _CollectedFoldersTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(favoritesListProvider);
+    final hiddenIds = ref.watch(hiddenFolderIdsProvider);
 
-    if (state.isLoadingCollected && state.collectedFolders.isEmpty) {
+    // Filter out hidden folders
+    final visibleFolders = state.collectedFolders
+        .where((folder) => !hiddenIds.contains(folder.id))
+        .toList();
+
+    if (state.isLoadingCollected && visibleFolders.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     }
 
-    if (state.collectedFolders.isEmpty) {
+    if (visibleFolders.isEmpty) {
       return const EmptyState(
         icon: Icon(
           Icons.bookmark,
@@ -197,10 +186,9 @@ class _CollectedFoldersTab extends ConsumerWidget {
       onRefresh: () => ref.read(favoritesListProvider.notifier).refresh(),
       child: ListView.builder(
         padding: const EdgeInsets.symmetric(vertical: 8),
-        itemCount:
-            state.collectedFolders.length + (state.collectedHasMore ? 1 : 0),
+        itemCount: visibleFolders.length + (state.collectedHasMore ? 1 : 0),
         itemBuilder: (context, index) {
-          if (index >= state.collectedFolders.length) {
+          if (index >= visibleFolders.length) {
             // Load more
             WidgetsBinding.instance.addPostFrameCallback((_) {
               ref
@@ -214,10 +202,10 @@ class _CollectedFoldersTab extends ConsumerWidget {
           }
 
           return _FolderListItem(
-            folder: state.collectedFolders[index],
+            folder: visibleFolders[index],
             showMenu: false,
             onTap: () => context.push(
-              AppRoutes.favoritesFolderPath(state.collectedFolders[index].id),
+              AppRoutes.favoritesFolderPath(visibleFolders[index].id),
             ),
           );
         },

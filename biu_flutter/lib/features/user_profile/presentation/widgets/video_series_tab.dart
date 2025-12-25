@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/extensions/datetime_extensions.dart';
+import '../../../../core/router/routes.dart';
 import '../../../../shared/theme/theme.dart';
 import '../../../../shared/widgets/cached_image.dart';
 import '../../../../shared/widgets/empty_state.dart';
@@ -195,7 +196,7 @@ class _VideoSeriesTabState extends State<VideoSeriesTab> {
     // Navigate to collection detail
     // Source: biu/src/pages/user-profile/video-series.tsx:71
     // navigate(`/collection/${item.id}?type=${CollectionType.VideoSeries}`)
-    context.push('/collection/${item.id}?type=video_series');
+    context.push(AppRoutes.collectionPath(item.id, type: 'video_series'));
   }
 }
 

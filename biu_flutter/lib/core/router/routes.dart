@@ -49,6 +49,13 @@ class AppRoutes {
 
   /// Build favorites folder path
   static String favoritesFolderPath(int folderId) => '/favorites/$folderId';
+
+  /// Collection page (video series, favorites, etc.)
+  static const String collection = '/collection/:id';
+
+  /// Build collection path with type parameter
+  static String collectionPath(int id, {required String type}) =>
+      '/collection/$id?type=$type';
 }
 
 /// Routes that require authentication

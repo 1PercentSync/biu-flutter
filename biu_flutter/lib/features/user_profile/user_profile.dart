@@ -15,5 +15,6 @@ export 'presentation/screens/user_profile_screen.dart';
 export 'presentation/widgets/dynamic_card.dart';
 export 'presentation/widgets/dynamic_list.dart';
 export 'presentation/widgets/space_info_header.dart';
+export 'presentation/widgets/user_favorites_tab.dart';
 export 'presentation/widgets/video_post_card.dart';
 export 'presentation/widgets/video_series_tab.dart';

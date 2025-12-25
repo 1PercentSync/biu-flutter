@@ -39,7 +39,7 @@ class Musician {
       danmuCount: json['danmu_count'] as int? ?? 0,
       selfIntro: json['self_intro'] as String? ?? '',
       title: json['title'] as String? ?? '',
-      uid: json['uid']?.toString() ?? '',
+      uid: json['uid'] as int? ?? 0,
       vtDisplay: json['vt_display'] as String? ?? '',
       vvCount: json['vv_count'] as int? ?? 0,
       isVt: json['is_vt'] as int? ?? 0,
@@ -87,7 +87,7 @@ class Musician {
   final String title;
 
   /// User ID
-  final String uid;
+  final int uid;
 
   /// VT display text
   final String vtDisplay;

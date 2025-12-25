@@ -33,16 +33,16 @@ class HomeScreen extends ConsumerWidget {
             SliverAppBar(
               floating: true,
               backgroundColor: AppColors.background,
-              title: const Text('Hot Songs'),
+              title: const Text('热歌精选'),
               actions: [
                 IconButton(
                   icon: const Icon(Icons.recommend_outlined),
-                  tooltip: 'Music Recommend',
+                  tooltip: '音乐推荐',
                   onPressed: () => context.push(AppRoutes.musicRecommend),
                 ),
                 IconButton(
                   icon: const Icon(Icons.people_outline),
-                  tooltip: 'Music Artists',
+                  tooltip: '音乐大咖',
                   onPressed: () => context.push(AppRoutes.artistRank),
                 ),
                 IconButton(
@@ -66,7 +66,7 @@ class HomeScreen extends ConsumerWidget {
     if (state.isLoading && state.songs.isEmpty) {
       return const SliverFillRemaining(
         hasScrollBody: false,
-        child: LoadingState(message: 'Loading hot songs...'),
+        child: LoadingState(message: '加载热歌中...'),
       );
     }
 
@@ -74,7 +74,7 @@ class HomeScreen extends ConsumerWidget {
       return SliverFillRemaining(
         hasScrollBody: false,
         child: ErrorState(
-          title: 'Failed to load',
+          title: '加载失败',
           message: state.errorMessage,
           onRetry: () => ref.read(musicRankProvider.notifier).load(),
         ),
@@ -85,8 +85,8 @@ class HomeScreen extends ConsumerWidget {
       return const SliverFillRemaining(
         hasScrollBody: false,
         child: ErrorState(
-          title: 'No songs',
-          message: 'No hot songs available at the moment.',
+          title: '暂无数据',
+          message: '当前没有热门歌曲。',
         ),
       );
     }

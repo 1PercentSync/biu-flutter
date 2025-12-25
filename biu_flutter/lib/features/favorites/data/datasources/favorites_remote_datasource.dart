@@ -233,6 +233,7 @@ class FavoritesRemoteDataSource extends BaseApiService {
       '/x/v3/fav/folder/fav',
       data: {
         'media_id': mediaId,
+        'platform': 'web',
       },
       options: const BiliRequestOptions(useCSRF: true),
     );
@@ -245,6 +246,7 @@ class FavoritesRemoteDataSource extends BaseApiService {
       '/x/v3/fav/folder/unfav',
       data: {
         'media_id': mediaId,
+        'platform': 'web',
       },
       options: const BiliRequestOptions(useCSRF: true),
     );

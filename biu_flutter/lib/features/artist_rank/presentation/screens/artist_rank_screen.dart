@@ -39,7 +39,7 @@ class _ArtistRankScreenState extends ConsumerState<ArtistRankScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Music Artists'),
+        title: const Text('音乐大咖'),
         backgroundColor: AppColors.background,
         elevation: 0,
       ),
@@ -49,7 +49,7 @@ class _ArtistRankScreenState extends ConsumerState<ArtistRankScreen> {
 
   Widget _buildBody(BuildContext context, ArtistRankState state) {
     if (state.isLoading && state.musicians.isEmpty) {
-      return const LoadingState(message: 'Loading artists...');
+      return const LoadingState(message: '加载音乐人中...');
     }
 
     if (state.hasError && state.musicians.isEmpty) {
@@ -59,11 +59,11 @@ class _ArtistRankScreenState extends ConsumerState<ArtistRankScreen> {
           size: 48,
           color: AppColors.error,
         ),
-        title: 'Failed to Load',
+        title: '加载失败',
         message: state.errorMessage,
         action: ElevatedButton(
           onPressed: () => ref.read(artistRankProvider.notifier).load(),
-          child: const Text('Retry'),
+          child: const Text('重试'),
         ),
       );
     }
@@ -75,8 +75,8 @@ class _ArtistRankScreenState extends ConsumerState<ArtistRankScreen> {
           size: 48,
           color: AppColors.textTertiary,
         ),
-        title: 'No Artists',
-        message: 'No artists found',
+        title: '暂无数据',
+        message: '暂无音乐人数据',
       );
     }
 

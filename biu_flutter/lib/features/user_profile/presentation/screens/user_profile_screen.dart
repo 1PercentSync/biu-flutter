@@ -6,6 +6,8 @@ import '../../../../core/constants/audio.dart';
 import '../../../../shared/theme/theme.dart';
 import '../../../auth/auth.dart';
 import '../../../player/player.dart';
+import '../../../settings/domain/entities/app_settings.dart';
+import '../../../settings/presentation/providers/settings_notifier.dart';
 import '../../data/models/space_arc_search.dart';
 import '../providers/user_profile_notifier.dart';
 import '../providers/user_profile_state.dart';
@@ -121,6 +123,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
   Widget build(BuildContext context) {
     final state = ref.watch(userProfileProvider(widget.mid));
     final authState = ref.watch(authNotifierProvider);
+    final displayMode = ref.watch(displayModeProvider);
     final isSelf = authState.user?.mid == widget.mid;
     final currentUserId = authState.user?.mid;
 
@@ -188,7 +191,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                       case 'dynamic':
                         return DynamicList(mid: widget.mid);
                       case 'video':
-                        return _buildVideosContent(context, state);
+                        return _buildVideosContent(context, state, displayMode);
                       case 'favorites':
                         return UserFavoritesTab(mid: widget.mid);
                       case 'union':
@@ -219,12 +222,18 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
     );
   }
 
-  Widget _buildVideosContent(BuildContext context, UserProfileState state) {
+  Widget _buildVideosContent(
+    BuildContext context,
+    UserProfileState state,
+    DisplayMode displayMode,
+  ) {
     return Column(
       children: [
         _buildSearchFilter(context, state),
         Expanded(
-          child: _buildVideosGrid(context, state),
+          child: displayMode == DisplayMode.card
+              ? _buildVideosGrid(context, state)
+              : _buildVideosList(context, state),
         ),
       ],
     );
@@ -320,23 +329,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
     final videos = state.videos ?? [];
 
     if (videos.isEmpty) {
-      return const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.video_library_outlined,
-              size: 64,
-              color: AppColors.textSecondary,
-            ),
-            SizedBox(height: 16),
-            Text(
-              'No videos found',
-              style: TextStyle(color: AppColors.textSecondary),
-            ),
-          ],
-        ),
-      );
+      return _buildEmptyVideos();
     }
 
     return GridView.builder(
@@ -370,6 +363,66 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
           onTap: () => _playVideo(video),
         );
       },
+    );
+  }
+
+  /// List view for videos (when displayMode is list)
+  /// Source: biu/src/pages/user-profile/video-post.tsx:110
+  Widget _buildVideosList(BuildContext context, UserProfileState state) {
+    if (state.isLoadingVideos && (state.videos?.isEmpty ?? true)) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    final videos = state.videos ?? [];
+
+    if (videos.isEmpty) {
+      return _buildEmptyVideos();
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      itemCount: videos.length + (state.hasMoreVideos ? 1 : 0),
+      itemBuilder: (context, index) {
+        // Loading indicator at the end
+        if (index == videos.length) {
+          if (state.isLoadingMore) {
+            return const Padding(
+              padding: EdgeInsets.all(16),
+              child: Center(child: CircularProgressIndicator()),
+            );
+          }
+          return const SizedBox.shrink();
+        }
+
+        final video = videos[index];
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: VideoPostListTile(
+            video: video,
+            onTap: () => _playVideo(video),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildEmptyVideos() {
+    return const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.video_library_outlined,
+            size: 64,
+            color: AppColors.textSecondary,
+          ),
+          SizedBox(height: 16),
+          Text(
+            '暂无视频',
+            style: TextStyle(color: AppColors.textSecondary),
+          ),
+        ],
+      ),
     );
   }
 

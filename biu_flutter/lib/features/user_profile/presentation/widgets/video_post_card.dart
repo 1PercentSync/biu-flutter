@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../../../../shared/theme/theme.dart';
 import '../../../../shared/widgets/cached_image.dart';
+import '../../../../shared/widgets/media_action_menu.dart';
 import '../../data/models/space_arc_search.dart';
 
 /// Card widget for displaying a video post
@@ -29,6 +30,7 @@ class VideoPostCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppTheme.borderRadius),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
             // Cover image with duration badge
             AspectRatio(
@@ -74,13 +76,30 @@ class VideoPostCard extends StatelessWidget {
               padding: const EdgeInsets.all(8),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Title
-                  Text(
-                    video.title,
-                    style: Theme.of(context).textTheme.titleSmall,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+                  // Title with action menu
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          video.title,
+                          style: Theme.of(context).textTheme.titleSmall,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      MediaActionMenu(
+                        title: video.title,
+                        bvid: video.bvid,
+                        aid: video.aid.toString(),
+                        cover: video.pic,
+                        ownerName: video.author,
+                        ownerMid: video.mid,
+                        iconSize: 18,
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 4),
                   // Stats row - shows date and duration like source
@@ -118,11 +137,11 @@ class VideoPostCard extends StatelessWidget {
     final diff = now.difference(date);
 
     if (diff.inDays == 0) {
-      return 'Today';
+      return '今天';
     } else if (diff.inDays == 1) {
-      return 'Yesterday';
+      return '昨天';
     } else if (diff.inDays < 7) {
-      return '${diff.inDays}d ago';
+      return '${diff.inDays}天前';
     } else if (date.year == now.year) {
       return DateFormat('MM-dd').format(date);
     }
@@ -257,6 +276,15 @@ class VideoPostListTile extends StatelessWidget {
                   ],
                 ),
               ),
+              // Action menu
+              MediaActionMenu(
+                title: video.title,
+                bvid: video.bvid,
+                aid: video.aid.toString(),
+                cover: video.pic,
+                ownerName: video.author,
+                ownerMid: video.mid,
+              ),
             ],
           ),
         ),
@@ -266,9 +294,9 @@ class VideoPostListTile extends StatelessWidget {
 
   String _formatNumber(int num) {
     if (num >= 100000000) {
-      return '${(num / 100000000).toStringAsFixed(1)}B';
+      return '${(num / 100000000).toStringAsFixed(1)}亿';
     } else if (num >= 10000) {
-      return '${(num / 10000).toStringAsFixed(1)}W';
+      return '${(num / 10000).toStringAsFixed(1)}万';
     }
     return num.toString();
   }

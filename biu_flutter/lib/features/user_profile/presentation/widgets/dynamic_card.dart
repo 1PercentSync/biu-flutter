@@ -104,7 +104,7 @@ class DynamicCard extends ConsumerWidget {
     return InkWell(
       onTap: () => _playVideo(ref, archive),
       borderRadius: BorderRadius.circular(AppTheme.borderRadius),
-      child: Container(
+      child: DecoratedBox(
         decoration: BoxDecoration(
           color: AppColors.surface,
           borderRadius: BorderRadius.circular(AppTheme.borderRadius),
@@ -130,7 +130,7 @@ class DynamicCard extends ConsumerWidget {
                 ),
                 // Play icon overlay
                 Positioned.fill(
-                  child: Container(
+                  child: DecoratedBox(
                     decoration: BoxDecoration(
                       color: Colors.black.withValues(alpha: 0.3),
                       borderRadius: const BorderRadius.horizontal(
@@ -242,7 +242,6 @@ class DynamicCard extends ConsumerWidget {
           constraints: const BoxConstraints(maxHeight: 200),
           child: AppCachedImage(
             imageUrl: pics[0].src,
-            fit: BoxFit.cover,
           ),
         ),
       );
@@ -270,11 +269,10 @@ class DynamicCard extends ConsumerWidget {
               borderRadius: BorderRadius.circular(4),
               child: AppCachedImage(
                 imageUrl: pics[index].src,
-                fit: BoxFit.cover,
               ),
             ),
             if (isLast)
-              Container(
+              DecoratedBox(
                 decoration: BoxDecoration(
                   color: Colors.black54,
                   borderRadius: BorderRadius.circular(4),

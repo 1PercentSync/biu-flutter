@@ -1,6 +1,7 @@
 /// Dynamic feed item model.
 /// Source: biu/src/pages/user-profile/dynamic-list/index.tsx
 /// Source: biu/src/service/web-dynamic.ts
+library;
 
 /// Dynamic type constants
 /// Source: biu/src/common/constants/feed.ts
@@ -52,6 +53,19 @@ class DynamicType {
 
 /// Dynamic item from API response.
 class DynamicItem {
+
+  factory DynamicItem.fromJson(Map<String, dynamic> json) {
+    return DynamicItem(
+      idStr: json['id_str'] as String? ?? '',
+      type: json['type'] as String? ?? '',
+      modules: DynamicModules.fromJson(
+          json['modules'] as Map<String, dynamic>? ?? {}),
+      visible: json['visible'] as bool? ?? true,
+      orig: json['orig'] != null
+          ? DynamicItem.fromJson(json['orig'] as Map<String, dynamic>)
+          : null,
+    );
+  }
   const DynamicItem({
     required this.idStr,
     required this.type,
@@ -75,19 +89,6 @@ class DynamicItem {
   /// Original dynamic for repost
   final DynamicItem? orig;
 
-  factory DynamicItem.fromJson(Map<String, dynamic> json) {
-    return DynamicItem(
-      idStr: json['id_str'] as String? ?? '',
-      type: json['type'] as String? ?? '',
-      modules: DynamicModules.fromJson(
-          json['modules'] as Map<String, dynamic>? ?? {}),
-      visible: json['visible'] as bool? ?? true,
-      orig: json['orig'] != null
-          ? DynamicItem.fromJson(json['orig'] as Map<String, dynamic>)
-          : null,
-    );
-  }
-
   /// Check if this is a video dynamic
   bool get isVideo => type == DynamicType.av || type == DynamicType.ugcSeason;
 
@@ -103,6 +104,25 @@ class DynamicItem {
 
 /// Dynamic modules container.
 class DynamicModules {
+
+  factory DynamicModules.fromJson(Map<String, dynamic> json) {
+    return DynamicModules(
+      moduleAuthor: ModuleAuthor.fromJson(
+          json['module_author'] as Map<String, dynamic>? ?? {}),
+      moduleDynamic: ModuleDynamic.fromJson(
+          json['module_dynamic'] as Map<String, dynamic>? ?? {}),
+      moduleStat: json['module_stat'] != null
+          ? ModuleStat.fromJson(json['module_stat'] as Map<String, dynamic>)
+          : null,
+      moduleMore: json['module_more'] != null
+          ? ModuleMore.fromJson(json['module_more'] as Map<String, dynamic>)
+          : null,
+      moduleInteraction: json['module_interaction'] != null
+          ? ModuleInteraction.fromJson(
+              json['module_interaction'] as Map<String, dynamic>)
+          : null,
+    );
+  }
   const DynamicModules({
     required this.moduleAuthor,
     required this.moduleDynamic,
@@ -125,29 +145,23 @@ class DynamicModules {
 
   /// Interaction info
   final ModuleInteraction? moduleInteraction;
-
-  factory DynamicModules.fromJson(Map<String, dynamic> json) {
-    return DynamicModules(
-      moduleAuthor: ModuleAuthor.fromJson(
-          json['module_author'] as Map<String, dynamic>? ?? {}),
-      moduleDynamic: ModuleDynamic.fromJson(
-          json['module_dynamic'] as Map<String, dynamic>? ?? {}),
-      moduleStat: json['module_stat'] != null
-          ? ModuleStat.fromJson(json['module_stat'] as Map<String, dynamic>)
-          : null,
-      moduleMore: json['module_more'] != null
-          ? ModuleMore.fromJson(json['module_more'] as Map<String, dynamic>)
-          : null,
-      moduleInteraction: json['module_interaction'] != null
-          ? ModuleInteraction.fromJson(
-              json['module_interaction'] as Map<String, dynamic>)
-          : null,
-    );
-  }
 }
 
 /// Author information module.
 class ModuleAuthor {
+
+  factory ModuleAuthor.fromJson(Map<String, dynamic> json) {
+    return ModuleAuthor(
+      mid: json['mid'] as int? ?? 0,
+      name: json['name'] as String? ?? '',
+      face: json['face'] as String? ?? '',
+      pubTime: json['pub_time'] as String? ?? '',
+      pubTs: json['pub_ts'] as int? ?? 0,
+      following: json['following'] as bool?,
+      label: json['label'] as String?,
+      pubAction: json['pub_action'] as String?,
+    );
+  }
   const ModuleAuthor({
     required this.mid,
     required this.name,
@@ -182,41 +196,10 @@ class ModuleAuthor {
 
   /// Publish action text
   final String? pubAction;
-
-  factory ModuleAuthor.fromJson(Map<String, dynamic> json) {
-    return ModuleAuthor(
-      mid: json['mid'] as int? ?? 0,
-      name: json['name'] as String? ?? '',
-      face: json['face'] as String? ?? '',
-      pubTime: json['pub_time'] as String? ?? '',
-      pubTs: json['pub_ts'] as int? ?? 0,
-      following: json['following'] as bool?,
-      label: json['label'] as String?,
-      pubAction: json['pub_action'] as String?,
-    );
-  }
 }
 
 /// Dynamic content module.
 class ModuleDynamic {
-  const ModuleDynamic({
-    this.desc,
-    this.major,
-    this.additional,
-    this.topic,
-  });
-
-  /// Text description
-  final DynamicDesc? desc;
-
-  /// Major content (video, images, etc.)
-  final DynamicMajor? major;
-
-  /// Additional content
-  final DynamicAdditional? additional;
-
-  /// Topic info
-  final DynamicTopic? topic;
 
   factory ModuleDynamic.fromJson(Map<String, dynamic> json) {
     return ModuleDynamic(
@@ -235,10 +218,37 @@ class ModuleDynamic {
           : null,
     );
   }
+  const ModuleDynamic({
+    this.desc,
+    this.major,
+    this.additional,
+    this.topic,
+  });
+
+  /// Text description
+  final DynamicDesc? desc;
+
+  /// Major content (video, images, etc.)
+  final DynamicMajor? major;
+
+  /// Additional content
+  final DynamicAdditional? additional;
+
+  /// Topic info
+  final DynamicTopic? topic;
 }
 
 /// Text description in dynamic.
 class DynamicDesc {
+
+  factory DynamicDesc.fromJson(Map<String, dynamic> json) {
+    return DynamicDesc(
+      text: json['text'] as String? ?? '',
+      richTextNodes: (json['rich_text_nodes'] as List<dynamic>?)
+          ?.map((e) => RichTextNode.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
   const DynamicDesc({
     required this.text,
     this.richTextNodes,
@@ -249,19 +259,22 @@ class DynamicDesc {
 
   /// Rich text nodes for rendering
   final List<RichTextNode>? richTextNodes;
-
-  factory DynamicDesc.fromJson(Map<String, dynamic> json) {
-    return DynamicDesc(
-      text: json['text'] as String? ?? '',
-      richTextNodes: (json['rich_text_nodes'] as List<dynamic>?)
-          ?.map((e) => RichTextNode.fromJson(e as Map<String, dynamic>))
-          .toList(),
-    );
-  }
 }
 
 /// Rich text node for dynamic content.
 class RichTextNode {
+
+  factory RichTextNode.fromJson(Map<String, dynamic> json) {
+    return RichTextNode(
+      origText: json['orig_text'] as String? ?? '',
+      text: json['text'] as String? ?? '',
+      type: json['type'] as String? ?? '',
+      jumpUrl: json['jump_url'] as String?,
+      emoji: json['emoji'] != null
+          ? RichTextEmoji.fromJson(json['emoji'] as Map<String, dynamic>)
+          : null,
+    );
+  }
   const RichTextNode({
     required this.origText,
     required this.text,
@@ -275,22 +288,18 @@ class RichTextNode {
   final String type;
   final String? jumpUrl;
   final RichTextEmoji? emoji;
-
-  factory RichTextNode.fromJson(Map<String, dynamic> json) {
-    return RichTextNode(
-      origText: json['orig_text'] as String? ?? '',
-      text: json['text'] as String? ?? '',
-      type: json['type'] as String? ?? '',
-      jumpUrl: json['jump_url'] as String?,
-      emoji: json['emoji'] != null
-          ? RichTextEmoji.fromJson(json['emoji'] as Map<String, dynamic>)
-          : null,
-    );
-  }
 }
 
 /// Emoji in rich text.
 class RichTextEmoji {
+
+  factory RichTextEmoji.fromJson(Map<String, dynamic> json) {
+    return RichTextEmoji(
+      iconUrl: json['icon_url'] as String? ?? '',
+      size: json['size'] as int? ?? 1,
+      text: json['text'] as String? ?? '',
+    );
+  }
   const RichTextEmoji({
     required this.iconUrl,
     required this.size,
@@ -300,14 +309,6 @@ class RichTextEmoji {
   final String iconUrl;
   final int size;
   final String text;
-
-  factory RichTextEmoji.fromJson(Map<String, dynamic> json) {
-    return RichTextEmoji(
-      iconUrl: json['icon_url'] as String? ?? '',
-      size: json['size'] as int? ?? 1,
-      text: json['text'] as String? ?? '',
-    );
-  }
 }
 
 /// Major content type constants
@@ -328,6 +329,36 @@ class MajorType {
 
 /// Major content in dynamic.
 class DynamicMajor {
+
+  factory DynamicMajor.fromJson(Map<String, dynamic> json) {
+    return DynamicMajor(
+      type: json['type'] as String? ?? '',
+      archive: json['archive'] != null
+          ? MajorArchive.fromJson(json['archive'] as Map<String, dynamic>)
+          : null,
+      draw: json['draw'] != null
+          ? MajorDraw.fromJson(json['draw'] as Map<String, dynamic>)
+          : null,
+      opus: json['opus'] != null
+          ? MajorOpus.fromJson(json['opus'] as Map<String, dynamic>)
+          : null,
+      ugcSeason: json['ugc_season'] != null
+          ? MajorUgcSeason.fromJson(json['ugc_season'] as Map<String, dynamic>)
+          : null,
+      article: json['article'] != null
+          ? MajorArticle.fromJson(json['article'] as Map<String, dynamic>)
+          : null,
+      music: json['music'] != null
+          ? MajorMusic.fromJson(json['music'] as Map<String, dynamic>)
+          : null,
+      common: json['common'] != null
+          ? MajorCommon.fromJson(json['common'] as Map<String, dynamic>)
+          : null,
+      live: json['live'] != null
+          ? MajorLive.fromJson(json['live'] as Map<String, dynamic>)
+          : null,
+    );
+  }
   const DynamicMajor({
     required this.type,
     this.archive,
@@ -367,42 +398,31 @@ class DynamicMajor {
   /// Live
   final MajorLive? live;
 
-  factory DynamicMajor.fromJson(Map<String, dynamic> json) {
-    return DynamicMajor(
-      type: json['type'] as String? ?? '',
-      archive: json['archive'] != null
-          ? MajorArchive.fromJson(json['archive'] as Map<String, dynamic>)
-          : null,
-      draw: json['draw'] != null
-          ? MajorDraw.fromJson(json['draw'] as Map<String, dynamic>)
-          : null,
-      opus: json['opus'] != null
-          ? MajorOpus.fromJson(json['opus'] as Map<String, dynamic>)
-          : null,
-      ugcSeason: json['ugc_season'] != null
-          ? MajorUgcSeason.fromJson(json['ugc_season'] as Map<String, dynamic>)
-          : null,
-      article: json['article'] != null
-          ? MajorArticle.fromJson(json['article'] as Map<String, dynamic>)
-          : null,
-      music: json['music'] != null
-          ? MajorMusic.fromJson(json['music'] as Map<String, dynamic>)
-          : null,
-      common: json['common'] != null
-          ? MajorCommon.fromJson(json['common'] as Map<String, dynamic>)
-          : null,
-      live: json['live'] != null
-          ? MajorLive.fromJson(json['live'] as Map<String, dynamic>)
-          : null,
-    );
-  }
-
   /// Get video info from archive or ugc_season
   MajorArchive? get videoInfo => archive ?? ugcSeason?.toArchive();
 }
 
 /// Video archive in dynamic.
 class MajorArchive {
+
+  factory MajorArchive.fromJson(Map<String, dynamic> json) {
+    return MajorArchive(
+      aid: json['aid'] as String? ?? '',
+      bvid: json['bvid'] as String? ?? '',
+      title: json['title'] as String? ?? '',
+      cover: json['cover'] as String? ?? '',
+      desc: json['desc'] as String? ?? '',
+      durationText: json['duration_text'] as String? ?? '',
+      jumpUrl: json['jump_url'] as String?,
+      stat: json['stat'] != null
+          ? ArchiveStat.fromJson(json['stat'] as Map<String, dynamic>)
+          : null,
+      badge: json['badge'] != null
+          ? ArchiveBadge.fromJson(json['badge'] as Map<String, dynamic>)
+          : null,
+      type: json['type'] as int?,
+    );
+  }
   const MajorArchive({
     required this.aid,
     required this.bvid,
@@ -445,36 +465,10 @@ class MajorArchive {
 
   /// Video type
   final int? type;
-
-  factory MajorArchive.fromJson(Map<String, dynamic> json) {
-    return MajorArchive(
-      aid: json['aid'] as String? ?? '',
-      bvid: json['bvid'] as String? ?? '',
-      title: json['title'] as String? ?? '',
-      cover: json['cover'] as String? ?? '',
-      desc: json['desc'] as String? ?? '',
-      durationText: json['duration_text'] as String? ?? '',
-      jumpUrl: json['jump_url'] as String?,
-      stat: json['stat'] != null
-          ? ArchiveStat.fromJson(json['stat'] as Map<String, dynamic>)
-          : null,
-      badge: json['badge'] != null
-          ? ArchiveBadge.fromJson(json['badge'] as Map<String, dynamic>)
-          : null,
-      type: json['type'] as int?,
-    );
-  }
 }
 
 /// Video stats in archive.
 class ArchiveStat {
-  const ArchiveStat({
-    required this.play,
-    required this.danmaku,
-  });
-
-  final String play;
-  final String danmaku;
 
   factory ArchiveStat.fromJson(Map<String, dynamic> json) {
     return ArchiveStat(
@@ -482,10 +476,25 @@ class ArchiveStat {
       danmaku: json['danmaku'] as String? ?? '0',
     );
   }
+  const ArchiveStat({
+    required this.play,
+    required this.danmaku,
+  });
+
+  final String play;
+  final String danmaku;
 }
 
 /// Badge info for archive.
 class ArchiveBadge {
+
+  factory ArchiveBadge.fromJson(Map<String, dynamic> json) {
+    return ArchiveBadge(
+      text: json['text'] as String? ?? '',
+      bgColor: json['bg_color'] as String?,
+      color: json['color'] as String?,
+    );
+  }
   const ArchiveBadge({
     required this.text,
     this.bgColor,
@@ -495,18 +504,25 @@ class ArchiveBadge {
   final String text;
   final String? bgColor;
   final String? color;
-
-  factory ArchiveBadge.fromJson(Map<String, dynamic> json) {
-    return ArchiveBadge(
-      text: json['text'] as String? ?? '',
-      bgColor: json['bg_color'] as String?,
-      color: json['color'] as String?,
-    );
-  }
 }
 
 /// UGC season in dynamic.
 class MajorUgcSeason {
+
+  factory MajorUgcSeason.fromJson(Map<String, dynamic> json) {
+    return MajorUgcSeason(
+      aid: json['aid'] as int? ?? 0,
+      bvid: json['bvid'] as String? ?? '',
+      title: json['title'] as String? ?? '',
+      cover: json['cover'] as String? ?? '',
+      desc: json['desc'] as String? ?? '',
+      durationText: json['duration_text'] as String? ?? '',
+      jumpUrl: json['jump_url'] as String?,
+      stat: json['stat'] != null
+          ? ArchiveStat.fromJson(json['stat'] as Map<String, dynamic>)
+          : null,
+    );
+  }
   const MajorUgcSeason({
     required this.aid,
     required this.bvid,
@@ -527,21 +543,6 @@ class MajorUgcSeason {
   final String? jumpUrl;
   final ArchiveStat? stat;
 
-  factory MajorUgcSeason.fromJson(Map<String, dynamic> json) {
-    return MajorUgcSeason(
-      aid: json['aid'] as int? ?? 0,
-      bvid: json['bvid'] as String? ?? '',
-      title: json['title'] as String? ?? '',
-      cover: json['cover'] as String? ?? '',
-      desc: json['desc'] as String? ?? '',
-      durationText: json['duration_text'] as String? ?? '',
-      jumpUrl: json['jump_url'] as String?,
-      stat: json['stat'] != null
-          ? ArchiveStat.fromJson(json['stat'] as Map<String, dynamic>)
-          : null,
-    );
-  }
-
   /// Convert to MajorArchive for unified handling
   MajorArchive toArchive() {
     return MajorArchive(
@@ -559,13 +560,6 @@ class MajorUgcSeason {
 
 /// Image draw in dynamic.
 class MajorDraw {
-  const MajorDraw({
-    required this.id,
-    required this.items,
-  });
-
-  final int id;
-  final List<DrawItem> items;
 
   factory MajorDraw.fromJson(Map<String, dynamic> json) {
     return MajorDraw(
@@ -576,10 +570,26 @@ class MajorDraw {
           [],
     );
   }
+  const MajorDraw({
+    required this.id,
+    required this.items,
+  });
+
+  final int id;
+  final List<DrawItem> items;
 }
 
 /// Image item in draw.
 class DrawItem {
+
+  factory DrawItem.fromJson(Map<String, dynamic> json) {
+    return DrawItem(
+      src: json['src'] as String? ?? '',
+      width: json['width'] as int? ?? 0,
+      height: json['height'] as int? ?? 0,
+      size: json['size'] as int?,
+    );
+  }
   const DrawItem({
     required this.src,
     required this.width,
@@ -591,30 +601,10 @@ class DrawItem {
   final int width;
   final int height;
   final int? size;
-
-  factory DrawItem.fromJson(Map<String, dynamic> json) {
-    return DrawItem(
-      src: json['src'] as String? ?? '',
-      width: json['width'] as int? ?? 0,
-      height: json['height'] as int? ?? 0,
-      size: json['size'] as int?,
-    );
-  }
 }
 
 /// Opus in dynamic (image post with text).
 class MajorOpus {
-  const MajorOpus({
-    required this.jumpUrl,
-    required this.pics,
-    this.summary,
-    this.title,
-  });
-
-  final String jumpUrl;
-  final List<OpusPic> pics;
-  final OpusSummary? summary;
-  final String? title;
 
   factory MajorOpus.fromJson(Map<String, dynamic> json) {
     return MajorOpus(
@@ -629,10 +619,29 @@ class MajorOpus {
       title: json['title'] as String?,
     );
   }
+  const MajorOpus({
+    required this.jumpUrl,
+    required this.pics,
+    this.summary,
+    this.title,
+  });
+
+  final String jumpUrl;
+  final List<OpusPic> pics;
+  final OpusSummary? summary;
+  final String? title;
 }
 
 /// Picture in opus.
 class OpusPic {
+
+  factory OpusPic.fromJson(Map<String, dynamic> json) {
+    return OpusPic(
+      src: json['src'] as String? ?? '',
+      width: json['width'] as int? ?? 0,
+      height: json['height'] as int? ?? 0,
+    );
+  }
   const OpusPic({
     required this.src,
     required this.width,
@@ -642,25 +651,10 @@ class OpusPic {
   final String src;
   final int width;
   final int height;
-
-  factory OpusPic.fromJson(Map<String, dynamic> json) {
-    return OpusPic(
-      src: json['src'] as String? ?? '',
-      width: json['width'] as int? ?? 0,
-      height: json['height'] as int? ?? 0,
-    );
-  }
 }
 
 /// Summary in opus.
 class OpusSummary {
-  const OpusSummary({
-    required this.text,
-    this.richTextNodes,
-  });
-
-  final String text;
-  final List<RichTextNode>? richTextNodes;
 
   factory OpusSummary.fromJson(Map<String, dynamic> json) {
     return OpusSummary(
@@ -670,23 +664,17 @@ class OpusSummary {
           .toList(),
     );
   }
+  const OpusSummary({
+    required this.text,
+    this.richTextNodes,
+  });
+
+  final String text;
+  final List<RichTextNode>? richTextNodes;
 }
 
 /// Article in dynamic.
 class MajorArticle {
-  const MajorArticle({
-    required this.id,
-    required this.title,
-    required this.desc,
-    required this.covers,
-    this.jumpUrl,
-  });
-
-  final int id;
-  final String title;
-  final String desc;
-  final List<String> covers;
-  final String? jumpUrl;
 
   factory MajorArticle.fromJson(Map<String, dynamic> json) {
     return MajorArticle(
@@ -700,10 +688,32 @@ class MajorArticle {
       jumpUrl: json['jump_url'] as String?,
     );
   }
+  const MajorArticle({
+    required this.id,
+    required this.title,
+    required this.desc,
+    required this.covers,
+    this.jumpUrl,
+  });
+
+  final int id;
+  final String title;
+  final String desc;
+  final List<String> covers;
+  final String? jumpUrl;
 }
 
 /// Music in dynamic.
 class MajorMusic {
+
+  factory MajorMusic.fromJson(Map<String, dynamic> json) {
+    return MajorMusic(
+      id: json['id'] as int? ?? 0,
+      title: json['title'] as String? ?? '',
+      cover: json['cover'] as String? ?? '',
+      label: json['label'] as String?,
+    );
+  }
   const MajorMusic({
     required this.id,
     required this.title,
@@ -715,19 +725,20 @@ class MajorMusic {
   final String title;
   final String cover;
   final String? label;
-
-  factory MajorMusic.fromJson(Map<String, dynamic> json) {
-    return MajorMusic(
-      id: json['id'] as int? ?? 0,
-      title: json['title'] as String? ?? '',
-      cover: json['cover'] as String? ?? '',
-      label: json['label'] as String?,
-    );
-  }
 }
 
 /// Common type in dynamic.
 class MajorCommon {
+
+  factory MajorCommon.fromJson(Map<String, dynamic> json) {
+    return MajorCommon(
+      cover: json['cover'] as String? ?? '',
+      title: json['title'] as String? ?? '',
+      desc1: json['desc1'] as String? ?? '',
+      desc2: json['desc2'] as String? ?? '',
+      jumpUrl: json['jump_url'] as String?,
+    );
+  }
   const MajorCommon({
     required this.cover,
     required this.title,
@@ -741,20 +752,20 @@ class MajorCommon {
   final String desc1;
   final String desc2;
   final String? jumpUrl;
-
-  factory MajorCommon.fromJson(Map<String, dynamic> json) {
-    return MajorCommon(
-      cover: json['cover'] as String? ?? '',
-      title: json['title'] as String? ?? '',
-      desc1: json['desc1'] as String? ?? '',
-      desc2: json['desc2'] as String? ?? '',
-      jumpUrl: json['jump_url'] as String?,
-    );
-  }
 }
 
 /// Live in dynamic.
 class MajorLive {
+
+  factory MajorLive.fromJson(Map<String, dynamic> json) {
+    return MajorLive(
+      id: json['id'] as int? ?? 0,
+      title: json['title'] as String? ?? '',
+      cover: json['cover'] as String? ?? '',
+      roomId: json['room_id'] as int?,
+      liveState: json['live_state'] as int?,
+    );
+  }
   const MajorLive({
     required this.id,
     required this.title,
@@ -768,20 +779,23 @@ class MajorLive {
   final String cover;
   final int? roomId;
   final int? liveState;
-
-  factory MajorLive.fromJson(Map<String, dynamic> json) {
-    return MajorLive(
-      id: json['id'] as int? ?? 0,
-      title: json['title'] as String? ?? '',
-      cover: json['cover'] as String? ?? '',
-      roomId: json['room_id'] as int?,
-      liveState: json['live_state'] as int?,
-    );
-  }
 }
 
 /// Additional content in dynamic.
 class DynamicAdditional {
+
+  factory DynamicAdditional.fromJson(Map<String, dynamic> json) {
+    return DynamicAdditional(
+      type: json['type'] as String? ?? '',
+      common: json['common'] != null
+          ? AdditionalCommon.fromJson(json['common'] as Map<String, dynamic>)
+          : null,
+      reserve: json['reserve'],
+      vote: json['vote'],
+      goods: json['goods'],
+      ugc: json['ugc'],
+    );
+  }
   const DynamicAdditional({
     required this.type,
     this.common,
@@ -797,23 +811,20 @@ class DynamicAdditional {
   final dynamic vote;
   final dynamic goods;
   final dynamic ugc;
-
-  factory DynamicAdditional.fromJson(Map<String, dynamic> json) {
-    return DynamicAdditional(
-      type: json['type'] as String? ?? '',
-      common: json['common'] != null
-          ? AdditionalCommon.fromJson(json['common'] as Map<String, dynamic>)
-          : null,
-      reserve: json['reserve'],
-      vote: json['vote'],
-      goods: json['goods'],
-      ugc: json['ugc'],
-    );
-  }
 }
 
 /// Common additional content.
 class AdditionalCommon {
+
+  factory AdditionalCommon.fromJson(Map<String, dynamic> json) {
+    return AdditionalCommon(
+      cover: json['cover'] as String? ?? '',
+      title: json['title'] as String? ?? '',
+      desc1: json['desc1'] as String? ?? '',
+      desc2: json['desc2'] as String? ?? '',
+      jumpUrl: json['jump_url'] as String?,
+    );
+  }
   const AdditionalCommon({
     required this.cover,
     required this.title,
@@ -827,20 +838,18 @@ class AdditionalCommon {
   final String desc1;
   final String desc2;
   final String? jumpUrl;
-
-  factory AdditionalCommon.fromJson(Map<String, dynamic> json) {
-    return AdditionalCommon(
-      cover: json['cover'] as String? ?? '',
-      title: json['title'] as String? ?? '',
-      desc1: json['desc1'] as String? ?? '',
-      desc2: json['desc2'] as String? ?? '',
-      jumpUrl: json['jump_url'] as String?,
-    );
-  }
 }
 
 /// Topic info in dynamic.
 class DynamicTopic {
+
+  factory DynamicTopic.fromJson(Map<String, dynamic> json) {
+    return DynamicTopic(
+      id: json['id'] as int? ?? 0,
+      name: json['name'] as String? ?? '',
+      jumpUrl: json['jump_url'] as String?,
+    );
+  }
   const DynamicTopic({
     required this.id,
     required this.name,
@@ -850,27 +859,10 @@ class DynamicTopic {
   final int id;
   final String name;
   final String? jumpUrl;
-
-  factory DynamicTopic.fromJson(Map<String, dynamic> json) {
-    return DynamicTopic(
-      id: json['id'] as int? ?? 0,
-      name: json['name'] as String? ?? '',
-      jumpUrl: json['jump_url'] as String?,
-    );
-  }
 }
 
 /// Statistics module.
 class ModuleStat {
-  const ModuleStat({
-    this.like,
-    this.comment,
-    this.forward,
-  });
-
-  final StatItem? like;
-  final StatItem? comment;
-  final StatItem? forward;
 
   factory ModuleStat.fromJson(Map<String, dynamic> json) {
     return ModuleStat(
@@ -885,10 +877,27 @@ class ModuleStat {
           : null,
     );
   }
+  const ModuleStat({
+    this.like,
+    this.comment,
+    this.forward,
+  });
+
+  final StatItem? like;
+  final StatItem? comment;
+  final StatItem? forward;
 }
 
 /// Single stat item.
 class StatItem {
+
+  factory StatItem.fromJson(Map<String, dynamic> json) {
+    return StatItem(
+      count: json['count'] as int? ?? 0,
+      forbidden: json['forbidden'] as bool? ?? false,
+      status: json['status'] as bool?,
+    );
+  }
   const StatItem({
     required this.count,
     this.forbidden = false,
@@ -900,23 +909,10 @@ class StatItem {
 
   /// For like: whether current user has liked
   final bool? status;
-
-  factory StatItem.fromJson(Map<String, dynamic> json) {
-    return StatItem(
-      count: json['count'] as int? ?? 0,
-      forbidden: json['forbidden'] as bool? ?? false,
-      status: json['status'] as bool?,
-    );
-  }
 }
 
 /// More options module.
 class ModuleMore {
-  const ModuleMore({
-    required this.threePointItems,
-  });
-
-  final List<ThreePointItem> threePointItems;
 
   factory ModuleMore.fromJson(Map<String, dynamic> json) {
     return ModuleMore(
@@ -926,17 +922,15 @@ class ModuleMore {
           [],
     );
   }
+  const ModuleMore({
+    required this.threePointItems,
+  });
+
+  final List<ThreePointItem> threePointItems;
 }
 
 /// Three-point menu item.
 class ThreePointItem {
-  const ThreePointItem({
-    required this.label,
-    required this.type,
-  });
-
-  final String label;
-  final String type;
 
   factory ThreePointItem.fromJson(Map<String, dynamic> json) {
     return ThreePointItem(
@@ -944,15 +938,17 @@ class ThreePointItem {
       type: json['type'] as String? ?? '',
     );
   }
+  const ThreePointItem({
+    required this.label,
+    required this.type,
+  });
+
+  final String label;
+  final String type;
 }
 
 /// Interaction module.
 class ModuleInteraction {
-  const ModuleInteraction({
-    required this.items,
-  });
-
-  final List<InteractionItem> items;
 
   factory ModuleInteraction.fromJson(Map<String, dynamic> json) {
     return ModuleInteraction(
@@ -963,17 +959,15 @@ class ModuleInteraction {
           [],
     );
   }
+  const ModuleInteraction({
+    required this.items,
+  });
+
+  final List<InteractionItem> items;
 }
 
 /// Interaction item.
 class InteractionItem {
-  const InteractionItem({
-    required this.desc,
-    required this.type,
-  });
-
-  final InteractionDesc desc;
-  final int type;
 
   factory InteractionItem.fromJson(Map<String, dynamic> json) {
     return InteractionItem(
@@ -982,17 +976,17 @@ class InteractionItem {
       type: json['type'] as int? ?? 0,
     );
   }
+  const InteractionItem({
+    required this.desc,
+    required this.type,
+  });
+
+  final InteractionDesc desc;
+  final int type;
 }
 
 /// Interaction description.
 class InteractionDesc {
-  const InteractionDesc({
-    required this.text,
-    this.richTextNodes,
-  });
-
-  final String text;
-  final List<RichTextNode>? richTextNodes;
 
   factory InteractionDesc.fromJson(Map<String, dynamic> json) {
     return InteractionDesc(
@@ -1002,19 +996,17 @@ class InteractionDesc {
           .toList(),
     );
   }
+  const InteractionDesc({
+    required this.text,
+    this.richTextNodes,
+  });
+
+  final String text;
+  final List<RichTextNode>? richTextNodes;
 }
 
 /// Dynamic feed API response.
 class DynamicFeedResponse {
-  const DynamicFeedResponse({
-    required this.code,
-    required this.message,
-    this.data,
-  });
-
-  final int code;
-  final String message;
-  final DynamicFeedData? data;
 
   factory DynamicFeedResponse.fromJson(Map<String, dynamic> json) {
     return DynamicFeedResponse(
@@ -1025,12 +1017,34 @@ class DynamicFeedResponse {
           : null,
     );
   }
+  const DynamicFeedResponse({
+    required this.code,
+    required this.message,
+    this.data,
+  });
+
+  final int code;
+  final String message;
+  final DynamicFeedData? data;
 
   bool get isSuccess => code == 0;
 }
 
 /// Dynamic feed data.
 class DynamicFeedData {
+
+  factory DynamicFeedData.fromJson(Map<String, dynamic> json) {
+    return DynamicFeedData(
+      items: (json['items'] as List<dynamic>?)
+              ?.map((e) => DynamicItem.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+      hasMore: json['has_more'] as bool? ?? false,
+      offset: json['offset'] as String?,
+      updateBaseline: json['update_baseline'] as String?,
+      updateNum: json['update_num'] as int?,
+    );
+  }
   const DynamicFeedData({
     required this.items,
     required this.hasMore,
@@ -1050,17 +1064,4 @@ class DynamicFeedData {
 
   /// Number of new dynamics
   final int? updateNum;
-
-  factory DynamicFeedData.fromJson(Map<String, dynamic> json) {
-    return DynamicFeedData(
-      items: (json['items'] as List<dynamic>?)
-              ?.map((e) => DynamicItem.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
-      hasMore: json['has_more'] as bool? ?? false,
-      offset: json['offset'] as String?,
-      updateBaseline: json['update_baseline'] as String?,
-      updateNum: json['update_num'] as int?,
-    );
-  }
 }

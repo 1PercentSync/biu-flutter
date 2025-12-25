@@ -142,7 +142,7 @@ class _DynamicListState extends ConsumerState<DynamicList> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               Icons.error_outline,
               size: 64,
               color: AppColors.textSecondary,
@@ -178,7 +178,7 @@ class _DynamicListState extends ConsumerState<DynamicList> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               Icons.dynamic_feed_outlined,
               size: 64,
               color: AppColors.textSecondary,

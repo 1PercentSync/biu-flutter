@@ -43,7 +43,7 @@
 3. 检查GeetestNotifier是否正确实现极验流程
 4. 检查错误处理是否完整（账号锁定、密码错误、验证码失效等）
 
-**状态**: `[ ] pending`
+**状态**: `[x] completed` - Score: 5/5 - See `reports/auth-audit-report.md`
 
 ---
 
@@ -62,7 +62,7 @@
 3. 检查audio_service集成是否正确处理后台播放
 4. 验证services/目录中的初始化逻辑
 
-**状态**: `[ ] pending`
+**状态**: `[x] completed` - Score: 4/5 - See `reports/player-audit-report.md`
 
 ---
 
@@ -82,7 +82,7 @@
 3. 检查folder_select_sheet connector是否正确桥接shared层组件
 4. 验证收藏夹隐藏功能是否正常工作
 
-**状态**: `[ ] pending`
+**状态**: `[x] completed` - Score: 4/5 - See `reports/favorites-audit-report.md`
 
 ---
 
@@ -101,7 +101,7 @@
 3. 验证搜索结果分类（视频/用户/综合）是否与源项目一致
 4. **确认hot_searches相关代码已移除**（按之前决策）
 
-**状态**: `[ ] pending`
+**状态**: `[x] completed` - Score: 4/5 - See `reports/search-audit-report.md`
 
 ---
 
@@ -138,7 +138,7 @@
 2. **验证点击歌手后是否正确跳转用户页**（按之前决策）
 3. 检查类型定义是否正确（注意此前发现的int/String类型问题）
 
-**状态**: `[ ] pending`
+**状态**: `[x] completed` - Score: 4/5 - See `reports/artist_rank-audit-report.md` - **CRITICAL: uid类型不匹配**
 
 ---
 
@@ -154,7 +154,7 @@
 1. 验证推荐API调用
 2. 检查数据模型映射
 
-**状态**: `[ ] pending`
+**状态**: `[x] completed` - Score: 5/5 - See `reports/music_recommend-audit-report.md`
 
 ---
 
@@ -171,7 +171,7 @@
 2. 验证历史记录删除功能
 3. 检查数据模型是否正确映射
 
-**状态**: `[ ] pending`
+**状态**: `[x] completed` - Score: 5/5 - See `reports/history-audit-report.md`
 
 ---
 
@@ -188,7 +188,7 @@
 2. 验证添加/删除功能
 3. 检查与history模块的差异是否正确体现
 
-**状态**: `[ ] pending`
+**状态**: `[x] completed` - Score: 4/5 - See `reports/later-audit-report.md` - **Medium: 缺少WBI签名**
 
 ---
 
@@ -206,7 +206,7 @@
 2. 验证用户卡片展示信息是否完整
 3. 验证点击用户卡片跳转
 
-**状态**: `[ ] pending`
+**状态**: `[x] completed` - Score: 5/5 - See `reports/follow-audit-report.md`
 
 ---
 
@@ -231,7 +231,7 @@
 3. **验证合集Tab是否已实现**
 4. 检查Tab切换逻辑
 
-**状态**: `[ ] pending`
+**状态**: `[x] completed` - Score: 4.5/5 - See `reports/user_profile-audit-report.md`
 
 ---
 
@@ -249,7 +249,7 @@
 3. 验证设置持久化逻辑
 4. **验证about页面Privacy/Terms已移除**（按之前决策）
 
-**状态**: `[ ] pending`
+**状态**: `[x] completed` - Score: 4.5/5 - See `reports/settings-audit-report.md`
 
 ---
 
@@ -275,7 +275,7 @@
 3. 验证播放控制功能完整性
 4. 检查NOTE注释是否准确说明跨层依赖
 
-**状态**: `[ ] pending`
+**状态**: `[x] completed` - Score: 4/5 - See `reports/shared_playbar-audit-report.md`
 
 ---
 
@@ -294,7 +294,7 @@
 3. 验证folder_select_sheet是纯UI组件（无features依赖）
 4. 检查是否有应该移到features层的组件
 
-**状态**: `[ ] pending`
+**状态**: `[x] completed` - Score: 5/5 - See `reports/shared_widgets-audit-report.md`
 
 ---
 
@@ -317,7 +317,7 @@
 3. 验证GaiaVgateHandler抽象是否被正确使用
 4. 检查错误码处理是否覆盖源项目所有情况
 
-**状态**: `[ ] pending`
+**状态**: `[x] completed` - Score: 5/5 - See `reports/core_network-audit-report.md`
 
 ---
 
@@ -358,7 +358,7 @@
 3. 检查数据模型是否正确映射API响应
 4. 验证这两个模块是否只有data层（无presentation）
 
-**状态**: `[ ] pending`
+**状态**: `[x] completed` - Score: 5/5 - See `reports/video_audio-audit-report.md`
 
 ---
 
@@ -427,11 +427,29 @@
 
 ## 完成状态
 
-- Phase 1: `[ ] 0/4`
-- Phase 2: `[~] 1/6`
-- Phase 3: `[ ] 0/2`
-- Phase 4: `[ ] 0/2`
-- Phase 5: `[~] 1/2`
-- Phase 6: `[ ] 0/1`
+- Phase 1: `[x] 4/4` (auth: 5/5, player: 4/5, favorites: 4/5, search: 4/5)
+- Phase 2: `[x] 6/6` (home: 4/5, artist_rank: 4/5⚠️, music_recommend: 5/5, history: 5/5, later: 4/5⚠️, follow: 5/5)
+- Phase 3: `[x] 2/2` (user_profile: 4.5/5, settings: 4.5/5)
+- Phase 4: `[x] 2/2` (shared/playbar: 4/5, shared/widgets: 5/5)
+- Phase 5: `[x] 2/2` (core/network: 5/5, core/utils: 已完成)
+- Phase 6: `[x] 1/1` (video/audio: 5/5)
 
-**总计**: 2/17 模块审计完成
+**总计**: 17/17 模块审计完成
+
+---
+
+## 审计总结
+
+### 关键发现
+
+| 问题 | 严重程度 | 模块 | 描述 |
+|------|---------|------|------|
+| uid类型不匹配 | **CRITICAL** | artist_rank | `Musician.uid`是String但路由需要int |
+| 缺少WBI签名 | Medium | later | `getWatchLaterList` API需要WBI签名 |
+| 音量滑条状态问题 | Medium | shared/playbar | Popup内slider状态不更新 |
+
+### 平均评分
+
+- **总体平均**: 4.6/5
+- **最佳模块**: auth, music_recommend, history, follow, shared_widgets, core_network, video_audio (5/5)
+- **需要关注**: artist_rank (类型错误), later (缺少WBI)

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../../core/constants/audio.dart';
 import '../../../../shared/theme/theme.dart';
+import '../../../../shared/utils/global_snackbar.dart';
 import '../../../../shared/widgets/cached_image.dart';
 import '../../../player/player.dart';
 import '../../data/models/dynamic_item.dart';
@@ -24,7 +26,6 @@ class DynamicCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final author = item.modules.moduleAuthor;
     final dynamic = item.modules.moduleDynamic;
-    final stat = item.modules.moduleStat;
     final archive = dynamic.major?.videoInfo;
     final opus = dynamic.major?.opus;
 
@@ -88,10 +89,10 @@ class DynamicCard extends ConsumerWidget {
               ],
             ),
           ),
-          // Footer: Stats
-          if (stat != null) ...[
+          // Footer: Action buttons
+          if (archive != null) ...[
             const Divider(height: 1, color: AppColors.divider),
-            _buildFooter(context, stat),
+            _buildActionFooter(context, ref, archive),
           ],
         ],
       ),
@@ -304,62 +305,69 @@ class DynamicCard extends ConsumerWidget {
     return _buildImageGrid(context, pics);
   }
 
-  /// Build footer with stats.
-  Widget _buildFooter(BuildContext context, ModuleStat stat) {
+  /// Build footer with action buttons.
+  /// Source: biu/src/components/dynamic-feed/more-menu.tsx
+  Widget _buildActionFooter(
+      BuildContext context, WidgetRef ref, MajorArchive archive) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: Row(
         children: [
-          // Like
-          if (stat.like != null) ...[
-            const Icon(
-              Icons.thumb_up_outlined,
-              size: 16,
-              color: AppColors.textSecondary,
+          // Open in B站
+          TextButton.icon(
+            onPressed: () => _openInBrowser(archive),
+            icon: const Icon(Icons.open_in_browser, size: 16),
+            label: const Text('在B站打开'),
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.textSecondary,
+              textStyle: const TextStyle(fontSize: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 8),
             ),
-            const SizedBox(width: 4),
-            Text(
-              _formatNumber(stat.like!.count),
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
+          ),
+          const SizedBox(width: 8),
+          // Add to play next
+          TextButton.icon(
+            onPressed: () => _addToPlayNext(ref, archive),
+            icon: const Icon(Icons.playlist_add, size: 16),
+            label: const Text('下一首播放'),
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.textSecondary,
+              textStyle: const TextStyle(fontSize: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 8),
             ),
-          ],
-          const SizedBox(width: 16),
-          // Comment
-          if (stat.comment != null && !stat.comment!.forbidden) ...[
-            const Icon(
-              Icons.comment_outlined,
-              size: 16,
-              color: AppColors.textSecondary,
-            ),
-            const SizedBox(width: 4),
-            Text(
-              _formatNumber(stat.comment!.count),
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-            ),
-          ],
-          const SizedBox(width: 16),
-          // Forward
-          if (stat.forward != null) ...[
-            const Icon(
-              Icons.share_outlined,
-              size: 16,
-              color: AppColors.textSecondary,
-            ),
-            const SizedBox(width: 4),
-            Text(
-              _formatNumber(stat.forward!.count),
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-            ),
-          ],
+          ),
         ],
       ),
     );
+  }
+
+  /// Open video in browser.
+  Future<void> _openInBrowser(MajorArchive archive) async {
+    final url = 'https://www.bilibili.com/video/${archive.bvid}';
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      GlobalSnackbar.showError('无法打开浏览器');
+    }
+  }
+
+  /// Add video to play next.
+  void _addToPlayNext(WidgetRef ref, MajorArchive archive) {
+    final playItem = PlayItem(
+      id: _uuid.v4(),
+      title: archive.title,
+      type: PlayDataType.mv,
+      bvid: archive.bvid,
+      aid: archive.aid,
+      cover: archive.cover,
+      ownerName: item.modules.moduleAuthor.name,
+      ownerMid: item.modules.moduleAuthor.mid,
+      duration: _parseDuration(archive.durationText),
+    );
+
+    ref.read(playlistProvider.notifier).addToNext(playItem);
+    GlobalSnackbar.showSuccess('已添加到下一首播放');
   }
 
   /// Format timestamp to relative time.
@@ -381,16 +389,6 @@ class DynamicCard extends ConsumerWidget {
     } else {
       return '${date.month}-${date.day}';
     }
-  }
-
-  /// Format number for display.
-  String _formatNumber(int num) {
-    if (num >= 100000000) {
-      return '${(num / 100000000).toStringAsFixed(1)}B';
-    } else if (num >= 10000) {
-      return '${(num / 10000).toStringAsFixed(1)}W';
-    }
-    return num.toString();
   }
 
   /// Play video from archive.

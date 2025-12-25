@@ -248,14 +248,16 @@ class SpaceInfoHeader extends StatelessWidget {
       onPressed: onFollowTap,
       icon: Icon(
         _isFollowing ? Icons.check : Icons.add,
-        size: 18,
+        size: 16,
       ),
       label: Text(_isFollowing ? '已关注' : '关注'),
       style: ElevatedButton.styleFrom(
         backgroundColor:
             _isFollowing ? Theme.of(context).primaryColor : Colors.white24,
         foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        minimumSize: const Size(80, 36),
+        textStyle: const TextStyle(fontSize: 14),
       ),
     );
   }

@@ -324,19 +324,31 @@ class UserProfileRemoteDataSource {
     debugPrint('[Like] dynIdStr: $dynIdStr, like: $like');
     debugPrint('[Like] csrf token: ${csrfToken != null ? '${csrfToken.substring(0, 8)}...' : 'null'}');
 
-    final response = await _dio.post<Map<String, dynamic>>(
-      '/x/dynamic/feed/dyn/thumb',
-      data: {
-        'dyn_id_str': dynIdStr,
-        'up': like ? 1 : 2, // 1: like, 2: unlike
-      },
-      queryParameters: {
-        if (csrfToken != null) 'csrf': csrfToken,
-      },
-      options: Options(
-        contentType: Headers.formUrlEncodedContentType,
-      ),
-    );
+    late final Response<Map<String, dynamic>> response;
+    try {
+      response = await _dio.post<Map<String, dynamic>>(
+        '/x/dynamic/feed/dyn/thumb',
+        data: {
+          'dyn_id_str': dynIdStr,
+          'up': like ? 1 : 2, // 1: like, 2: unlike
+        },
+        queryParameters: {
+          if (csrfToken != null) 'csrf': csrfToken,
+        },
+        options: Options(
+          contentType: Headers.formUrlEncodedContentType,
+        ),
+      );
+    } on DioException catch (e) {
+      debugPrint('[Like] DioException: ${e.type}');
+      debugPrint('[Like] DioException message: ${e.message}');
+      debugPrint('[Like] DioException response: ${e.response?.data}');
+      debugPrint('[Like] DioException statusCode: ${e.response?.statusCode}');
+      rethrow;
+    } catch (e) {
+      debugPrint('[Like] Other exception: $e');
+      rethrow;
+    }
 
     final data = response.data;
     debugPrint('[Like] Response: $data');

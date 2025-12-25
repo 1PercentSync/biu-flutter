@@ -135,12 +135,10 @@ class _FolderEditDialogState extends State<FolderEditDialog> {
               enabled: !_isSubmitting,
             ),
             const SizedBox(height: 16),
+            // Switch displays current state: 公开 or 私密
+            // Source: biu/src/components/favorites-edit-modal/index.tsx:195-201
             SwitchListTile(
-              title: const Text('公开'),
-              subtitle: Text(
-                _isPublic ? '所有人都可以看到这个收藏夹' : '仅自己可见',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
+              title: Text(_isPublic ? '公开' : '私密'),
               value: _isPublic,
               onChanged: _isSubmitting
                   ? null

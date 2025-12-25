@@ -437,8 +437,9 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
                 _addAllToQueue(context, ref, state);
               },
             ),
-            // Edit (only for owner, not default folder)
-            if (isOwner && !folder.isDefault)
+            // Edit (only for owner, attr != 0 means not default folder)
+            // Source: biu/src/pages/video-collection/info/menu.tsx:148-153
+            if (isOwner && folder.attr != 0)
               ListTile(
                 leading: const Icon(Icons.edit_outlined),
                 title: const Text('修改信息'),
@@ -447,8 +448,9 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
                   _showEditFolderDialog(context, ref, folder);
                 },
               ),
-            // Delete (only for owner, not default folder)
-            if (isOwner && !folder.isDefault)
+            // Delete (only for owner, attr != 0 means not default folder)
+            // Source: biu/src/pages/video-collection/info/menu.tsx:154-179
+            if (isOwner && folder.attr != 0)
               ListTile(
                 leading: const Icon(Icons.delete_outline, color: Colors.red),
                 title: const Text('删除', style: TextStyle(color: Colors.red)),

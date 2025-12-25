@@ -224,7 +224,7 @@ class SpaceInfoHeader extends StatelessWidget {
           if (isSelf) ...[
             _buildStatItem(
               context,
-              'Following',
+              '关注',
               relationStat?.following ?? 0,
             ),
             const SizedBox(width: 16),
@@ -232,7 +232,7 @@ class SpaceInfoHeader extends StatelessWidget {
           // Follower count
           _buildStatItem(
             context,
-            'Followers',
+            '粉丝',
             relationStat?.follower ?? 0,
           ),
           const SizedBox(width: 16),
@@ -250,7 +250,7 @@ class SpaceInfoHeader extends StatelessWidget {
         _isFollowing ? Icons.check : Icons.add,
         size: 18,
       ),
-      label: Text(_isFollowing ? 'Following' : 'Follow'),
+      label: Text(_isFollowing ? '已关注' : '关注'),
       style: ElevatedButton.styleFrom(
         backgroundColor:
             _isFollowing ? Theme.of(context).primaryColor : Colors.white24,

@@ -134,6 +134,7 @@ class FollowRemoteDataSource {
       },
       options: Options(
         contentType: Headers.formUrlEncodedContentType,
+        extra: {'useCSRF': true},
       ),
     );
 

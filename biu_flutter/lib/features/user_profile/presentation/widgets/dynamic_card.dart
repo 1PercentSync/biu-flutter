@@ -209,7 +209,7 @@ class DynamicCard extends ConsumerWidget {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            'plays',
+                            '播放',
                             style:
                                 Theme.of(context).textTheme.bodySmall?.copyWith(
                                       color: AppColors.textSecondary,

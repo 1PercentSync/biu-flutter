@@ -219,9 +219,9 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
       child: TabBar(
         controller: _tabController,
         tabs: _visibleTabs.map((tab) => Tab(text: tab.label)).toList(),
-        indicatorColor: Theme.of(context).primaryColor,
-        labelColor: Theme.of(context).primaryColor,
-        unselectedLabelColor: AppColors.textSecondary,
+        indicatorColor: AppColors.primary,
+        labelColor: AppColors.textPrimary,
+        unselectedLabelColor: AppColors.textTertiary,
       ),
     );
   }

@@ -9,9 +9,11 @@ import '../../../player/player.dart';
 import '../../data/models/space_arc_search.dart';
 import '../providers/user_profile_notifier.dart';
 import '../providers/user_profile_state.dart';
+import '../widgets/dynamic_list.dart';
 import '../widgets/space_info_header.dart';
 import '../widgets/user_favorites_tab.dart';
 import '../widgets/video_post_card.dart';
+import '../widgets/video_series_tab.dart';
 
 const _uuid = Uuid();
 
@@ -67,25 +69,31 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
   void _onScroll() {
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
-      // Load more based on current tab
-      if (_currentTabIndex == 0) {
-        ref.read(userProfileProvider(widget.mid).notifier).loadMoreVideos();
-      } else if (_currentTabIndex == 1 && _visibleTabs.length > 1) {
-        ref.read(userProfileProvider(widget.mid).notifier).loadMoreFolders();
+      // Load more based on current tab key
+      // Note: dynamic and union tabs manage their own scroll loading
+      if (_currentTabIndex < _visibleTabs.length) {
+        final tabKey = _visibleTabs[_currentTabIndex].key;
+        if (tabKey == 'video') {
+          ref.read(userProfileProvider(widget.mid).notifier).loadMoreVideos();
+        } else if (tabKey == 'favorites') {
+          ref.read(userProfileProvider(widget.mid).notifier).loadMoreFolders();
+        }
       }
     }
   }
 
   void _updateTabs(UserProfileState state, int? currentUserId, bool isSelf) {
     // Build tabs based on privacy settings
-    // Source: biu/src/pages/user-profile/index.tsx - tabs array
+    // Source: biu/src/pages/user-profile/index.tsx:96-118
     final newTabs = <_ProfileTab>[
+      const _ProfileTab(key: 'dynamic', label: 'Dynamic'),
       const _ProfileTab(key: 'video', label: 'Videos'),
       _ProfileTab(
         key: 'favorites',
         label: 'Favorites',
         hidden: !isSelf && !state.shouldShowFavoritesTab(currentUserId),
       ),
+      const _ProfileTab(key: 'union', label: 'Series'),
     ].where((tab) => !tab.hidden).toList();
 
     // Only update if tabs changed
@@ -184,10 +192,14 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                   controller: _tabController,
                   children: _visibleTabs.map((tab) {
                     switch (tab.key) {
+                      case 'dynamic':
+                        return DynamicList(mid: widget.mid);
                       case 'video':
                         return _buildVideosContent(context, state);
                       case 'favorites':
                         return UserFavoritesTab(mid: widget.mid);
+                      case 'union':
+                        return VideoSeriesTab(mid: widget.mid);
                       default:
                         return const SizedBox.shrink();
                     }

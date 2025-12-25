@@ -178,7 +178,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
             if (state.isBlocked)
               const SliverFillRemaining(
                 child: Center(
-                  child: Text('This user is blocked'),
+                  child: Text('该用户已被拉黑'),
                 ),
               )
             else if (_tabController != null && _visibleTabs.isNotEmpty) ...[
@@ -251,7 +251,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                 child: TextField(
                   controller: _keywordController,
                   decoration: InputDecoration(
-                    hintText: 'Search videos...',
+                    hintText: '搜索视频...',
                     prefixIcon: const Icon(Icons.search, size: 20),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 12),
                     border: OutlineInputBorder(
@@ -292,15 +292,15 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                   items: const [
                     DropdownMenuItem(
                       value: 'pubdate',
-                      child: Text('Latest'),
+                      child: Text('最新'),
                     ),
                     DropdownMenuItem(
                       value: 'click',
-                      child: Text('Most Played'),
+                      child: Text('最多播放'),
                     ),
                     DropdownMenuItem(
                       value: 'stow',
-                      child: Text('Most Saved'),
+                      child: Text('最多收藏'),
                     ),
                   ],
                   onChanged: (value) {

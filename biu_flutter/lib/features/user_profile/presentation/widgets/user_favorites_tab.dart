@@ -55,8 +55,8 @@ class _UserFavoritesTabState extends ConsumerState<UserFavoritesTab> {
           size: 48,
           color: Color(0xFF9CA3AF),
         ),
-        title: 'No folders',
-        message: 'No public folders available',
+        title: '暂无收藏夹',
+        message: '暂无公开的收藏夹',
       );
     }
 

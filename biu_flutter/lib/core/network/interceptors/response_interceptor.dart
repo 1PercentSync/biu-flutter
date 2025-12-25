@@ -72,7 +72,7 @@ class BiliResponseInterceptor extends Interceptor {
           DioException(
             requestOptions: err.requestOptions,
             error: NetworkException(
-              message: 'Request timeout',
+              message: '请求超时',
               statusCode: err.response?.statusCode,
               url: err.requestOptions.uri.toString(),
             ),
@@ -85,7 +85,7 @@ class BiliResponseInterceptor extends Interceptor {
           DioException(
             requestOptions: err.requestOptions,
             error: NetworkException(
-              message: 'Connection error: ${err.message}',
+              message: '连接错误: ${err.message}',
               url: err.requestOptions.uri.toString(),
             ),
             type: err.type,
@@ -98,7 +98,7 @@ class BiliResponseInterceptor extends Interceptor {
           DioException(
             requestOptions: err.requestOptions,
             error: NetworkException(
-              message: 'HTTP error: $statusCode',
+              message: 'HTTP错误: $statusCode',
               statusCode: statusCode,
               url: err.requestOptions.uri.toString(),
             ),

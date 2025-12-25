@@ -69,7 +69,7 @@ class _LaterScreenState extends ConsumerState<LaterScreen> {
             SliverAppBar(
               floating: true,
               backgroundColor: AppColors.background,
-              title: const Text('Watch Later'),
+              title: const Text('稍后再看'),
               actions: [
                 IconButton(
                   icon: const Icon(Icons.refresh),
@@ -93,8 +93,8 @@ class _LaterScreenState extends ConsumerState<LaterScreen> {
       return SliverFillRemaining(
         hasScrollBody: false,
         child: ErrorState(
-          title: 'Login Required',
-          message: 'Please login to view your watch later list',
+          title: '需要登录',
+          message: '请登录查看稍后再看列表',
           onRetry: () => context.go(AppRoutes.login),
           retryText: 'Login',
         ),
@@ -105,7 +105,7 @@ class _LaterScreenState extends ConsumerState<LaterScreen> {
     if (state.isLoading && state.items.isEmpty) {
       return const SliverFillRemaining(
         hasScrollBody: false,
-        child: LoadingState(message: 'Loading watch later...'),
+        child: LoadingState(message: '加载稍后再看...'),
       );
     }
 
@@ -114,7 +114,7 @@ class _LaterScreenState extends ConsumerState<LaterScreen> {
       return SliverFillRemaining(
         hasScrollBody: false,
         child: ErrorState(
-          title: 'Failed to load',
+          title: '加载失败',
           message: state.errorMessage,
           onRetry: () => ref.read(laterProvider.notifier).load(),
         ),
@@ -126,8 +126,8 @@ class _LaterScreenState extends ConsumerState<LaterScreen> {
       return const SliverFillRemaining(
         hasScrollBody: false,
         child: ErrorState(
-          title: 'No videos',
-          message: 'Videos you add to watch later will appear here',
+          title: '暂无视频',
+          message: '你添加到稍后再看的视频将显示在这里',
         ),
       );
     }
@@ -180,7 +180,7 @@ class _LaterScreenState extends ConsumerState<LaterScreen> {
         child: Center(
           child: TextButton(
             onPressed: () => ref.read(laterProvider.notifier).loadMore(),
-            child: const Text('Load more'),
+            child: const Text('加载更多'),
           ),
         ),
       );
@@ -193,7 +193,7 @@ class _LaterScreenState extends ConsumerState<LaterScreen> {
     if (!item.isPlayable) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Cannot play this video'),
+          content: Text('无法播放此视频'),
           duration: Duration(seconds: 2),
         ),
       );
@@ -220,7 +220,7 @@ class _LaterScreenState extends ConsumerState<LaterScreen> {
     showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Remove from Watch Later?'),
+        title: const Text('从稍后再看中移除？'),
         content: Text(
           'Remove "${item.title}" from your watch later list?',
           maxLines: 3,
@@ -229,14 +229,14 @@ class _LaterScreenState extends ConsumerState<LaterScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: const Text('取消'),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
             style: TextButton.styleFrom(
               foregroundColor: Colors.red,
             ),
-            child: const Text('Remove'),
+            child: const Text('移除'),
           ),
         ],
       ),

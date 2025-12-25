@@ -313,7 +313,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                     controller: _searchController,
                     focusNode: _searchFocusNode,
                     decoration: InputDecoration(
-                      hintText: 'Search videos, music, users...',
+                      hintText: '搜索视频、音乐、用户...',
                       prefixIcon: const Icon(
                         Icons.search,
                         color: AppColors.textTertiary,
@@ -408,7 +408,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
 
   Widget _buildContent(BuildContext context, SearchState searchState) {
     if (searchState.isSearching) {
-      return const LoadingState(message: 'Searching...');
+      return const LoadingState(message: '搜索中...');
     }
 
     if (searchState.error != null) {
@@ -449,8 +449,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
           size: 48,
           color: AppColors.textTertiary,
         ),
-        title: 'No Results',
-        message: 'No videos found for your search',
+        title: '无结果',
+        message: '未找到相关视频',
       );
     }
 
@@ -557,8 +557,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
           size: 48,
           color: AppColors.textTertiary,
         ),
-        title: 'No Results',
-        message: 'No users found for your search',
+        title: '无结果',
+        message: '未找到相关用户',
       );
     }
 
@@ -594,7 +594,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
     // Check if bvid is available
     if (video.bvid.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Video ID not available')),
+        const SnackBar(content: Text('视频ID不可用')),
       );
       return;
     }
@@ -624,7 +624,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
       if (success && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Added to Watch Later'),
+            content: Text('已添加到稍后再看'),
             duration: Duration(seconds: 2),
           ),
         );
@@ -641,7 +641,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: $e'),
+            content: Text('错误: $e'),
             duration: const Duration(seconds: 2),
           ),
         );

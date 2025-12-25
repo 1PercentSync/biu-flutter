@@ -114,7 +114,7 @@ class _FolderEditDialogState extends State<FolderEditDialog> {
               controller: _titleController,
               decoration: InputDecoration(
                 labelText: 'Name',
-                hintText: 'Enter folder name',
+                hintText: '输入收藏夹名称',
                 errorText: _titleError,
                 border: const OutlineInputBorder(),
               ),
@@ -127,7 +127,7 @@ class _FolderEditDialogState extends State<FolderEditDialog> {
               controller: _introController,
               decoration: const InputDecoration(
                 labelText: 'Description (optional)',
-                hintText: 'Brief description of this folder',
+                hintText: '简单描述这个收藏夹',
                 border: OutlineInputBorder(),
               ),
               maxLines: 3,
@@ -136,7 +136,7 @@ class _FolderEditDialogState extends State<FolderEditDialog> {
             ),
             const SizedBox(height: 16),
             SwitchListTile(
-              title: const Text('Public'),
+              title: const Text('公开'),
               subtitle: Text(
                 _isPublic
                     ? 'Anyone can view this folder'
@@ -155,7 +155,7 @@ class _FolderEditDialogState extends State<FolderEditDialog> {
       actions: [
         TextButton(
           onPressed: _isSubmitting ? null : () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+          child: const Text('取消'),
         ),
         ElevatedButton(
           onPressed: _isSubmitting ||

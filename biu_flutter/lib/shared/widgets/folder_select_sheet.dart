@@ -108,7 +108,7 @@ class FolderSelectSheet extends StatelessWidget {
                             height: 16,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : const Text('Confirm'),
+                        : const Text('确定'),
                   ),
                 ],
               ),
@@ -188,7 +188,7 @@ class FolderSelectSheet extends StatelessWidget {
     if (success && context.mounted) {
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Updated successfully')),
+        const SnackBar(content: Text('更新成功')),
       );
     }
   }

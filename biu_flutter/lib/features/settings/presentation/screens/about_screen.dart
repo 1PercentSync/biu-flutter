@@ -21,7 +21,7 @@ class AboutScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('About'),
+        title: const Text('关于'),
         backgroundColor: AppColors.background,
       ),
       body: ListView(
@@ -107,7 +107,7 @@ class AboutScreen extends ConsumerWidget {
         _buildLinkTile(
           context,
           icon: Icons.description_outlined,
-          title: 'Open Source Licenses',
+          title: '开源许可证',
           onTap: () {
             showLicensePage(
               context: context,

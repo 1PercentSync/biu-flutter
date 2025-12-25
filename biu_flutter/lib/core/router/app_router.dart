@@ -125,7 +125,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           final mid = int.tryParse(state.pathParameters['mid'] ?? '');
           if (mid == null) {
             return const Scaffold(
-              body: Center(child: Text('Invalid user ID')),
+              body: Center(child: Text('无效的用户ID')),
             );
           }
           return UserProfileScreen(mid: mid);
@@ -145,7 +145,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           final folderId = int.tryParse(state.pathParameters['folderId'] ?? '');
           if (folderId == null) {
             return const Scaffold(
-              body: Center(child: Text('Invalid folder ID')),
+              body: Center(child: Text('无效的收藏夹ID')),
             );
           }
           return FolderDetailScreen(folderId: folderId);
@@ -175,7 +175,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     ],
     errorBuilder: (context, state) => Scaffold(
       body: Center(
-        child: Text('Page not found: ${state.uri}'),
+        child: Text('页面不存在: ${state.uri}'),
       ),
     ),
   );

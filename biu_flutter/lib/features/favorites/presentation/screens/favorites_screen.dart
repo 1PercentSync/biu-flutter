@@ -32,7 +32,7 @@ void _showCreateFolderDialog(BuildContext context, WidgetRef ref) {
         if (success && context.mounted) {
           Navigator.of(context).pop();
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Folder created successfully')),
+            const SnackBar(content: Text('收藏夹创建成功')),
           );
         }
         return success;
@@ -60,12 +60,12 @@ class FavoritesScreen extends ConsumerWidget {
                 floating: true,
                 pinned: true,
                 backgroundColor: AppColors.background,
-                title: const Text('Favorites'),
+                title: const Text('收藏夹'),
                 actions: [
                   IconButton(
                     onPressed: () => _showCreateFolderDialog(context, ref),
                     icon: const Icon(Icons.create_new_folder_outlined),
-                    tooltip: 'Create Folder',
+                    tooltip: '新建收藏夹',
                   ),
                 ],
                 bottom: const TabBar(
@@ -115,12 +115,12 @@ class _CreatedFoldersTab extends ConsumerWidget {
           size: 48,
           color: AppColors.textTertiary,
         ),
-        title: 'No Created Folders',
-        message: 'Create a folder to organize your favorites',
+        title: '暂无创建的收藏夹',
+        message: '创建收藏夹来整理你的收藏',
         action: ElevatedButton.icon(
           onPressed: () => _showCreateFolderDialog(context, ref),
           icon: const Icon(Icons.add),
-          label: const Text('Create Folder'),
+          label: const Text('新建收藏夹'),
         ),
       );
     }
@@ -177,8 +177,8 @@ class _CollectedFoldersTab extends ConsumerWidget {
           size: 48,
           color: AppColors.textTertiary,
         ),
-        title: 'No Collected Folders',
-        message: 'Collect folders from other users',
+        title: '暂无收藏的收藏夹',
+        message: '收藏其他用户的收藏夹',
       );
     }
 
@@ -295,7 +295,7 @@ class _FolderListItem extends StatelessWidget {
           children: [
             ListTile(
               leading: const Icon(Icons.edit),
-              title: const Text('Edit'),
+              title: const Text('编辑'),
               onTap: () {
                 Navigator.of(context).pop();
                 _showEditDialog(context);
@@ -304,7 +304,7 @@ class _FolderListItem extends StatelessWidget {
             if (!folder.isDefault)
               ListTile(
                 leading: const Icon(Icons.delete, color: Colors.red),
-                title: const Text('Delete', style: TextStyle(color: Colors.red)),
+                title: const Text('删除', style: TextStyle(color: Colors.red)),
                 onTap: () {
                   Navigator.of(context).pop();
                   _showDeleteConfirmation(context);
@@ -347,14 +347,14 @@ class _FolderListItem extends StatelessWidget {
               if (dialogContext.mounted) {
                 Navigator.of(dialogContext).pop();
                 ScaffoldMessenger.of(dialogContext).showSnackBar(
-                  const SnackBar(content: Text('Folder updated successfully')),
+                  const SnackBar(content: Text('收藏夹更新成功')),
                 );
               }
               return true;
             } catch (e) {
               if (dialogContext.mounted) {
                 ScaffoldMessenger.of(dialogContext).showSnackBar(
-                  SnackBar(content: Text('Failed to update folder: $e')),
+                  SnackBar(content: Text('更新收藏夹失败: $e')),
                 );
               }
               return false;
@@ -370,12 +370,12 @@ class _FolderListItem extends StatelessWidget {
       context: context,
       builder: (dialogContext) => Consumer(
         builder: (context, ref, child) => AlertDialog(
-          title: const Text('Delete Folder'),
-          content: Text('Are you sure you want to delete "${folder.title}"?'),
+          title: const Text('删除收藏夹'),
+          content: Text('确定要删除"${folder.title}"吗？'),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('Cancel'),
+              child: const Text('取消'),
             ),
             TextButton(
               onPressed: () async {
@@ -385,12 +385,12 @@ class _FolderListItem extends StatelessWidget {
                     .deleteFolders([folder.id]);
                 if (success && context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Folder deleted')),
+                    const SnackBar(content: Text('收藏夹已删除')),
                   );
                 }
               },
               style: TextButton.styleFrom(foregroundColor: Colors.red),
-              child: const Text('Delete'),
+              child: const Text('删除'),
             ),
           ],
         ),

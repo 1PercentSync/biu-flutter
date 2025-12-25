@@ -24,7 +24,7 @@ class ProfileScreen extends ConsumerWidget {
           SliverAppBar(
             floating: true,
             backgroundColor: AppColors.background,
-            title: const Text('Profile'),
+            title: const Text('我的'),
             actions: [
               IconButton(
                 icon: const Icon(Icons.settings),
@@ -113,7 +113,7 @@ class ProfileScreen extends ConsumerWidget {
           if (!isLoggedIn)
             ElevatedButton(
               onPressed: () => context.push(AppRoutes.login),
-              child: const Text('Login'),
+              child: const Text('登录'),
             )
           else
             IconButton(
@@ -133,25 +133,25 @@ class ProfileScreen extends ConsumerWidget {
         _buildMenuItem(
           context,
           icon: Icons.people_outline,
-          title: 'My Followings',
+          title: '我的关注',
           onTap: () => context.push(AppRoutes.followList),
         ),
         _buildMenuItem(
           context,
           icon: Icons.history,
-          title: 'Watch History',
+          title: '观看历史',
           onTap: () => context.push(AppRoutes.history),
         ),
         _buildMenuItem(
           context,
           icon: Icons.watch_later_outlined,
-          title: 'Watch Later',
+          title: '稍后再看',
           onTap: () => context.push(AppRoutes.later),
         ),
         _buildMenuItem(
           context,
           icon: Icons.dark_mode,
-          title: 'Theme',
+          title: '主题',
           trailing: const Text(
             'Dark',
             style: TextStyle(color: AppColors.textSecondary),
@@ -161,7 +161,7 @@ class ProfileScreen extends ConsumerWidget {
         _buildMenuItem(
           context,
           icon: Icons.info_outline,
-          title: 'About',
+          title: '关于',
           onTap: () => context.push(AppRoutes.about),
         ),
       ],

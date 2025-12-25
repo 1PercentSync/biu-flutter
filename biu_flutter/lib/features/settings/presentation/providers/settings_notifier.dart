@@ -175,12 +175,12 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
       return ExportResult(
         success: result.status == ShareResultStatus.success ||
             result.status == ShareResultStatus.dismissed,
-        message: 'Settings exported successfully',
+        message: '设置导出成功',
       );
     } catch (e) {
       return ExportResult(
         success: false,
-        message: 'Export failed: $e',
+        message: '导出失败: $e',
       );
     }
   }
@@ -197,7 +197,7 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
       if (result == null || result.files.isEmpty) {
         return const ImportResult(
           success: false,
-          message: 'No file selected',
+          message: '未选择文件',
           cancelled: true,
         );
       }
@@ -206,7 +206,7 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
       if (filePath == null) {
         return const ImportResult(
           success: false,
-          message: 'Cannot access file',
+          message: '无法访问文件',
         );
       }
 
@@ -221,12 +221,12 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
 
       return const ImportResult(
         success: true,
-        message: 'Settings imported successfully',
+        message: '设置导入成功',
       );
     } catch (e) {
       return ImportResult(
         success: false,
-        message: 'Import failed: $e',
+        message: '导入失败: $e',
       );
     }
   }

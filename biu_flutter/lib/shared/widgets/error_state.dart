@@ -15,8 +15,8 @@ class ErrorState extends StatelessWidget {
     VoidCallback? onRetry,
   }) {
     return ErrorState(
-      title: 'Network Error',
-      message: 'Please check your internet connection and try again.',
+      title: '网络错误',
+      message: '请检查网络连接后重试',
       icon: const Icon(
         Icons.wifi_off,
         size: 48,
@@ -31,8 +31,8 @@ class ErrorState extends StatelessWidget {
     VoidCallback? onRetry,
   }) {
     return ErrorState(
-      title: 'Server Error',
-      message: 'The server is temporarily unavailable. Please try again later.',
+      title: '服务器错误',
+      message: '服务器暂时不可用，请稍后重试',
       icon: const Icon(
         Icons.cloud_off,
         size: 48,
@@ -47,8 +47,8 @@ class ErrorState extends StatelessWidget {
     VoidCallback? onLogin,
   }) {
     return ErrorState(
-      title: 'Login Required',
-      message: 'Please log in to access this content.',
+      title: '需要登录',
+      message: '请登录以访问此内容',
       icon: const Icon(
         Icons.lock_outline,
         size: 48,

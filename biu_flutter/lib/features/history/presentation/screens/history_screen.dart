@@ -69,7 +69,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
             SliverAppBar(
               floating: true,
               backgroundColor: AppColors.background,
-              title: const Text('History'),
+              title: const Text('历史记录'),
               actions: [
                 IconButton(
                   icon: const Icon(Icons.refresh),
@@ -93,8 +93,8 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
       return SliverFillRemaining(
         hasScrollBody: false,
         child: ErrorState(
-          title: 'Login Required',
-          message: 'Please login to view your watch history',
+          title: '需要登录',
+          message: '请登录查看观看历史',
           onRetry: () => context.go(AppRoutes.login),
           retryText: 'Login',
         ),
@@ -105,7 +105,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
     if (state.isLoading && state.items.isEmpty) {
       return const SliverFillRemaining(
         hasScrollBody: false,
-        child: LoadingState(message: 'Loading history...'),
+        child: LoadingState(message: '加载历史记录中...'),
       );
     }
 
@@ -114,7 +114,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
       return SliverFillRemaining(
         hasScrollBody: false,
         child: ErrorState(
-          title: 'Failed to load',
+          title: '加载失败',
           message: state.errorMessage,
           onRetry: () => ref.read(historyProvider.notifier).load(),
         ),
@@ -126,8 +126,8 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
       return const SliverFillRemaining(
         hasScrollBody: false,
         child: ErrorState(
-          title: 'No history',
-          message: 'Your watch history will appear here',
+          title: '暂无历史记录',
+          message: '你的观看历史将显示在这里',
         ),
       );
     }
@@ -179,7 +179,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
         child: Center(
           child: TextButton(
             onPressed: () => ref.read(historyProvider.notifier).loadMore(),
-            child: const Text('Load more'),
+            child: const Text('加载更多'),
           ),
         ),
       );
@@ -192,7 +192,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
     if (!item.isPlayable) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Cannot play this type of content'),
+          content: Text('无法播放此类型内容'),
           duration: Duration(seconds: 2),
         ),
       );

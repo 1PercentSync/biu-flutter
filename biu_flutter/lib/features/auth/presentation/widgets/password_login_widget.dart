@@ -186,7 +186,7 @@ class _PasswordLoginWidgetState extends ConsumerState<PasswordLoginWidget> {
     } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not open password recovery page')),
+          const SnackBar(content: Text('无法打开密码找回页面')),
         );
       }
     }

@@ -79,7 +79,7 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
           ElevatedButton(
             onPressed: () =>
                 ref.read(folderDetailProvider(widget.folderId).notifier).refresh(),
-            child: const Text('Retry'),
+            child: const Text('重试'),
           ),
         ],
       ),
@@ -142,7 +142,7 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
                               children: [
                                 Icon(Icons.check_circle_outline, size: 20),
                                 SizedBox(width: 12),
-                                Text('Select'),
+                                Text('选择'),
                               ],
                             ),
                           ),
@@ -152,7 +152,7 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
                               children: [
                                 Icon(Icons.cleaning_services, size: 20),
                                 SizedBox(width: 12),
-                                Text('Clean Invalid'),
+                                Text('清理失效'),
                               ],
                             ),
                           ),
@@ -301,7 +301,7 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
               ),
               if (folder.isPrivate)
                 const Chip(
-                  label: Text('Private'),
+                  label: Text('私密'),
                   avatar: Icon(Icons.lock, size: 14),
                   labelStyle: TextStyle(fontSize: 12),
                   visualDensity: VisualDensity.compact,
@@ -369,7 +369,7 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
                   child: FilledButton.icon(
                     onPressed: () => _playAll(context, ref, state),
                     icon: const Icon(Icons.play_arrow),
-                    label: const Text('Play All'),
+                    label: const Text('播放全部'),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -377,7 +377,7 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
                   child: OutlinedButton.icon(
                     onPressed: () => _addAllToQueue(context, ref, state),
                     icon: const Icon(Icons.playlist_add),
-                    label: const Text('Add to Queue'),
+                    label: const Text('添加到播放列表'),
                   ),
                 ),
               ],
@@ -403,7 +403,7 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
               controller: _searchController,
               focusNode: _searchFocusNode,
               decoration: InputDecoration(
-                hintText: 'Search...',
+                hintText: '搜索...',
                 prefixIcon: const Icon(Icons.search, size: 20),
                 suffixIcon: state.keyword.isNotEmpty
                     ? IconButton(
@@ -539,7 +539,7 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
                       );
                   if (success && context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Moved successfully')),
+                      const SnackBar(content: Text('移动成功')),
                     );
                   }
                 },
@@ -564,7 +564,7 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
                       );
                   if (success && context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Copied successfully')),
+                      const SnackBar(content: Text('复制成功')),
                     );
                   }
                 },
@@ -598,7 +598,7 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
     final validMedias = state.medias.where((m) => !m.isInvalid).toList();
     if (validMedias.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No valid items to play')),
+        const SnackBar(content: Text('没有可播放的内容')),
       );
       return;
     }
@@ -612,7 +612,7 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
     final validMedias = state.medias.where((m) => !m.isInvalid).toList();
     if (validMedias.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No valid items to add')),
+        const SnackBar(content: Text('没有可添加的内容')),
       );
       return;
     }
@@ -621,7 +621,7 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
     final playItems = validMedias.map(_mediaToPlayItem).toList();
     ref.read(playlistProvider.notifier).addList(playItems);
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Added ${playItems.length} items to queue')),
+      SnackBar(content: Text('已添加 ${playItems.length} 首到播放列表')),
     );
   }
 
@@ -655,7 +655,7 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
   void _playMedia(BuildContext context, WidgetRef ref, FavMedia media) {
     if (media.isInvalid) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('This content is no longer available')),
+        const SnackBar(content: Text('该内容已失效')),
       );
       return;
     }
@@ -667,7 +667,7 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
       BuildContext context, WidgetRef ref, FavMedia media) async {
     if (media.isInvalid) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('This content is no longer available')),
+        const SnackBar(content: Text('该内容已失效')),
       );
       return;
     }
@@ -680,7 +680,7 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
       if (success && context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Added to Watch Later'),
+            content: Text('已添加到稍后再看'),
             duration: Duration(seconds: 2),
           ),
         );
@@ -697,7 +697,7 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: $e'),
+            content: Text('错误: $e'),
             duration: const Duration(seconds: 2),
           ),
         );
@@ -713,14 +713,14 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
     showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Items'),
+        title: const Text('删除内容'),
         content: Text(
           'Are you sure you want to delete ${state.selectedCount} items from this folder?',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: const Text('取消'),
           ),
           FilledButton(
             onPressed: () async {
@@ -730,14 +730,14 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
                   .batchDeleteSelected();
               if (success && context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Deleted successfully')),
+                  const SnackBar(content: Text('删除成功')),
                 );
               }
             },
             style: FilledButton.styleFrom(
               backgroundColor: Colors.red,
             ),
-            child: const Text('Delete'),
+            child: const Text('删除'),
           ),
         ],
       ),
@@ -748,14 +748,14 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
     showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Clean Invalid Items'),
+        title: const Text('清理失效内容'),
         content: const Text(
           'This will remove all invalid/deleted items from this folder. This action cannot be undone.',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: const Text('取消'),
           ),
           FilledButton(
             onPressed: () async {
@@ -765,11 +765,11 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
                   .cleanInvalidResources();
               if (success && context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Invalid items cleaned')),
+                  const SnackBar(content: Text('失效内容已清理')),
                 );
               }
             },
-            child: const Text('Clean'),
+            child: const Text('清理'),
           ),
         ],
       ),
@@ -792,7 +792,7 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
 
     if (folders.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No other folders available')),
+        const SnackBar(content: Text('没有其他收藏夹')),
       );
       return;
     }
@@ -986,7 +986,7 @@ class _MediaListItem extends StatelessWidget {
                 Icons.watch_later_outlined,
                 size: 20,
               ),
-              tooltip: 'Watch Later',
+              tooltip: '稍后再看',
               onPressed: onAddToLater,
             )
           : null,

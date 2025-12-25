@@ -46,7 +46,7 @@ class _FullPlayerScreenState extends ConsumerState<FullPlayerScreen> {
     if (currentItem == null) {
       return const Scaffold(
         body: Center(
-          child: Text('No track playing'),
+          child: Text('暂无播放'),
         ),
       );
     }
@@ -106,14 +106,14 @@ class _FullPlayerScreenState extends ConsumerState<FullPlayerScreen> {
           IconButton(
             icon: const Icon(Icons.list_alt),
             onPressed: () => _showVideoPageListSheet(context, currentItem, playlistState),
-            tooltip: 'Part ${currentItem.pageIndex ?? 1}/${currentItem.totalPage ?? 1}',
+            tooltip: '分P ${currentItem.pageIndex ?? 1}/${currentItem.totalPage ?? 1}',
           ),
         // Quick favorite button
         // Source: biu/src/layout/playbar/right/mv-fav-folder-select.tsx
         IconButton(
           icon: const Icon(Icons.star_border),
           onPressed: () => _showFavoriteSheet(context, currentItem),
-          tooltip: 'Add to favorites',
+          tooltip: '添加到收藏夹',
         ),
         IconButton(
           icon: const Icon(Icons.playlist_play),
@@ -169,7 +169,7 @@ class _FullPlayerScreenState extends ConsumerState<FullPlayerScreen> {
 
     if (resourceId.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Cannot add to favorites')),
+        const SnackBar(content: Text('无法添加到收藏')),
       );
       return;
     }
@@ -177,7 +177,7 @@ class _FullPlayerScreenState extends ConsumerState<FullPlayerScreen> {
     FolderSelectSheet.show(
       context: context,
       resourceId: resourceId,
-      title: 'Add to Favorites',
+      title: '添加到收藏夹',
     );
   }
 
@@ -603,7 +603,7 @@ class _RateDialog extends ConsumerWidget {
     final notifier = ref.read(playlistProvider.notifier);
 
     return AlertDialog(
-      title: const Text('Playback Speed'),
+      title: const Text('播放速度'),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: rates.map((rate) {
@@ -665,7 +665,7 @@ class _PlaylistSheet extends ConsumerWidget {
                       notifier.clear();
                       Navigator.of(context).pop();
                     },
-                    child: const Text('Clear'),
+                    child: const Text('清空'),
                   ),
                 ],
               ),
@@ -789,7 +789,7 @@ class _VideoPageListSheetState extends State<_VideoPageListSheet> {
                     child: TextField(
                       controller: _searchController,
                       decoration: InputDecoration(
-                        hintText: 'Search parts',
+                        hintText: '搜索分P',
                         hintStyle: const TextStyle(fontSize: 12),
                         prefixIcon: const Icon(Icons.search, size: 16),
                         contentPadding: EdgeInsets.zero,

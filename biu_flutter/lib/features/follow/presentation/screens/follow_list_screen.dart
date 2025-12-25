@@ -89,8 +89,8 @@ class _FollowListScreenState extends ConsumerState<FollowListScreen> {
       return SliverFillRemaining(
         hasScrollBody: false,
         child: ErrorState(
-          title: 'Login Required',
-          message: 'Please login to view your followings',
+          title: '需要登录',
+          message: '请登录查看你的关注',
           onRetry: () => context.go(AppRoutes.login),
           retryText: 'Login',
         ),
@@ -102,8 +102,8 @@ class _FollowListScreenState extends ConsumerState<FollowListScreen> {
       return const SliverFillRemaining(
         hasScrollBody: false,
         child: ErrorState(
-          title: 'Privacy Enabled',
-          message: 'User has enabled privacy settings',
+          title: '隐私已开启',
+          message: '用户已开启隐私设置',
         ),
       );
     }
@@ -112,7 +112,7 @@ class _FollowListScreenState extends ConsumerState<FollowListScreen> {
     if (state.isLoading && state.users.isEmpty) {
       return const SliverFillRemaining(
         hasScrollBody: false,
-        child: LoadingState(message: 'Loading followings...'),
+        child: LoadingState(message: '加载关注列表...'),
       );
     }
 
@@ -121,7 +121,7 @@ class _FollowListScreenState extends ConsumerState<FollowListScreen> {
       return SliverFillRemaining(
         hasScrollBody: false,
         child: ErrorState(
-          title: 'Failed to load',
+          title: '加载失败',
           message: state.errorMessage,
           onRetry: () => ref.read(followProvider.notifier).load(),
         ),
@@ -133,8 +133,8 @@ class _FollowListScreenState extends ConsumerState<FollowListScreen> {
       return const SliverFillRemaining(
         hasScrollBody: false,
         child: ErrorState(
-          title: 'No followings',
-          message: 'You have not followed anyone yet',
+          title: '暂无关注',
+          message: '你还没有关注任何人',
         ),
       );
     }
@@ -195,7 +195,7 @@ class _FollowListScreenState extends ConsumerState<FollowListScreen> {
     showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Unfollow?'),
+        title: const Text('取消关注？'),
         content: Text(
           'Are you sure you want to unfollow "${user.uname}"?',
           maxLines: 3,
@@ -204,14 +204,14 @@ class _FollowListScreenState extends ConsumerState<FollowListScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: const Text('取消'),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
             style: TextButton.styleFrom(
               foregroundColor: Colors.red,
             ),
-            child: const Text('Unfollow'),
+            child: const Text('取消关注'),
           ),
         ],
       ),

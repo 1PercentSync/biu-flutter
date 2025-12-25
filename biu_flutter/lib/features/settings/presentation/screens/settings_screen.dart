@@ -31,7 +31,7 @@ class SettingsScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Settings'),
+        title: const Text('设置'),
         backgroundColor: AppColors.background,
       ),
       body: ListView(
@@ -48,7 +48,7 @@ class SettingsScreen extends ConsumerWidget {
           _buildSectionHeader(context, 'Audio'),
           _buildSettingTile(
             context,
-            title: 'Audio Quality',
+            title: '音频质量',
             subtitle: settings.audioQuality.label,
             onTap: () => _showAudioQualityPicker(context, ref, settings),
           ),
@@ -58,13 +58,13 @@ class SettingsScreen extends ConsumerWidget {
           _buildSectionHeader(context, 'Appearance'),
           _buildSettingTile(
             context,
-            title: 'Display Mode',
+            title: '显示模式',
             subtitle: settings.displayMode.label,
             onTap: () => _showDisplayModePicker(context, ref, settings),
           ),
           _buildSettingTile(
             context,
-            title: 'Primary Color',
+            title: '主题色',
             trailing: Container(
               width: 24,
               height: 24,
@@ -78,7 +78,7 @@ class SettingsScreen extends ConsumerWidget {
           ),
           _buildSettingTile(
             context,
-            title: 'Content Background',
+            title: '内容背景',
             trailing: Container(
               width: 24,
               height: 24,
@@ -92,7 +92,7 @@ class SettingsScreen extends ConsumerWidget {
           ),
           _buildSettingTile(
             context,
-            title: 'Background Color',
+            title: '背景色',
             trailing: Container(
               width: 24,
               height: 24,
@@ -106,14 +106,14 @@ class SettingsScreen extends ConsumerWidget {
           ),
           _buildSettingTile(
             context,
-            title: 'Border Radius',
+            title: '圆角',
             subtitle: '${settings.borderRadius.toInt()}px',
             onTap: () => _showBorderRadiusPicker(context, ref, settings),
           ),
           _buildSettingTile(
             context,
-            title: 'Reset Theme',
-            subtitle: 'Restore default colors',
+            title: '重置主题',
+            subtitle: '恢复默认颜色',
             onTap: () => _showResetThemeDialog(context, ref),
           ),
           const SizedBox(height: 24),
@@ -123,7 +123,7 @@ class SettingsScreen extends ConsumerWidget {
             _buildSectionHeader(context, 'Menu Customization'),
             _buildSettingTile(
               context,
-              title: 'Hidden Folders',
+              title: '隐藏的收藏夹',
               subtitle: settings.hiddenFolderIds.isEmpty
                   ? 'No folders hidden'
                   : '${settings.hiddenFolderIds.length} folder(s) hidden',
@@ -136,8 +136,8 @@ class SettingsScreen extends ConsumerWidget {
           _buildSectionHeader(context, 'Storage'),
           _buildSettingTile(
             context,
-            title: 'Clear Cache',
-            subtitle: 'Free up storage space',
+            title: '清除缓存',
+            subtitle: '释放存储空间',
             onTap: () => _showClearCacheDialog(context, ref),
           ),
           const SizedBox(height: 24),
@@ -146,14 +146,14 @@ class SettingsScreen extends ConsumerWidget {
           _buildSectionHeader(context, 'Data'),
           _buildSettingTile(
             context,
-            title: 'Export Settings',
-            subtitle: 'Save settings to a file',
+            title: '导出设置',
+            subtitle: '将设置保存到文件',
             onTap: () => _exportSettings(context, ref),
           ),
           _buildSettingTile(
             context,
-            title: 'Import Settings',
-            subtitle: 'Load settings from a file',
+            title: '导入设置',
+            subtitle: '从文件加载设置',
             onTap: () => _importSettings(context, ref),
           ),
           const SizedBox(height: 24),
@@ -163,7 +163,7 @@ class SettingsScreen extends ConsumerWidget {
             _buildSectionHeader(context, 'Session'),
             _buildSettingTile(
               context,
-              title: 'Logout',
+              title: '退出登录',
               titleColor: AppColors.error,
               onTap: () => _showLogoutDialog(context, ref),
             ),
@@ -175,12 +175,12 @@ class SettingsScreen extends ConsumerWidget {
           _buildVersionTile(context, ref),
           _buildSettingTile(
             context,
-            title: 'About',
+            title: '关于',
             onTap: () => context.push(AppRoutes.about),
           ),
           _buildSettingTile(
             context,
-            title: 'Open Source Licenses',
+            title: '开源许可证',
             onTap: () {
               final packageInfo = ref.read(packageInfoProvider).valueOrNull;
               showLicensePage(
@@ -284,18 +284,18 @@ class SettingsScreen extends ConsumerWidget {
     return packageInfoAsync.when(
       data: (packageInfo) => _buildSettingTile(
         context,
-        title: 'Version',
+        title: '版本',
         subtitle: packageInfo.version,
       ),
       loading: () => _buildSettingTile(
         context,
-        title: 'Version',
+        title: '版本',
         subtitle: '...',
       ),
       error: (error, stack) => _buildSettingTile(
         context,
-        title: 'Version',
-        subtitle: 'Unknown',
+        title: '版本',
+        subtitle: '未知',
       ),
     );
   }
@@ -393,18 +393,18 @@ class SettingsScreen extends ConsumerWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Reset Theme'),
+        title: const Text('重置主题'),
         content: const Text(
           'This will restore all appearance settings to their default values. Continue?',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: const Text('取消'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Reset'),
+            child: const Text('重置'),
           ),
         ],
       ),
@@ -414,7 +414,7 @@ class SettingsScreen extends ConsumerWidget {
       await ref.read(settingsNotifierProvider.notifier).resetToDefaults();
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Theme reset to defaults')),
+          const SnackBar(content: Text('主题已重置')),
         );
       }
     }
@@ -427,18 +427,18 @@ class SettingsScreen extends ConsumerWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Clear Cache'),
+        title: const Text('清除缓存'),
         content: const Text(
           'This will clear cached images and temporary data. Your login and settings will not be affected.',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: const Text('取消'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Clear'),
+            child: const Text('清除'),
           ),
         ],
       ),
@@ -450,7 +450,7 @@ class SettingsScreen extends ConsumerWidget {
       PaintingBinding.instance.imageCache.clearLiveImages();
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Cache cleared')),
+        const SnackBar(content: Text('缓存已清除')),
       );
     }
   }
@@ -459,17 +459,17 @@ class SettingsScreen extends ConsumerWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Logout'),
-        content: const Text('Are you sure you want to logout?'),
+        title: const Text('退出登录'),
+        content: const Text('确定要退出登录吗？'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: const Text('取消'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(foregroundColor: AppColors.error),
-            child: const Text('Logout'),
+            child: const Text('退出登录'),
           ),
         ],
       ),
@@ -481,7 +481,7 @@ class SettingsScreen extends ConsumerWidget {
         // Navigate back to main screen
         context.go(AppRoutes.home);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Logged out successfully')),
+          const SnackBar(content: Text('已退出登录')),
         );
       }
     }
@@ -495,7 +495,7 @@ class SettingsScreen extends ConsumerWidget {
     final selected = await showDialog<DisplayMode>(
       context: context,
       builder: (context) => SimpleDialog(
-        title: const Text('Display Mode'),
+        title: const Text('显示模式'),
         children: DisplayMode.values.map((mode) {
           return SimpleDialogOption(
             onPressed: () => Navigator.pop(context, mode),
@@ -571,13 +571,13 @@ class _HiddenFoldersDialog extends ConsumerWidget {
     final folders = favoritesState.createdFolders;
 
     return AlertDialog(
-      title: const Text('Hidden Folders'),
+      title: const Text('隐藏的收藏夹'),
       content: SizedBox(
         width: double.maxFinite,
         child: folders.isEmpty
             ? const Padding(
                 padding: EdgeInsets.all(16),
-                child: Text('No folders available'),
+                child: Text('暂无收藏夹'),
               )
             : ListView.builder(
                 shrinkWrap: true,
@@ -623,11 +623,11 @@ class _HiddenFoldersDialog extends ConsumerWidget {
             onPressed: () {
               ref.read(settingsNotifierProvider.notifier).clearHiddenFolders();
             },
-            child: const Text('Show All'),
+            child: const Text('显示全部'),
           ),
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Done'),
+          child: const Text('完成'),
         ),
       ],
     );
@@ -676,7 +676,7 @@ class _BorderRadiusPickerState extends State<_BorderRadiusPicker> {
           Padding(
             padding: const EdgeInsets.all(16),
             child: Text(
-              'Border Radius',
+              '圆角',
               style: Theme.of(context).textTheme.titleMedium,
             ),
           ),
@@ -731,7 +731,7 @@ class _BorderRadiusPickerState extends State<_BorderRadiusPicker> {
               width: double.infinity,
               child: FilledButton(
                 onPressed: () => Navigator.pop(context, _radius),
-                child: const Text('Apply'),
+                child: const Text('应用'),
               ),
             ),
           ),

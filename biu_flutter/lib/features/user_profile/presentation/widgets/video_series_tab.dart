@@ -155,8 +155,8 @@ class _VideoSeriesTabState extends State<VideoSeriesTab> {
           size: 48,
           color: Color(0xFF9CA3AF),
         ),
-        title: 'No video series',
-        message: 'No video series available',
+        title: '暂无视频合集',
+        message: '暂无可用的视频合集',
       );
     }
 

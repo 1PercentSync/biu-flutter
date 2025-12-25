@@ -83,19 +83,19 @@ class SearchHistoryWidget extends ConsumerWidget {
     showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Clear Search History'),
-        content: const Text('Are you sure you want to clear all search history?'),
+        title: const Text('清除搜索历史'),
+        content: const Text('确定要清除所有搜索历史吗？'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: const Text('取消'),
           ),
           TextButton(
             onPressed: () {
               ref.read(searchHistoryProvider.notifier).clear();
               Navigator.pop(context);
             },
-            child: const Text('Clear'),
+            child: const Text('清除'),
           ),
         ],
       ),

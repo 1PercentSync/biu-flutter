@@ -71,7 +71,7 @@ class _MusicRecommendScreenState extends ConsumerState<MusicRecommendScreen> {
             SliverAppBar(
               floating: true,
               backgroundColor: AppColors.background,
-              title: const Text('Music Recommend'),
+              title: const Text('音乐推荐'),
               actions: [
                 IconButton(
                   icon: const Icon(Icons.refresh),
@@ -117,7 +117,7 @@ class _MusicRecommendScreenState extends ConsumerState<MusicRecommendScreen> {
     if (state.isLoading && state.songs.isEmpty) {
       return const SliverFillRemaining(
         hasScrollBody: false,
-        child: LoadingState(message: 'Loading recommendations...'),
+        child: LoadingState(message: '加载推荐中...'),
       );
     }
 
@@ -125,7 +125,7 @@ class _MusicRecommendScreenState extends ConsumerState<MusicRecommendScreen> {
       return SliverFillRemaining(
         hasScrollBody: false,
         child: ErrorState(
-          title: 'Failed to load',
+          title: '加载失败',
           message: state.errorMessage,
           onRetry: () => ref.read(musicRecommendProvider.notifier).load(),
         ),
@@ -136,8 +136,8 @@ class _MusicRecommendScreenState extends ConsumerState<MusicRecommendScreen> {
       return const SliverFillRemaining(
         hasScrollBody: false,
         child: ErrorState(
-          title: 'No recommendations',
-          message: 'No music recommendations available at the moment.',
+          title: '暂无推荐',
+          message: '暂时没有音乐推荐',
         ),
       );
     }

@@ -141,7 +141,7 @@ class FollowingCard extends StatelessWidget {
                   child: OutlinedButton.icon(
                     onPressed: onUnfollow,
                     icon: const Icon(Icons.person_remove, size: 16),
-                    label: const Text('Unfollow'),
+                    label: const Text('取消关注'),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 8,
@@ -294,7 +294,7 @@ class FollowingListTile extends StatelessWidget {
             ? IconButton(
                 icon: const Icon(Icons.person_remove),
                 onPressed: onUnfollow,
-                tooltip: 'Unfollow',
+                tooltip: '取消关注',
               )
             : null,
       ),

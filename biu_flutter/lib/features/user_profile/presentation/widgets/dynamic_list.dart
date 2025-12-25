@@ -165,7 +165,7 @@ class _DynamicListState extends ConsumerState<DynamicList> {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _refresh,
-              child: const Text('Retry'),
+              child: const Text('重试'),
             ),
           ],
         ),

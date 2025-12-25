@@ -18,11 +18,14 @@ import '../cached_image.dart';
 /// Source: biu/src/layout/playbar/right/index.tsx#Right
 /// Source: biu/src/layout/playbar/right/play-list-drawer/* (playlist sheet)
 ///
-/// NOTE: This widget imports from features/player/ which is technically
-/// a cross-layer dependency (shared -> features). This is accepted because:
+/// NOTE: This widget imports from features/player/ and features/favorites/
+/// which is technically a cross-layer dependency (shared -> features).
+/// This is accepted because:
 /// 1. Source project has same pattern: layout/playbar/ imports from store/play-list.ts
 /// 2. Player state is a cross-cutting concern used by many features
 /// 3. Playbar widgets are inherently player-dependent by design
+/// 4. The favorites import is for FolderSelectSheet, which provides quick-add
+///    functionality matching biu/src/layout/playbar/right/mv-fav-folder-select.tsx
 /// See: openspec/changes/align-parity-report-decisions/tasks.md (Phase 5.2)
 class FullPlayerScreen extends ConsumerStatefulWidget {
   const FullPlayerScreen({super.key});
@@ -471,7 +474,7 @@ class _FullPlayerScreenState extends ConsumerState<FullPlayerScreen> {
 
   /// Build volume control with slider popup
   /// Source: biu/src/layout/playbar/right/volume.tsx
-  Widget _buildVolumeControl(PlaylistState playlistState, dynamic notifier) {
+  Widget _buildVolumeControl(PlaylistState playlistState, PlaylistNotifier notifier) {
     return PopupMenuButton<double>(
       offset: const Offset(0, -180),
       shape: RoundedRectangleBorder(
@@ -491,8 +494,11 @@ class _FullPlayerScreenState extends ConsumerState<FullPlayerScreen> {
       itemBuilder: (context) => [
         PopupMenuItem<double>(
           enabled: false,
-          child: StatefulBuilder(
-            builder: (context, setLocalState) {
+          // Use Consumer to properly update volume state inside popup
+          child: Consumer(
+            builder: (context, ref, _) {
+              final volume = ref.watch(playlistProvider.select((s) => s.volume));
+              final isMuted = ref.watch(playlistProvider.select((s) => s.isMuted));
               return SizedBox(
                 height: 150,
                 width: 48,
@@ -501,7 +507,7 @@ class _FullPlayerScreenState extends ConsumerState<FullPlayerScreen> {
                   children: [
                     // Volume percentage
                     Text(
-                      '${(playlistState.volume * 100).round()}%',
+                      '${(volume * 100).round()}%',
                       style: const TextStyle(
                         fontSize: 12,
                         color: AppColors.textSecondary,
@@ -513,7 +519,7 @@ class _FullPlayerScreenState extends ConsumerState<FullPlayerScreen> {
                       child: RotatedBox(
                         quarterTurns: -1,
                         child: Slider(
-                          value: playlistState.volume,
+                          value: volume,
                           onChanged: (value) {
                             ref.read(playlistProvider.notifier).setVolume(value);
                           },
@@ -523,14 +529,13 @@ class _FullPlayerScreenState extends ConsumerState<FullPlayerScreen> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    // Mute button
+                    // Mute button - don't close popup to allow continued adjustment
                     GestureDetector(
                       onTap: () {
                         ref.read(playlistProvider.notifier).toggleMute();
-                        Navigator.pop(context);
                       },
                       child: Icon(
-                        playlistState.isMuted ? Icons.volume_off : Icons.volume_up,
+                        isMuted ? Icons.volume_off : Icons.volume_up,
                         size: 20,
                         color: AppColors.textSecondary,
                       ),

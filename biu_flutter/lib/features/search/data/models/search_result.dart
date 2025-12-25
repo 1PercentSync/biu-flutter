@@ -234,65 +234,7 @@ enum SearchModuleType {
   }
 }
 
-/// Comprehensive search result
-class SearchAllResult {
-  const SearchAllResult({
-    required this.seid,
-    required this.page,
-    required this.pageSize,
-    required this.numResults,
-    required this.numPages,
-    this.topTlist = const {},
-    this.result = const [],
-  });
-
-  factory SearchAllResult.fromJson(Map<String, dynamic> json) {
-    return SearchAllResult(
-      seid: json['seid'] as String? ?? '',
-      page: json['page'] as int? ?? 1,
-      pageSize: json['pagesize'] as int? ?? json['page_size'] as int? ?? 20,
-      numResults: json['numResults'] as int? ?? 0,
-      numPages: json['numPages'] as int? ?? 0,
-      topTlist: (json['top_tlist'] as Map<String, dynamic>?)?.map(
-            (key, value) => MapEntry(key, value as int? ?? 0),
-          ) ??
-          {},
-      result: (json['result'] as List<dynamic>?)
-              ?.map((e) => SearchResultModule.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
-    );
-  }
-
-  final String seid;
-  final int page;
-  final int pageSize;
-  final int numResults;
-  final int numPages;
-  final Map<String, int> topTlist;
-  final List<SearchResultModule> result;
-
-  /// Get video results
-  List<SearchVideoItem> get videoResults {
-    final module = result.where((m) => m.resultType == 'video').firstOrNull;
-    if (module == null) return [];
-    return module.data
-        .map((e) => SearchVideoItem.fromJson(e as Map<String, dynamic>))
-        .toList();
-  }
-
-  Map<String, dynamic> toJson() => {
-    'seid': seid,
-    'page': page,
-    'pagesize': pageSize,
-    'numResults': numResults,
-    'numPages': numPages,
-    'top_tlist': topTlist,
-    'result': result.map((e) => e.toJson()).toList(),
-  };
-}
-
-/// Search result module
+/// Search result module (used internally)
 class SearchResultModule {
   const SearchResultModule({
     required this.resultType,

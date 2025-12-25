@@ -111,11 +111,14 @@ class SearchNotifier extends StateNotifier<SearchState> {
 
   void setSearchTab(SearchTabType tab) {
     if (state.searchTab == tab) return;
+    // Set isSearching: true immediately to prevent flash of empty state
+    // when tab switches and search is triggered
     state = state.copyWith(
       searchTab: tab,
       results: const [],
       userResults: const [],
       hasSearched: false,
+      isSearching: state.query.isNotEmpty,
       currentPage: 1,
       totalPages: 0,
     );
@@ -415,11 +418,11 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
           size: 48,
           color: AppColors.error,
         ),
-        title: 'Search Error',
-        message: searchState.error,
+        title: '搜索失败',
+        message: '请稍后重试',
         action: ElevatedButton(
           onPressed: () => _performSearch(searchState.query),
-          child: const Text('Retry'),
+          child: const Text('重试'),
         ),
       );
     }

@@ -47,19 +47,20 @@ class GeetestDialog extends StatefulWidget {
     );
   }
 
-  /// Show dialog for unsupported platforms
+  /// Show dialog for unsupported platforms (Windows, Linux, Web).
+  /// Source: This login method requires WebView which is only available on mobile.
   static Future<GeetestResult?> _showUnsupportedPlatformDialog(
     BuildContext context,
   ) async {
     return showDialog<GeetestResult>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('不支持的平台'),
+        title: const Text('桌面端不可用'),
         content: const Text(
-          '验证码功能在当前平台不可用。\n\n'
+          '此登录方式需要验证码功能，在桌面端不可用。\n\n'
           '请使用以下方式登录：\n'
           '• 扫码登录（推荐）\n'
-          '• 在移动设备上使用密码/短信登录',
+          '• 在手机或平板上使用短信登录',
         ),
         actions: [
           TextButton(

@@ -93,60 +93,70 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
 
   /// Initialize player and restore state
   Future<void> initialize() async {
-    // Set up player state listener
-    _playerStateSubscription =
-        _playerService.playerStateStream.listen((playerState) {
-      state = state.copyWith(
-        isPlaying: playerState.playing,
-      );
-
-      // Handle track completion
-      if (playerState.processingState == ProcessingState.completed) {
-        _onTrackCompleted();
-      }
-    });
-
-    // Set up position listener
-    _positionSubscription = _playerService.positionStream.listen((position) {
-      state = state.copyWith(
-        currentTime: position.inMilliseconds / 1000.0,
-      );
-    });
-
-    // Set up duration listener
-    _durationSubscription = _playerService.durationStream.listen((duration) {
-      if (duration != null) {
+    try {
+      // Set up player state listener
+      _playerStateSubscription =
+          _playerService.playerStateStream.listen((playerState) {
         state = state.copyWith(
-          duration: duration.inMilliseconds / 1000.0,
+          isPlaying: playerState.playing,
         );
-      }
-    });
 
-    // Set up processing state listener
-    _processingStateSubscription =
-        _playerService.processingStateStream.listen((processingState) {
-      state = state.copyWith(
-        isLoading: processingState == ProcessingState.loading ||
-            processingState == ProcessingState.buffering,
+        // Handle track completion
+        if (playerState.processingState == ProcessingState.completed) {
+          _onTrackCompleted();
+        }
+      });
+
+      // Set up position listener
+      _positionSubscription = _playerService.positionStream.listen((position) {
+        state = state.copyWith(
+          currentTime: position.inMilliseconds / 1000.0,
+        );
+      });
+
+      // Set up duration listener
+      _durationSubscription = _playerService.durationStream.listen((duration) {
+        if (duration != null) {
+          state = state.copyWith(
+            duration: duration.inMilliseconds / 1000.0,
+          );
+        }
+      });
+
+      // Set up processing state listener
+      _processingStateSubscription =
+          _playerService.processingStateStream.listen((processingState) {
+        state = state.copyWith(
+          isLoading: processingState == ProcessingState.loading ||
+              processingState == ProcessingState.buffering,
+        );
+      });
+
+      // Apply persisted settings
+      await _playerService.setVolume(state.volume);
+      await _playerService.setSpeed(state.rate);
+      await _playerService.setLoopMode(
+        state.playMode == PlayMode.single ? LoopMode.one : LoopMode.off,
       );
-    });
 
-    // Apply persisted settings
-    await _playerService.setVolume(state.volume);
-    await _playerService.setSpeed(state.rate);
-    await _playerService.setLoopMode(
-      state.playMode == PlayMode.single ? LoopMode.one : LoopMode.off,
-    );
+      // Restore playback position if there's a current item
+      if (state.playId != null && state.currentItem != null) {
+        await _ensureAudioUrlValid();
 
-    // Restore playback position if there's a current item
-    if (state.playId != null && state.currentItem != null) {
-      await _ensureAudioUrlValid();
-
-      final savedTime = await _loadCurrentTime();
-      if (savedTime > 0) {
-        await _playerService.seek(Duration(milliseconds: (savedTime * 1000).round()));
-        state = state.copyWith(currentTime: savedTime);
+        final savedTime = await _loadCurrentTime();
+        if (savedTime > 0) {
+          await _playerService.seek(Duration(milliseconds: (savedTime * 1000).round()));
+          state = state.copyWith(currentTime: savedTime);
+        }
       }
+    } catch (e) {
+      // Clean up resources on initialization failure
+      unawaited(_playerStateSubscription?.cancel());
+      unawaited(_positionSubscription?.cancel());
+      unawaited(_durationSubscription?.cancel());
+      unawaited(_processingStateSubscription?.cancel());
+      await _playerService.dispose();
+      rethrow;
     }
   }
 
@@ -636,7 +646,7 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
 
     // Check URL validity using deadline parameter
     // Bilibili URLs have a deadline query param that indicates expiry time
-    final isValid = UrlUtils.isUrlValid(audioUrl);
+    var isValid = UrlUtils.isUrlValid(audioUrl);
     debugPrint('[Playlist] Current URL valid: $isValid');
 
     // Fetch fresh URL if:
@@ -646,6 +656,18 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
       debugPrint('[Playlist] Fetching fresh audio URL (expired or missing)');
       audioUrl = await _fetchAudioUrl(currentItem);
       if (audioUrl != null) {
+        // Double-check URL validity after async fetch
+        // URL may have expired during the async operation
+        isValid = UrlUtils.isUrlValid(audioUrl);
+        if (!isValid) {
+          debugPrint('[Playlist] Fetched URL already expired, retrying...');
+          audioUrl = await _fetchAudioUrl(currentItem);
+          if (audioUrl == null || !UrlUtils.isUrlValid(audioUrl)) {
+            debugPrint('[Playlist] Failed to get valid URL after retry');
+            state = state.copyWith(error: 'Failed to get valid audio URL');
+            return false;
+          }
+        }
         updateCurrentItemAudioUrl(audioUrl: audioUrl);
       }
     }
@@ -670,6 +692,12 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
       // Try to get a fresh URL
       final freshUrl = await _fetchAudioUrl(currentItem);
       if (freshUrl != null && freshUrl.isNotEmpty) {
+        // Verify the fresh URL is still valid
+        if (!UrlUtils.isUrlValid(freshUrl)) {
+          debugPrint('[Playlist] Fresh URL is also invalid');
+          state = state.copyWith(error: 'Failed to load audio');
+          return false;
+        }
         updateCurrentItemAudioUrl(audioUrl: freshUrl);
         try {
           await _playerService.setUrl(freshUrl);

@@ -33,38 +33,11 @@ enum SearchVideoDuration {
 /// Remote data source for search-related API calls
 ///
 /// Source: biu/src/service/main-suggest.ts#getMainSuggest (search suggestions)
-/// Source: biu/src/service/web-interface-search-all.ts#getSearchAll
 /// Source: biu/src/service/web-interface-search-type.ts#getSearchType
 class SearchRemoteDataSource {
   SearchRemoteDataSource({Dio? dio}) : _dio = dio ?? DioClient.instance.dio;
 
   final Dio _dio;
-
-  /// Comprehensive search
-  /// GET /x/web-interface/wbi/search/all/v2
-  Future<SearchAllResult> searchAll({
-    required String keyword,
-  }) async {
-    final response = await _dio.get<Map<String, dynamic>>(
-      '/x/web-interface/wbi/search/all/v2',
-      queryParameters: {
-        'keyword': keyword,
-      },
-      options: Options(extra: {'useWbi': true}),
-    );
-
-    final data = response.data;
-    if (data == null) {
-      throw Exception('Failed to search');
-    }
-
-    final searchData = data['data'] as Map<String, dynamic>?;
-    if (searchData == null) {
-      throw Exception('Search data is null');
-    }
-
-    return SearchAllResult.fromJson(searchData);
-  }
 
   /// Search by type - Video
   /// GET /x/web-interface/wbi/search/type

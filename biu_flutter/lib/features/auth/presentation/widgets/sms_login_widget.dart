@@ -250,35 +250,44 @@ class _SmsLoginWidgetState extends ConsumerState<SmsLoginWidget> {
     );
   }
 
-  /// Fallback country list when API fails
+  /// Fallback display when API fails - only show default country code 86.
+  /// This aligns with source project (biu/src/layout/navbar/login/code-login.tsx)
+  /// which only uses default "86" when country list is unavailable.
   Widget _buildFallbackCountryList() {
-    return ListView(
-      children: [
-        ListTile(
-          title: const Text('中国大陆'),
-          trailing: const Text('+86'),
-          onTap: () {
-            ref.read(smsLoginNotifierProvider.notifier).setCountryCode(86);
-            Navigator.pop(context);
-          },
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.info_outline,
+              size: 48,
+              color: Colors.grey,
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              '无法加载国家列表',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              '当前使用默认国家/地区代码 +86',
+              style: TextStyle(
+                color: Colors.grey,
+              ),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('确定'),
+            ),
+          ],
         ),
-        ListTile(
-          title: const Text('中国香港'),
-          trailing: const Text('+852'),
-          onTap: () {
-            ref.read(smsLoginNotifierProvider.notifier).setCountryCode(852);
-            Navigator.pop(context);
-          },
-        ),
-        ListTile(
-          title: const Text('中国台湾'),
-          trailing: const Text('+886'),
-          onTap: () {
-            ref.read(smsLoginNotifierProvider.notifier).setCountryCode(886);
-            Navigator.pop(context);
-          },
-        ),
-      ],
+      ),
     );
   }
 

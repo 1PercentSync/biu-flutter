@@ -66,39 +66,9 @@ class HistoryItemCard extends StatelessWidget {
       height: 48,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            // Cover image
-            AppCachedImage(
-              imageUrl: item.cover,
-              fileType: FileType.video,
-            ),
-            // Duration badge (small, bottom-right)
-            if (item.duration != null)
-              Positioned(
-                right: 2,
-                bottom: 2,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 2,
-                    vertical: 1,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.75),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                  child: Text(
-                    _formatDuration(item.duration!),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 8,
-                      fontFeatures: [FontFeature.tabularFigures()],
-                    ),
-                  ),
-                ),
-              ),
-          ],
+        child: AppCachedImage(
+          imageUrl: item.cover,
+          fileType: FileType.video,
         ),
       ),
     );
@@ -133,16 +103,5 @@ class HistoryItemCard extends StatelessWidget {
           ),
       ],
     );
-  }
-
-  String _formatDuration(int seconds) {
-    final hours = seconds ~/ 3600;
-    final minutes = (seconds % 3600) ~/ 60;
-    final secs = seconds % 60;
-
-    if (hours > 0) {
-      return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
-    }
-    return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
   }
 }

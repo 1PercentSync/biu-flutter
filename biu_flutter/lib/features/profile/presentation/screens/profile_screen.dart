@@ -150,14 +150,6 @@ class ProfileScreen extends ConsumerWidget {
         ),
         _buildMenuItem(
           context,
-          icon: Icons.download,
-          title: 'Downloads',
-          onTap: () {
-            // TODO: Navigate to downloads
-          },
-        ),
-        _buildMenuItem(
-          context,
           icon: Icons.dark_mode,
           title: 'Theme',
           trailing: const Text(

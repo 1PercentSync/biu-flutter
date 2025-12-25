@@ -30,6 +30,9 @@ class AudioPlayerService {
   /// Current playback speed
   double get speed => _player.speed;
 
+  /// Whether the player has an audio source loaded
+  bool get hasSource => _player.audioSource != null;
+
   /// Stream of player state changes
   Stream<PlayerState> get playerStateStream => _player.playerStateStream;
 

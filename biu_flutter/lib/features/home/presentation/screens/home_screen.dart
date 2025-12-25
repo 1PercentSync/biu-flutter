@@ -45,6 +45,7 @@ class HomeScreen extends ConsumerWidget {
                   tooltip: '音乐大咖',
                   onPressed: () => context.push(AppRoutes.artistRank),
                 ),
+                const SizedBox(width: 8),
               ],
             ),
             // Content

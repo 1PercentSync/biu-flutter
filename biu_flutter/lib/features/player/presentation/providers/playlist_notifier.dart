@@ -645,6 +645,7 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
 
     // First, try to get a fresh URL if we don't have one or need to refresh
     var audioUrl = currentItem.audioUrl;
+    var needsReload = false;
 
     // Check URL validity using deadline parameter
     // Bilibili URLs have a deadline query param that indicates expiry time
@@ -672,6 +673,7 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
           }
         }
         updateCurrentItemAudioUrl(audioUrl: audioUrl);
+        needsReload = true;
       }
     }
 
@@ -680,6 +682,12 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
       state = state.copyWith(error: 'Failed to get audio URL');
       GlobalSnackbar.showError('无法获取播放链接');
       return false;
+    }
+
+    // Only reload if URL changed or player has no source
+    if (!needsReload && _playerService.hasSource) {
+      debugPrint('[Playlist] URL already loaded, skipping reload');
+      return true;
     }
 
     // Try to set the URL

@@ -66,6 +66,9 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
   StreamSubscription<Duration?>? _durationSubscription;
   StreamSubscription<ProcessingState>? _processingStateSubscription;
 
+  /// Track the currently loaded URL to avoid unnecessary reloads
+  String? _currentLoadedUrl;
+
   // Callbacks for fetching audio URLs (injected from features)
   Future<String?> Function(String bvid, String cid)? onFetchMvAudioUrl;
   Future<String?> Function(int sid)? onFetchAudioUrl;
@@ -684,9 +687,9 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
       return false;
     }
 
-    // Only reload if URL changed or player has no source
-    if (!needsReload && _playerService.hasSource) {
-      debugPrint('[Playlist] URL already loaded, skipping reload');
+    // Only reload if URL changed from what's currently loaded
+    if (!needsReload && _currentLoadedUrl == audioUrl) {
+      debugPrint('[Playlist] Same URL already loaded, skipping reload');
       return true;
     }
 
@@ -694,6 +697,7 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
     try {
       debugPrint('[Playlist] Setting audio URL...');
       await _playerService.setUrl(audioUrl);
+      _currentLoadedUrl = audioUrl;
       // On Windows, setUrl may return null duration but still work
       // We consider it successful if no exception was thrown
       debugPrint('[Playlist] Audio URL set successfully');
@@ -714,6 +718,7 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
         updateCurrentItemAudioUrl(audioUrl: freshUrl);
         try {
           await _playerService.setUrl(freshUrl);
+          _currentLoadedUrl = freshUrl;
           debugPrint('[Playlist] Fresh audio URL set successfully');
           return true;
         } catch (e2) {

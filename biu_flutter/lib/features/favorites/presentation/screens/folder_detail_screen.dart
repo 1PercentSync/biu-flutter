@@ -265,7 +265,8 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
           ],
           // Play button and action menu
           // Source: biu/src/pages/video-collection/info/index.tsx:119-131
-          if (state.medias.isNotEmpty) ...[
+          // Always show action buttons if folder has content (use folder.mediaCount, not filtered medias)
+          if (folder.mediaCount > 0) ...[
             const SizedBox(height: 16),
             Row(
               children: [

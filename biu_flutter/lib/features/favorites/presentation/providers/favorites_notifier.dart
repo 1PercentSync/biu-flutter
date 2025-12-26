@@ -223,8 +223,12 @@ class FolderDetailNotifier extends StateNotifier<FolderDetailState> {
   Future<void> load({bool refresh = false}) async {
     if (state.isLoading) return;
 
+    // Only show loading indicator on initial load (when folder is null)
+    // This prevents UI flicker during search/filter operations
+    final showLoading = state.folder == null;
+
     state = state.copyWith(
-      isLoading: refresh || state.folder == null,
+      isLoading: showLoading,
       pageNum: refresh ? 1 : state.pageNum,
       clearError: true,
     );
@@ -294,16 +298,18 @@ class FolderDetailNotifier extends StateNotifier<FolderDetailState> {
   Future<void> refresh() => load(refresh: true);
 
   /// Set search keyword and reload.
+  /// Note: Don't clear medias immediately to avoid UI flicker during search
   Future<void> setKeyword(String keyword) async {
     if (state.keyword == keyword) return;
-    state = state.copyWith(keyword: keyword, medias: [], pageNum: 1);
+    state = state.copyWith(keyword: keyword, pageNum: 1);
     await load(refresh: true);
   }
 
   /// Set sort order and reload.
+  /// Note: Don't clear medias immediately to avoid UI flicker during sort change
   Future<void> setOrder(FolderSortOrder order) async {
     if (state.order == order) return;
-    state = state.copyWith(order: order, medias: [], pageNum: 1);
+    state = state.copyWith(order: order, pageNum: 1);
     await load(refresh: true);
   }
 

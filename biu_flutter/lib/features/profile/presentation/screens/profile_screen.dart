@@ -136,7 +136,7 @@ class ProfileScreen extends ConsumerWidget {
           ),
           _buildMenuItem(
             context,
-            icon: CupertinoIcons.clock,
+            icon: CupertinoIcons.clock_fill,
             title: '稍后再看',
             onTap: () => context.push(AppRoutes.later),
           ),

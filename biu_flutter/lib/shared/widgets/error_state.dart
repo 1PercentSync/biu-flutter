@@ -35,7 +35,7 @@ class ErrorState extends StatelessWidget {
       title: '服务器错误',
       message: '服务器暂时不可用，请稍后重试',
       icon: const Icon(
-        CupertinoIcons.xmark_circle,
+        CupertinoIcons.xmark_circle_fill,
         size: 48,
         color: AppColors.textTertiary,
       ),
@@ -51,7 +51,7 @@ class ErrorState extends StatelessWidget {
       title: '需要登录',
       message: '请登录以访问此内容',
       icon: const Icon(
-        CupertinoIcons.lock,
+        CupertinoIcons.lock_fill,
         size: 48,
         color: AppColors.textTertiary,
       ),
@@ -94,7 +94,7 @@ class ErrorState extends StatelessWidget {
           children: [
             icon ??
                 const Icon(
-                  CupertinoIcons.exclamationmark_circle,
+                  CupertinoIcons.exclamationmark_circle_fill,
                   size: 48,
                   color: AppColors.error,
                 ),
@@ -181,7 +181,7 @@ class ErrorBanner extends StatelessWidget {
         style: const TextStyle(color: Colors.white),
       ),
       backgroundColor: AppColors.error,
-      leading: const Icon(CupertinoIcons.exclamationmark_circle, color: Colors.white),
+      leading: const Icon(CupertinoIcons.exclamationmark_circle_fill, color: Colors.white),
       actions: [
         if (onRetry != null)
           TextButton(

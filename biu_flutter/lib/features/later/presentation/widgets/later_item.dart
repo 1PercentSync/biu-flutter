@@ -55,7 +55,7 @@ class LaterItem extends StatelessWidget {
         if (onDelete != null)
           MediaActionItem(
             key: 'delete',
-            icon: CupertinoIcons.trash,
+            icon: CupertinoIcons.trash_fill,
             label: '删除',
             onTap: () {
               Navigator.pop(context);

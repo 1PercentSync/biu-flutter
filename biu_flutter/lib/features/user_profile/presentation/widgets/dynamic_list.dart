@@ -144,7 +144,7 @@ class _DynamicListState extends ConsumerState<DynamicList> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Icon(
-              CupertinoIcons.exclamationmark_circle,
+              CupertinoIcons.exclamationmark_circle_fill,
               size: 64,
               color: AppColors.textSecondary,
             ),

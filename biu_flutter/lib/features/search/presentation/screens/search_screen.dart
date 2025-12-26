@@ -426,7 +426,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
     if (searchState.error != null) {
       return EmptyState(
         icon: const Icon(
-          CupertinoIcons.exclamationmark_circle,
+          CupertinoIcons.exclamationmark_circle_fill,
           size: 48,
           color: AppColors.error,
         ),

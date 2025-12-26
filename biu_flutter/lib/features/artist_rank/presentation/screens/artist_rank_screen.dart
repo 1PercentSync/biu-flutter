@@ -56,7 +56,7 @@ class _ArtistRankScreenState extends ConsumerState<ArtistRankScreen> {
     if (state.hasError && state.musicians.isEmpty) {
       return EmptyState(
         icon: const Icon(
-          CupertinoIcons.exclamationmark_circle,
+          CupertinoIcons.exclamationmark_circle_fill,
           size: 48,
           color: AppColors.error,
         ),

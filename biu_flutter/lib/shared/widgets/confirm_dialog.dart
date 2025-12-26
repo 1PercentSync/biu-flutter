@@ -97,9 +97,9 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
   IconData get _typeIcon {
     switch (widget.type) {
       case ConfirmDialogType.warning:
-        return CupertinoIcons.exclamationmark_triangle;
+        return CupertinoIcons.exclamationmark_triangle_fill;
       case ConfirmDialogType.danger:
-        return CupertinoIcons.exclamationmark_circle;
+        return CupertinoIcons.exclamationmark_circle_fill;
     }
   }
 

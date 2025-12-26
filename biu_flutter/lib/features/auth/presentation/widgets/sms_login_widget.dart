@@ -65,7 +65,7 @@ class _SmsLoginWidgetState extends ConsumerState<SmsLoginWidget> {
           decoration: InputDecoration(
             labelText: '手机号',
             hintText: '请输入手机号',
-            prefixIcon: const Icon(CupertinoIcons.phone),
+            prefixIcon: const Icon(CupertinoIcons.phone_fill),
             prefix: GestureDetector(
               onTap: _showCountryCodePicker,
               child: Padding(
@@ -99,7 +99,7 @@ class _SmsLoginWidgetState extends ConsumerState<SmsLoginWidget> {
                 decoration: const InputDecoration(
                   labelText: '验证码',
                   hintText: '请输入验证码',
-                  prefixIcon: Icon(CupertinoIcons.chat_bubble),
+                  prefixIcon: Icon(CupertinoIcons.chat_bubble_fill),
                 ),
                 keyboardType: TextInputType.number,
                 inputFormatters: [
@@ -262,7 +262,7 @@ class _SmsLoginWidgetState extends ConsumerState<SmsLoginWidget> {
           mainAxisSize: MainAxisSize.min,
           children: [
             const Icon(
-              CupertinoIcons.info,
+              CupertinoIcons.info_circle_fill,
               size: 48,
               color: Colors.grey,
             ),

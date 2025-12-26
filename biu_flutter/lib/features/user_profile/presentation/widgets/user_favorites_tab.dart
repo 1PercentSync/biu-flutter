@@ -52,7 +52,7 @@ class _UserFavoritesTabState extends ConsumerState<UserFavoritesTab> {
     if (folders.isEmpty) {
       return const EmptyState(
         icon: Icon(
-          CupertinoIcons.folder,
+          CupertinoIcons.folder_fill,
           size: 48,
           color: Color(0xFF9CA3AF),
         ),

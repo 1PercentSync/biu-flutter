@@ -120,7 +120,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(CupertinoIcons.exclamationmark_circle, size: 48, color: AppColors.error),
+              const Icon(CupertinoIcons.exclamationmark_circle_fill, size: 48, color: AppColors.error),
               const SizedBox(height: 16),
               Text(
                 state.errorMessage ?? '加载失败',

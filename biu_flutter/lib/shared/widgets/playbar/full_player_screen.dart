@@ -105,7 +105,7 @@ class _FullPlayerScreenState extends ConsumerState<FullPlayerScreen> {
         // Quick favorite button
         // Source: biu/src/layout/playbar/right/mv-fav-folder-select.tsx
         IconButton(
-          icon: const Icon(CupertinoIcons.star),
+          icon: const Icon(CupertinoIcons.star_fill),
           onPressed: () => _showFavoriteSheet(context, currentItem),
           tooltip: '添加到收藏夹',
         ),
@@ -799,7 +799,7 @@ class _VideoPageListSheetState extends State<_VideoPageListSheet> {
                           ),
                           trailing: isActive
                               ? const Icon(
-                                  CupertinoIcons.play_circle,
+                                  CupertinoIcons.play_circle_fill,
                                   color: AppColors.primary,
                                   size: 20,
                                 )

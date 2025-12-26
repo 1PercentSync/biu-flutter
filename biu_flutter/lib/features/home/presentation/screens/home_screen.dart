@@ -409,7 +409,7 @@ class _ArtistsTabState extends ConsumerState<_ArtistsTab>
           SliverFillRemaining(
             hasScrollBody: false,
             child: EmptyState(
-              icon: const Icon(CupertinoIcons.exclamationmark_circle, size: 48, color: AppColors.error),
+              icon: const Icon(CupertinoIcons.exclamationmark_circle_fill, size: 48, color: AppColors.error),
               title: '加载失败',
               message: state.errorMessage,
               action: ElevatedButton(

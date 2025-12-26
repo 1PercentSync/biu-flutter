@@ -166,7 +166,7 @@ class MediaActionMenu extends ConsumerWidget {
       // Add to favorites
       MediaActionItem(
         key: 'collect',
-        icon: CupertinoIcons.star,
+        icon: CupertinoIcons.star_fill,
         label: '收藏',
         hidden: !isLoggedIn,
         onTap: () {
@@ -177,7 +177,7 @@ class MediaActionMenu extends ConsumerWidget {
       // Add to watch later
       MediaActionItem(
         key: 'watchLater',
-        icon: CupertinoIcons.clock,
+        icon: CupertinoIcons.clock_fill,
         label: '添加到稍后再看',
         hidden: !isLoggedIn || !showWatchLater,
         onTap: () {

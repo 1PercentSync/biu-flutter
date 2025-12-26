@@ -169,7 +169,7 @@ class FolderSelectSheet extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
-            CupertinoIcons.folder,
+            CupertinoIcons.folder_fill,
             size: 48,
             color: AppColors.textTertiary,
           ),

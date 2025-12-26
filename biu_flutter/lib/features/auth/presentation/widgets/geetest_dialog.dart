@@ -191,7 +191,7 @@ class _GeetestDialogState extends State<GeetestDialog> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             const Icon(
-                              CupertinoIcons.exclamationmark_circle,
+                              CupertinoIcons.exclamationmark_circle_fill,
                               size: 48,
                               color: Colors.red,
                             ),

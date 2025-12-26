@@ -13,7 +13,7 @@ class GlobalSnackbar {
     _showSnackbar(
       message,
       backgroundColor: Colors.red.shade800,
-      icon: CupertinoIcons.exclamationmark_circle,
+      icon: CupertinoIcons.exclamationmark_circle_fill,
     );
   }
 
@@ -22,7 +22,7 @@ class GlobalSnackbar {
     _showSnackbar(
       message,
       backgroundColor: Colors.orange.shade800,
-      icon: CupertinoIcons.exclamationmark_triangle,
+      icon: CupertinoIcons.exclamationmark_triangle_fill,
     );
   }
 
@@ -31,7 +31,7 @@ class GlobalSnackbar {
     _showSnackbar(
       message,
       backgroundColor: Colors.green.shade800,
-      icon: CupertinoIcons.checkmark_circle,
+      icon: CupertinoIcons.checkmark_circle_fill,
     );
   }
 
@@ -40,7 +40,7 @@ class GlobalSnackbar {
     _showSnackbar(
       message,
       backgroundColor: AppColors.surface,
-      icon: CupertinoIcons.info,
+      icon: CupertinoIcons.info_circle_fill,
     );
   }
 

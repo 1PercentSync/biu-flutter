@@ -67,7 +67,7 @@ class _PasswordLoginWidgetState extends ConsumerState<PasswordLoginWidget> {
           decoration: InputDecoration(
             labelText: '账号',
             hintText: '请输入手机号或邮箱',
-            prefixIcon: const Icon(CupertinoIcons.person),
+            prefixIcon: const Icon(CupertinoIcons.person_fill),
             errorText: state.status == PasswordLoginStatus.error
                 ? state.errorMessage
                 : null,
@@ -86,15 +86,15 @@ class _PasswordLoginWidgetState extends ConsumerState<PasswordLoginWidget> {
           decoration: InputDecoration(
             labelText: '密码',
             hintText: '请输入密码',
-            prefixIcon: const Icon(CupertinoIcons.lock),
+            prefixIcon: const Icon(CupertinoIcons.lock_fill),
             suffixIcon: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 IconButton(
                   icon: Icon(
                     state.isPasswordVisible
-                        ? CupertinoIcons.eye
-                        : CupertinoIcons.eye_slash,
+                        ? CupertinoIcons.eye_fill
+                        : CupertinoIcons.eye_slash_fill,
                   ),
                   onPressed: () {
                     ref
@@ -103,7 +103,7 @@ class _PasswordLoginWidgetState extends ConsumerState<PasswordLoginWidget> {
                   },
                 ),
                 IconButton(
-                  icon: const Icon(CupertinoIcons.question_circle),
+                  icon: const Icon(CupertinoIcons.question_circle_fill),
                   onPressed: _openPasswordRecovery,
                 ),
               ],

@@ -78,7 +78,7 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Icon(
-            CupertinoIcons.exclamationmark_circle,
+            CupertinoIcons.exclamationmark_circle_fill,
             size: 48,
             color: AppColors.textTertiary,
           ),
@@ -468,7 +468,7 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
             // Source: biu/src/pages/video-collection/info/menu.tsx:154-179
             if (isOwner && folder.attr != 0)
               ListTile(
-                leading: const Icon(CupertinoIcons.trash, color: Colors.red),
+                leading: const Icon(CupertinoIcons.trash_fill, color: Colors.red),
                 title: const Text('删除', style: TextStyle(color: Colors.red)),
                 onTap: () {
                   Navigator.pop(context);
@@ -581,7 +581,7 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
           children: [
             // Delete
             _SelectionActionButton(
-              icon: CupertinoIcons.trash,
+              icon: CupertinoIcons.trash_fill,
               label: '删除',
               enabled: state.hasSelection,
               onPressed: () => _confirmBatchDelete(context, ref, state),

@@ -86,7 +86,7 @@ class QrLoginWidget extends ConsumerWidget {
     if (state.status == QrLoginStatus.error) {
       return Center(
         child: Icon(
-          CupertinoIcons.exclamationmark_circle,
+          CupertinoIcons.exclamationmark_circle_fill,
           size: 48,
           color: Colors.red[300],
         ),
@@ -113,7 +113,7 @@ class QrLoginWidget extends ConsumerWidget {
         errorStateBuilder: (context, error) {
           return Center(
             child: Icon(
-              CupertinoIcons.exclamationmark_circle,
+              CupertinoIcons.exclamationmark_circle_fill,
               size: 48,
               color: Colors.red[300],
             ),
@@ -159,7 +159,7 @@ class QrLoginWidget extends ConsumerWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
-            CupertinoIcons.checkmark_circle,
+            CupertinoIcons.checkmark_circle_fill,
             size: 36,
             color: Colors.green,
           ),

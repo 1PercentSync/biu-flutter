@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -161,7 +162,7 @@ class _DynamicCardState extends ConsumerState<DynamicCard> {
                     ),
                     child: const Center(
                       child: Icon(
-                        Icons.play_circle_fill,
+                        CupertinoIcons.play_circle_fill,
                         color: Colors.white,
                         size: 36,
                       ),
@@ -337,7 +338,7 @@ class _DynamicCardState extends ConsumerState<DynamicCard> {
           if (archive != null)
             IconButton(
               onPressed: () => _openInBrowser(archive),
-              icon: const Icon(Icons.open_in_new, size: 20),
+              icon: const Icon(CupertinoIcons.arrow_up_right_square, size: 20),
               color: AppColors.textSecondary,
               tooltip: '在B站打开',
               constraints: const BoxConstraints(),
@@ -355,7 +356,7 @@ class _DynamicCardState extends ConsumerState<DynamicCard> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
-                    _isLiked ? Icons.thumb_up : Icons.thumb_up_outlined,
+                    _isLiked ? CupertinoIcons.hand_thumbsup_fill : CupertinoIcons.hand_thumbsup,
                     size: 18,
                     color: _isLiked ? AppColors.primary : AppColors.textSecondary,
                   ),

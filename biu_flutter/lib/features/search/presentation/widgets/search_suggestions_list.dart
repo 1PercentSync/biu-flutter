@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../shared/theme/theme.dart';
@@ -56,7 +57,7 @@ class _SuggestionItem extends StatelessWidget {
           child: Row(
             children: [
               const Icon(
-                Icons.search,
+                CupertinoIcons.search,
                 size: 18,
                 color: AppColors.textTertiary,
               ),

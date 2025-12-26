@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../shared/theme/theme.dart';
@@ -82,7 +83,7 @@ class AudioQualityPicker extends StatelessWidget {
         ),
       ),
       trailing: isSelected
-          ? const Icon(Icons.check, color: AppColors.primary)
+          ? const Icon(CupertinoIcons.checkmark, color: AppColors.primary)
           : null,
       onTap: () => onSelected(quality),
       contentPadding: const EdgeInsets.symmetric(horizontal: 24),

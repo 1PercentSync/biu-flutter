@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/utils/number_utils.dart';
@@ -129,7 +130,7 @@ class SpaceInfoHeader extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(right: 4),
                       child: Icon(
-                        Icons.verified,
+                        CupertinoIcons.checkmark_seal_fill,
                         size: 18,
                         color: spaceInfo.official?.isPersonalVerified ?? false
                             ? Colors.amber
@@ -228,7 +229,7 @@ class SpaceInfoHeader extends StatelessWidget {
     return ElevatedButton.icon(
       onPressed: onFollowTap,
       icon: Icon(
-        _isFollowing ? Icons.check : Icons.add,
+        _isFollowing ? CupertinoIcons.checkmark : CupertinoIcons.add,
         size: 16,
       ),
       label: Text(_isFollowing ? '已关注' : '关注'),

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -85,7 +86,7 @@ class QrLoginWidget extends ConsumerWidget {
     if (state.status == QrLoginStatus.error) {
       return Center(
         child: Icon(
-          Icons.error_outline,
+          CupertinoIcons.exclamationmark_circle,
           size: 48,
           color: Colors.red[300],
         ),
@@ -96,7 +97,7 @@ class QrLoginWidget extends ConsumerWidget {
     if (url == null || url.isEmpty) {
       return const Center(
         child: Icon(
-          Icons.qr_code,
+          CupertinoIcons.qrcode,
           size: 48,
           color: Colors.grey,
         ),
@@ -112,7 +113,7 @@ class QrLoginWidget extends ConsumerWidget {
         errorStateBuilder: (context, error) {
           return Center(
             child: Icon(
-              Icons.error_outline,
+              CupertinoIcons.exclamationmark_circle,
               size: 48,
               color: Colors.red[300],
             ),
@@ -131,7 +132,7 @@ class QrLoginWidget extends ConsumerWidget {
           IconButton(
             onPressed: notifier.refreshQrCode,
             icon: const Icon(
-              Icons.refresh,
+              CupertinoIcons.refresh,
               size: 36,
               color: Colors.white,
             ),
@@ -158,7 +159,7 @@ class QrLoginWidget extends ConsumerWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
-            Icons.check_circle_outline,
+            CupertinoIcons.checkmark_circle,
             size: 36,
             color: Colors.green,
           ),

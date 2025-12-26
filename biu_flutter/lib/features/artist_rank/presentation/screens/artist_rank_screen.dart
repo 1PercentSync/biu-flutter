@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -55,7 +56,7 @@ class _ArtistRankScreenState extends ConsumerState<ArtistRankScreen> {
     if (state.hasError && state.musicians.isEmpty) {
       return EmptyState(
         icon: const Icon(
-          Icons.error_outline,
+          CupertinoIcons.exclamationmark_circle,
           size: 48,
           color: AppColors.error,
         ),
@@ -71,7 +72,7 @@ class _ArtistRankScreenState extends ConsumerState<ArtistRankScreen> {
     if (state.isEmpty) {
       return const EmptyState(
         icon: Icon(
-          Icons.music_note,
+          CupertinoIcons.music_note,
           size: 48,
           color: AppColors.textTertiary,
         ),

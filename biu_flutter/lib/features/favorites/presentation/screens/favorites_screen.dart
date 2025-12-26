@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -64,7 +65,7 @@ class FavoritesScreen extends ConsumerWidget {
                 actions: [
                   IconButton(
                     onPressed: () => _showCreateFolderDialog(context, ref),
-                    icon: const Icon(Icons.create_new_folder_outlined),
+                    icon: const Icon(CupertinoIcons.folder_badge_plus),
                     tooltip: '新建收藏夹',
                   ),
                 ],
@@ -111,7 +112,7 @@ class _CreatedFoldersTab extends ConsumerWidget {
     if (visibleFolders.isEmpty) {
       return EmptyState(
         icon: const Icon(
-          Icons.folder_special,
+          CupertinoIcons.folder_fill,
           size: 48,
           color: AppColors.textTertiary,
         ),
@@ -119,7 +120,7 @@ class _CreatedFoldersTab extends ConsumerWidget {
         message: '创建收藏夹来整理你的收藏',
         action: ElevatedButton.icon(
           onPressed: () => _showCreateFolderDialog(context, ref),
-          icon: const Icon(Icons.add),
+          icon: const Icon(CupertinoIcons.add),
           label: const Text('新建收藏夹'),
         ),
       );
@@ -172,7 +173,7 @@ class _CollectedFoldersTab extends ConsumerWidget {
     if (visibleFolders.isEmpty) {
       return const EmptyState(
         icon: Icon(
-          Icons.bookmark,
+          CupertinoIcons.bookmark_fill,
           size: 48,
           color: AppColors.textTertiary,
         ),
@@ -246,7 +247,7 @@ class _FolderListItem extends StatelessWidget {
               : const ColoredBox(
                   color: AppColors.contentBackground,
                   child: Icon(
-                    Icons.folder,
+                    CupertinoIcons.folder_fill,
                     color: AppColors.textTertiary,
                   ),
                 ),
@@ -266,7 +267,7 @@ class _FolderListItem extends StatelessWidget {
             const Padding(
               padding: EdgeInsets.only(left: 4),
               child: Icon(
-                Icons.lock,
+                CupertinoIcons.lock_fill,
                 size: 14,
                 color: AppColors.textTertiary,
               ),

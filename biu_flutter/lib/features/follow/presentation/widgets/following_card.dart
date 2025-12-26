@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../shared/theme/theme.dart';
@@ -127,7 +128,7 @@ class FollowingCard extends StatelessWidget {
       width: double.infinity,
       child: OutlinedButton.icon(
         onPressed: onUnfollow,
-        icon: const Icon(Icons.person_remove, size: 16),
+        icon: const Icon(CupertinoIcons.person_badge_minus, size: 16),
         label: const Text('取消关注'),
         style: OutlinedButton.styleFrom(
           padding: const EdgeInsets.symmetric(
@@ -181,7 +182,7 @@ class FollowingListTile extends StatelessWidget {
         ),
         trailing: onUnfollow != null
             ? IconButton(
-                icon: const Icon(Icons.person_remove),
+                icon: const Icon(CupertinoIcons.person_badge_minus),
                 onPressed: onUnfollow,
                 tooltip: '取消关注',
               )

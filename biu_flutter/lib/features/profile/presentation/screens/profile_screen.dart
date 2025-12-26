@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -28,7 +29,7 @@ class ProfileScreen extends ConsumerWidget {
             title: const Text('我的'),
             actions: [
               IconButton(
-                icon: const Icon(Icons.settings),
+                icon: const Icon(CupertinoIcons.settings),
                 onPressed: () => context.push(AppRoutes.settings),
               ),
             ],
@@ -109,7 +110,7 @@ class ProfileScreen extends ConsumerWidget {
             )
           else if (user?.mid != null)
             IconButton(
-              icon: const Icon(Icons.chevron_right),
+              icon: const Icon(CupertinoIcons.chevron_right),
               onPressed: () => context.push(AppRoutes.userSpacePath(user!.mid)),
             ),
         ],
@@ -123,19 +124,19 @@ class ProfileScreen extends ConsumerWidget {
         if (isLoggedIn) ...[
           _buildMenuItem(
             context,
-            icon: Icons.dynamic_feed,
+            icon: CupertinoIcons.list_bullet,
             title: '动态',
             onTap: () => DynamicFeedDrawer.show(context),
           ),
           _buildMenuItem(
             context,
-            icon: Icons.people_outline,
+            icon: CupertinoIcons.person_2,
             title: '我的关注',
             onTap: () => context.push(AppRoutes.followList),
           ),
           _buildMenuItem(
             context,
-            icon: Icons.watch_later_outlined,
+            icon: CupertinoIcons.clock,
             title: '稍后再看',
             onTap: () => context.push(AppRoutes.later),
           ),
@@ -151,7 +152,7 @@ class ProfileScreen extends ConsumerWidget {
         borderRadius: BorderRadius.circular(AppTheme.borderRadius),
       ),
       child: ListTile(
-        leading: const Icon(Icons.logout, color: AppColors.error),
+        leading: const Icon(CupertinoIcons.square_arrow_right, color: AppColors.error),
         title: const Text(
           '退出登录',
           style: TextStyle(color: AppColors.error),
@@ -210,7 +211,7 @@ class ProfileScreen extends ConsumerWidget {
       child: ListTile(
         leading: Icon(icon, color: AppColors.textSecondary),
         title: Text(title),
-        trailing: trailing ?? const Icon(Icons.chevron_right, color: AppColors.textTertiary),
+        trailing: trailing ?? const Icon(CupertinoIcons.chevron_right, color: AppColors.textTertiary),
         onTap: onTap,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppTheme.borderRadius),

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -140,7 +141,7 @@ class _HistoryChip extends StatelessWidget {
               GestureDetector(
                 onTap: onDelete,
                 child: const Icon(
-                  Icons.close,
+                  CupertinoIcons.xmark,
                   size: 16,
                   color: AppColors.textTertiary,
                 ),

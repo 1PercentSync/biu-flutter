@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../theme/theme.dart';
@@ -146,7 +147,7 @@ class FolderSelectSheet extends StatelessWidget {
                               ),
                               secondary: folder.isPrivate
                                   ? const Icon(
-                                      Icons.lock,
+                                      CupertinoIcons.lock_fill,
                                       size: 18,
                                       color: AppColors.textTertiary,
                                     )
@@ -168,7 +169,7 @@ class FolderSelectSheet extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
-            Icons.folder_off_outlined,
+            CupertinoIcons.folder,
             size: 48,
             color: AppColors.textTertiary,
           ),

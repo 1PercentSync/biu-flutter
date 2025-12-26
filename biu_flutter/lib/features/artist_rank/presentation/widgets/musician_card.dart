@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/utils/number_utils.dart';
@@ -238,7 +239,7 @@ class MusicianListTile extends StatelessWidget {
         ],
       ),
       trailing: const Icon(
-        Icons.chevron_right,
+        CupertinoIcons.chevron_right,
         color: AppColors.textTertiary,
       ),
       onTap: onTap,

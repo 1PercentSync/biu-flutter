@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../core/router/navigator_key.dart';
@@ -12,7 +13,7 @@ class GlobalSnackbar {
     _showSnackbar(
       message,
       backgroundColor: Colors.red.shade800,
-      icon: Icons.error_outline,
+      icon: CupertinoIcons.exclamationmark_circle,
     );
   }
 
@@ -21,7 +22,7 @@ class GlobalSnackbar {
     _showSnackbar(
       message,
       backgroundColor: Colors.orange.shade800,
-      icon: Icons.warning_amber_outlined,
+      icon: CupertinoIcons.exclamationmark_triangle,
     );
   }
 
@@ -30,7 +31,7 @@ class GlobalSnackbar {
     _showSnackbar(
       message,
       backgroundColor: Colors.green.shade800,
-      icon: Icons.check_circle_outline,
+      icon: CupertinoIcons.checkmark_circle,
     );
   }
 
@@ -39,7 +40,7 @@ class GlobalSnackbar {
     _showSnackbar(
       message,
       backgroundColor: AppColors.surface,
-      icon: Icons.info_outline,
+      icon: CupertinoIcons.info,
     );
   }
 

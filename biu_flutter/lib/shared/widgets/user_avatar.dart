@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../theme/theme.dart';
@@ -45,7 +46,7 @@ class UserAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final effectiveBorderRadius = borderRadius ?? BorderRadius.circular(size);
-    final effectiveFallbackIcon = fallbackIcon ?? Icons.person;
+    final effectiveFallbackIcon = fallbackIcon ?? CupertinoIcons.person_fill;
     final effectiveFallbackIconSize = fallbackIconSize ?? size / 2;
     final effectiveBackgroundColor = backgroundColor ?? AppColors.surface;
 
@@ -82,7 +83,7 @@ class UserAvatar extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Icon(
-                Icons.star,
+                CupertinoIcons.star_fill,
                 size: 12,
                 color: Colors.white,
               ),

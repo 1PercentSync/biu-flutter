@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -156,7 +157,7 @@ class _VideoSeriesTabState extends ConsumerState<VideoSeriesTab> {
     if (_items.isEmpty) {
       return const EmptyState(
         icon: Icon(
-          Icons.video_library_outlined,
+          CupertinoIcons.film,
           size: 48,
           color: Color(0xFF9CA3AF),
         ),

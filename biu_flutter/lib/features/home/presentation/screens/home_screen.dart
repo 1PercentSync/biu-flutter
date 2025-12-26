@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -408,7 +409,7 @@ class _ArtistsTabState extends ConsumerState<_ArtistsTab>
           SliverFillRemaining(
             hasScrollBody: false,
             child: EmptyState(
-              icon: const Icon(Icons.error_outline, size: 48, color: AppColors.error),
+              icon: const Icon(CupertinoIcons.exclamationmark_circle, size: 48, color: AppColors.error),
               title: '加载失败',
               message: state.errorMessage,
               action: ElevatedButton(
@@ -428,7 +429,7 @@ class _ArtistsTabState extends ConsumerState<_ArtistsTab>
           const SliverFillRemaining(
             hasScrollBody: false,
             child: EmptyState(
-              icon: Icon(Icons.music_note, size: 48, color: AppColors.textTertiary),
+              icon: Icon(CupertinoIcons.music_note, size: 48, color: AppColors.textTertiary),
               title: '暂无数据',
               message: '暂无音乐人数据',
             ),

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -143,7 +144,7 @@ class _DynamicListState extends ConsumerState<DynamicList> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Icon(
-              Icons.error_outline,
+              CupertinoIcons.exclamationmark_circle,
               size: 64,
               color: AppColors.textSecondary,
             ),
@@ -179,7 +180,7 @@ class _DynamicListState extends ConsumerState<DynamicList> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Icon(
-              Icons.dynamic_feed_outlined,
+              CupertinoIcons.list_bullet,
               size: 64,
               color: AppColors.textSecondary,
             ),

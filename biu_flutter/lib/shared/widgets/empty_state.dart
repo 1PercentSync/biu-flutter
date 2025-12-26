@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
@@ -37,7 +38,7 @@ class EmptyState extends StatelessWidget {
           children: [
             icon ??
                 const Icon(
-                  Icons.not_interested,
+                  CupertinoIcons.slash_circle,
                   size: 48,
                   color: AppColors.textTertiary,
                 ),

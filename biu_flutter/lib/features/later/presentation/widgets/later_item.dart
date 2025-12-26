@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../shared/widgets/media_action_menu.dart';
@@ -55,7 +55,7 @@ class LaterItem extends StatelessWidget {
         if (onDelete != null)
           MediaActionItem(
             key: 'delete',
-            icon: Icons.delete_outline,
+            icon: CupertinoIcons.trash,
             label: '删除',
             onTap: () {
               Navigator.pop(context);

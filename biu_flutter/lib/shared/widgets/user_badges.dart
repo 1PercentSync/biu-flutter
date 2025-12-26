@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 /// Verification icon for official accounts.
@@ -23,7 +24,7 @@ class VerificationIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Icon(
-      Icons.verified,
+      CupertinoIcons.checkmark_seal_fill,
       size: size,
       color: type == 0 ? Colors.amber : Colors.blue,
     );

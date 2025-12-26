@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -64,7 +65,7 @@ class _SmsLoginWidgetState extends ConsumerState<SmsLoginWidget> {
           decoration: InputDecoration(
             labelText: '手机号',
             hintText: '请输入手机号',
-            prefixIcon: const Icon(Icons.phone_outlined),
+            prefixIcon: const Icon(CupertinoIcons.phone),
             prefix: GestureDetector(
               onTap: _showCountryCodePicker,
               child: Padding(
@@ -98,7 +99,7 @@ class _SmsLoginWidgetState extends ConsumerState<SmsLoginWidget> {
                 decoration: const InputDecoration(
                   labelText: '验证码',
                   hintText: '请输入验证码',
-                  prefixIcon: Icon(Icons.sms_outlined),
+                  prefixIcon: Icon(CupertinoIcons.chat_bubble),
                 ),
                 keyboardType: TextInputType.number,
                 inputFormatters: [
@@ -261,7 +262,7 @@ class _SmsLoginWidgetState extends ConsumerState<SmsLoginWidget> {
           mainAxisSize: MainAxisSize.min,
           children: [
             const Icon(
-              Icons.info_outline,
+              CupertinoIcons.info,
               size: 48,
               color: Colors.grey,
             ),

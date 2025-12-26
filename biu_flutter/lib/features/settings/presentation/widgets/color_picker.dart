@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../shared/theme/theme.dart';
@@ -154,7 +155,7 @@ class ColorPicker extends StatelessWidget {
         ),
         child: isSelected
             ? const Icon(
-                Icons.check,
+                CupertinoIcons.checkmark,
                 color: Colors.white,
                 size: 24,
               )

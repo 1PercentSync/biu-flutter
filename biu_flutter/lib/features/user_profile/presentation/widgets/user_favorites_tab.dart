@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -51,7 +52,7 @@ class _UserFavoritesTabState extends ConsumerState<UserFavoritesTab> {
     if (folders.isEmpty) {
       return const EmptyState(
         icon: Icon(
-          Icons.folder_outlined,
+          CupertinoIcons.folder,
           size: 48,
           color: Color(0xFF9CA3AF),
         ),

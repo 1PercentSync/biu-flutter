@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -91,7 +92,7 @@ class MediaActionMenu extends ConsumerWidget {
 
     return IconButton(
       icon: Icon(
-        Icons.more_horiz,
+        CupertinoIcons.ellipsis,
         size: iconSize,
         color: iconColor ?? AppColors.textSecondary,
       ),
@@ -155,7 +156,7 @@ class MediaActionMenu extends ConsumerWidget {
       // Play next
       MediaActionItem(
         key: 'playNext',
-        icon: Icons.playlist_add,
+        icon: CupertinoIcons.text_badge_plus,
         label: '下一首播放',
         onTap: () {
           Navigator.pop(context);
@@ -165,7 +166,7 @@ class MediaActionMenu extends ConsumerWidget {
       // Add to favorites
       MediaActionItem(
         key: 'collect',
-        icon: Icons.star_border,
+        icon: CupertinoIcons.star,
         label: '收藏',
         hidden: !isLoggedIn,
         onTap: () {
@@ -176,7 +177,7 @@ class MediaActionMenu extends ConsumerWidget {
       // Add to watch later
       MediaActionItem(
         key: 'watchLater',
-        icon: Icons.watch_later_outlined,
+        icon: CupertinoIcons.clock,
         label: '添加到稍后再看',
         hidden: !isLoggedIn || !showWatchLater,
         onTap: () {

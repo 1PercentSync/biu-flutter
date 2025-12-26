@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
@@ -96,9 +97,9 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
   IconData get _typeIcon {
     switch (widget.type) {
       case ConfirmDialogType.warning:
-        return Icons.warning_amber_rounded;
+        return CupertinoIcons.exclamationmark_triangle;
       case ConfirmDialogType.danger:
-        return Icons.error_outline;
+        return CupertinoIcons.exclamationmark_circle;
     }
   }
 

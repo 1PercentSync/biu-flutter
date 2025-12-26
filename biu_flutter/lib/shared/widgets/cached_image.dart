@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../core/utils/url_utils.dart';
@@ -115,7 +116,7 @@ class AppCachedImage extends StatelessWidget {
       ),
       child: Center(
         child: Icon(
-          fileType == FileType.audio ? Icons.music_note : Icons.movie,
+          fileType == FileType.audio ? CupertinoIcons.music_note : CupertinoIcons.film,
           size: 24,
           color: AppColors.textTertiary,
         ),

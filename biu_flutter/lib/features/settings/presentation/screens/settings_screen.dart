@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -161,7 +162,7 @@ class SettingsScreen extends ConsumerWidget {
         subtitle: subtitle != null ? Text(subtitle) : null,
         trailing: trailing ??
             (onTap != null
-                ? const Icon(Icons.chevron_right, color: AppColors.textTertiary)
+                ? const Icon(CupertinoIcons.chevron_right, color: AppColors.textTertiary)
                 : null),
         onTap: onTap,
         shape: RoundedRectangleBorder(
@@ -298,13 +299,13 @@ class SettingsScreen extends ConsumerWidget {
             child: Row(
               children: [
                 Icon(
-                  mode == DisplayMode.card ? Icons.grid_view : Icons.list,
+                  mode == DisplayMode.card ? CupertinoIcons.square_grid_2x2 : CupertinoIcons.list_bullet,
                   size: 20,
                 ),
                 const SizedBox(width: 12),
                 Expanded(child: Text(mode.label)),
                 if (mode == settings.displayMode)
-                  const Icon(Icons.check, size: 20),
+                  const Icon(CupertinoIcons.checkmark, size: 20),
               ],
             ),
           );
@@ -377,7 +378,7 @@ class _HiddenFoldersDialog extends ConsumerWidget {
                               color: AppColors.contentBackground,
                               borderRadius: BorderRadius.circular(4),
                             ),
-                            child: const Icon(Icons.folder, size: 20),
+                            child: const Icon(CupertinoIcons.folder_fill, size: 20),
                           ),
                   );
                 },

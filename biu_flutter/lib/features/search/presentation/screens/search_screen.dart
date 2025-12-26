@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -319,13 +320,13 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                     decoration: InputDecoration(
                       hintText: '搜索视频、音乐、用户...',
                       prefixIcon: const Icon(
-                        Icons.search,
+                        CupertinoIcons.search,
                         color: AppColors.textTertiary,
                       ),
                       suffixIcon: _searchController.text.isNotEmpty
                           ? IconButton(
                               icon: const Icon(
-                                Icons.clear,
+                                CupertinoIcons.xmark_circle_fill,
                                 color: AppColors.textTertiary,
                               ),
                               onPressed: () {
@@ -425,7 +426,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
     if (searchState.error != null) {
       return EmptyState(
         icon: const Icon(
-          Icons.error_outline,
+          CupertinoIcons.exclamationmark_circle,
           size: 48,
           color: AppColors.error,
         ),
@@ -456,7 +457,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
     if (results.isEmpty) {
       return const EmptyState(
         icon: Icon(
-          Icons.search_off,
+          CupertinoIcons.slash_circle,
           size: 48,
           color: AppColors.textTertiary,
         ),
@@ -667,7 +668,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
         Row(
           children: [
             if (video.play != null) ...[
-              const Icon(Icons.play_arrow, size: 12, color: AppColors.textTertiary),
+              const Icon(CupertinoIcons.play_fill, size: 12, color: AppColors.textTertiary),
               const SizedBox(width: 2),
               Text(
                 NumberUtils.formatCompact(video.play),
@@ -713,7 +714,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
         Row(
           children: [
             if (video.play != null) ...[
-              const Icon(Icons.play_arrow, size: 12, color: AppColors.textTertiary),
+              const Icon(CupertinoIcons.play_fill, size: 12, color: AppColors.textTertiary),
               const SizedBox(width: 2),
               Text(
                 NumberUtils.formatCompact(video.play),
@@ -734,7 +735,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
     if (results.isEmpty) {
       return const EmptyState(
         icon: Icon(
-          Icons.search_off,
+          CupertinoIcons.slash_circle,
           size: 48,
           color: AppColors.textTertiary,
         ),

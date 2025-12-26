@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -82,14 +83,14 @@ class _FullPlayerScreenState extends ConsumerState<FullPlayerScreen> {
     return AppBar(
       backgroundColor: Colors.transparent,
       leading: IconButton(
-        icon: const Icon(Icons.keyboard_arrow_down),
+        icon: const Icon(CupertinoIcons.chevron_down),
         onPressed: () => Navigator.of(context).pop(),
       ),
       actions: [
         // Open in browser button
         // Source: biu/src/layout/playbar/left/index.tsx - click title opens browser
         IconButton(
-          icon: const Icon(Icons.open_in_browser),
+          icon: const Icon(CupertinoIcons.globe),
           onPressed: () => _openInBrowser(currentItem),
           tooltip: '在浏览器中打开',
         ),
@@ -97,19 +98,19 @@ class _FullPlayerScreenState extends ConsumerState<FullPlayerScreen> {
         // Source: biu/src/layout/playbar/left/video-page-list/index.tsx
         if (hasMultiPart)
           IconButton(
-            icon: const Icon(Icons.list_alt),
+            icon: const Icon(CupertinoIcons.list_bullet),
             onPressed: () => _showVideoPageListSheet(context, currentItem, playlistState),
             tooltip: '分P ${currentItem.pageIndex ?? 1}/${currentItem.totalPage ?? 1}',
           ),
         // Quick favorite button
         // Source: biu/src/layout/playbar/right/mv-fav-folder-select.tsx
         IconButton(
-          icon: const Icon(Icons.star_border),
+          icon: const Icon(CupertinoIcons.star),
           onPressed: () => _showFavoriteSheet(context, currentItem),
           tooltip: '添加到收藏夹',
         ),
         IconButton(
-          icon: const Icon(Icons.playlist_play),
+          icon: const Icon(CupertinoIcons.list_bullet),
           onPressed: () => _showPlaylistSheet(context),
         ),
       ],
@@ -412,7 +413,7 @@ class _FullPlayerScreenState extends ConsumerState<FullPlayerScreen> {
         IconButton(
           onPressed: canSkip ? notifier.prev : null,
           icon: Icon(
-            Icons.skip_previous,
+            CupertinoIcons.backward_fill,
             size: 32,
             color: canSkip ? AppColors.textPrimary : AppColors.textDisabled,
           ),
@@ -438,7 +439,7 @@ class _FullPlayerScreenState extends ConsumerState<FullPlayerScreen> {
                     ),
                   )
                 : Icon(
-                    isPlaying ? Icons.pause : Icons.play_arrow,
+                    isPlaying ? CupertinoIcons.pause_fill : CupertinoIcons.play_fill,
                     size: 32,
                     color: Colors.white,
                   ),
@@ -449,7 +450,7 @@ class _FullPlayerScreenState extends ConsumerState<FullPlayerScreen> {
         IconButton(
           onPressed: canSkip ? notifier.next : null,
           icon: Icon(
-            Icons.skip_next,
+            CupertinoIcons.forward_fill,
             size: 32,
             color: canSkip ? AppColors.textPrimary : AppColors.textDisabled,
           ),
@@ -490,13 +491,13 @@ class _FullPlayerScreenState extends ConsumerState<FullPlayerScreen> {
   IconData _getPlayModeIcon(PlayMode mode) {
     switch (mode) {
       case PlayMode.sequence:
-        return Icons.playlist_play;
+        return CupertinoIcons.list_bullet;
       case PlayMode.loop:
-        return Icons.repeat;
+        return CupertinoIcons.repeat;
       case PlayMode.single:
-        return Icons.repeat_one;
+        return CupertinoIcons.repeat_1;
       case PlayMode.random:
-        return Icons.shuffle;
+        return CupertinoIcons.shuffle;
     }
   }
 
@@ -547,7 +548,7 @@ class _RateDialog extends ConsumerWidget {
           return ListTile(
             title: Text('${rate}x'),
             trailing: rate == currentRate
-                ? const Icon(Icons.check, color: AppColors.primary)
+                ? const Icon(CupertinoIcons.checkmark, color: AppColors.primary)
                 : null,
             onTap: () {
               notifier.setRate(rate);
@@ -638,7 +639,7 @@ class _PlaylistSheet extends ConsumerWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     trailing: IconButton(
-                      icon: const Icon(Icons.close, size: 20),
+                      icon: const Icon(CupertinoIcons.xmark, size: 20),
                       onPressed: () => notifier.delPage(item.id),
                     ),
                     onTap: () => notifier.playListItem(item.id),
@@ -728,7 +729,7 @@ class _VideoPageListSheetState extends State<_VideoPageListSheet> {
                       decoration: InputDecoration(
                         hintText: '搜索分P',
                         hintStyle: const TextStyle(fontSize: 12),
-                        prefixIcon: const Icon(Icons.search, size: 16),
+                        prefixIcon: const Icon(CupertinoIcons.search, size: 16),
                         contentPadding: EdgeInsets.zero,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
@@ -798,7 +799,7 @@ class _VideoPageListSheetState extends State<_VideoPageListSheet> {
                           ),
                           trailing: isActive
                               ? const Icon(
-                                  Icons.play_circle,
+                                  CupertinoIcons.play_circle,
                                   color: AppColors.primary,
                                   size: 20,
                                 )

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -77,7 +78,7 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Icon(
-            Icons.error_outline,
+            CupertinoIcons.exclamationmark_circle,
             size: 48,
             color: AppColors.textTertiary,
           ),
@@ -161,7 +162,7 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
             SliverFillRemaining(
               child: EmptyState(
                 icon: const Icon(
-                  Icons.video_library_outlined,
+                  CupertinoIcons.film,
                   size: 48,
                   color: AppColors.textTertiary,
                 ),
@@ -235,7 +236,7 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
               if (folder.isPrivate)
                 const Chip(
                   label: Text('私密'),
-                  avatar: Icon(Icons.lock, size: 14),
+                  avatar: Icon(CupertinoIcons.lock_fill, size: 14),
                   labelStyle: TextStyle(fontSize: 12),
                   visualDensity: VisualDensity.compact,
                 ),
@@ -272,14 +273,14 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
               children: [
                 FilledButton.icon(
                   onPressed: () => _playAll(context, ref, state),
-                  icon: const Icon(Icons.play_arrow),
+                  icon: const Icon(CupertinoIcons.play_fill),
                   label: const Text('播放全部'),
                 ),
                 const SizedBox(width: 12),
                 // Action menu button
                 IconButton(
                   onPressed: () => _showFolderActionMenu(context, ref, folder, state, isOwner),
-                  icon: const Icon(Icons.more_horiz),
+                  icon: const Icon(CupertinoIcons.ellipsis),
                   style: IconButton.styleFrom(
                     backgroundColor: AppColors.surface,
                   ),
@@ -308,10 +309,10 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
               focusNode: _searchFocusNode,
               decoration: InputDecoration(
                 hintText: '搜索...',
-                prefixIcon: const Icon(Icons.search, size: 20),
+                prefixIcon: const Icon(CupertinoIcons.search, size: 20),
                 suffixIcon: state.keyword.isNotEmpty
                     ? IconButton(
-                        icon: const Icon(Icons.clear, size: 18),
+                        icon: const Icon(CupertinoIcons.xmark_circle_fill, size: 18),
                         onPressed: () {
                           _searchController.clear();
                           ref
@@ -376,7 +377,7 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
                     style: const TextStyle(fontSize: 14),
                   ),
                   const SizedBox(width: 4),
-                  const Icon(Icons.arrow_drop_down, size: 20),
+                  const Icon(CupertinoIcons.chevron_down, size: 20),
                 ],
               ),
             ),
@@ -387,7 +388,7 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
                     child: Row(
                       children: [
                         if (order == state.order)
-                          const Icon(Icons.check, size: 18)
+                          const Icon(CupertinoIcons.checkmark, size: 18)
                         else
                           const SizedBox(width: 18),
                         const SizedBox(width: 8),
@@ -445,7 +446,7 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
             const Divider(height: 1),
             // Add to playlist
             ListTile(
-              leading: const Icon(Icons.playlist_add),
+              leading: const Icon(CupertinoIcons.text_badge_plus),
               title: const Text('添加到播放列表'),
               onTap: () {
                 Navigator.pop(context);
@@ -456,7 +457,7 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
             // Source: biu/src/pages/video-collection/info/menu.tsx:148-153
             if (isOwner && folder.attr != 0)
               ListTile(
-                leading: const Icon(Icons.edit_outlined),
+                leading: const Icon(CupertinoIcons.pencil),
                 title: const Text('修改信息'),
                 onTap: () {
                   Navigator.pop(context);
@@ -467,7 +468,7 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
             // Source: biu/src/pages/video-collection/info/menu.tsx:154-179
             if (isOwner && folder.attr != 0)
               ListTile(
-                leading: const Icon(Icons.delete_outline, color: Colors.red),
+                leading: const Icon(CupertinoIcons.trash, color: Colors.red),
                 title: const Text('删除', style: TextStyle(color: Colors.red)),
                 onTap: () {
                   Navigator.pop(context);
@@ -580,14 +581,14 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
           children: [
             // Delete
             _SelectionActionButton(
-              icon: Icons.delete_outline,
+              icon: CupertinoIcons.trash,
               label: '删除',
               enabled: state.hasSelection,
               onPressed: () => _confirmBatchDelete(context, ref, state),
             ),
             // Move
             _SelectionActionButton(
-              icon: Icons.drive_file_move_outline,
+              icon: CupertinoIcons.arrow_right_square,
               label: '移动',
               enabled: state.hasSelection,
               onPressed: () => _showFolderPicker(
@@ -612,7 +613,7 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
             ),
             // Copy
             _SelectionActionButton(
-              icon: Icons.copy_outlined,
+              icon: CupertinoIcons.doc_on_doc,
               label: '复制',
               enabled: state.hasSelection,
               onPressed: () => _showFolderPicker(
@@ -865,7 +866,7 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
                               color: AppColors.contentBackground,
                               borderRadius: BorderRadius.circular(4),
                             ),
-                            child: const Icon(Icons.folder),
+                            child: const Icon(CupertinoIcons.folder_fill),
                           ),
                     title: Text(folder.title),
                     subtitle: Text('${folder.mediaCount} items'),
@@ -911,7 +912,7 @@ class _MediaListItem extends StatelessWidget {
                   : const ColoredBox(
                       color: AppColors.contentBackground,
                       child: Icon(
-                        Icons.video_library,
+                        CupertinoIcons.film,
                         color: AppColors.textTertiary,
                       ),
                     ),
@@ -948,7 +949,7 @@ class _MediaListItem extends StatelessWidget {
                 ),
                 child: const Center(
                   child: Icon(
-                    Icons.block,
+                    CupertinoIcons.nosign,
                     color: Colors.white54,
                     size: 24,
                   ),

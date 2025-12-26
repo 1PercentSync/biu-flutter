@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -166,7 +167,7 @@ class _GeetestDialogState extends State<GeetestDialog> {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close),
+                    icon: const Icon(CupertinoIcons.xmark),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ],
@@ -190,7 +191,7 @@ class _GeetestDialogState extends State<GeetestDialog> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             const Icon(
-                              Icons.error_outline,
+                              CupertinoIcons.exclamationmark_circle,
                               size: 48,
                               color: Colors.red,
                             ),

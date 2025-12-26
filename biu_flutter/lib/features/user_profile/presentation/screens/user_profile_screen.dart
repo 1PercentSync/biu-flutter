@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
@@ -119,7 +120,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.error_outline, size: 48, color: AppColors.error),
+              const Icon(CupertinoIcons.exclamationmark_circle, size: 48, color: AppColors.error),
               const SizedBox(height: 16),
               Text(
                 state.errorMessage ?? '加载失败',
@@ -240,7 +241,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                   controller: _keywordController,
                   decoration: InputDecoration(
                     hintText: '搜索视频...',
-                    prefixIcon: const Icon(Icons.search, size: 20),
+                    prefixIcon: const Icon(CupertinoIcons.search, size: 20),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 12),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(18),
@@ -278,7 +279,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<String>(
                   value: state.videoOrder,
-                  icon: const Icon(Icons.arrow_drop_down, size: 20),
+                  icon: const Icon(CupertinoIcons.chevron_down, size: 20),
                   style: Theme.of(context).textTheme.bodyMedium,
                   items: const [
                     DropdownMenuItem(
@@ -405,7 +406,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
-            Icons.video_library_outlined,
+            CupertinoIcons.film,
             size: 64,
             color: AppColors.textSecondary,
           ),

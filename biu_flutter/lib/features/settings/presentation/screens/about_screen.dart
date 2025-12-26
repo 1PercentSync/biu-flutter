@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -58,7 +59,7 @@ class AboutScreen extends ConsumerWidget {
               borderRadius: BorderRadius.circular(16),
             ),
             child: const Icon(
-              Icons.music_note,
+              CupertinoIcons.music_note,
               size: 48,
               color: Colors.white,
             ),
@@ -106,7 +107,7 @@ class AboutScreen extends ConsumerWidget {
         ),
         _buildLinkTile(
           context,
-          icon: Icons.description_outlined,
+          icon: CupertinoIcons.doc_text,
           title: '开源许可证',
           onTap: () {
             showLicensePage(
@@ -121,7 +122,7 @@ class AboutScreen extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(
-                  Icons.music_note,
+                  CupertinoIcons.music_note,
                   color: Colors.white,
                 ),
               ),
@@ -180,7 +181,7 @@ class AboutScreen extends ConsumerWidget {
       child: ListTile(
         leading: Icon(icon, color: AppColors.textSecondary),
         title: Text(title),
-        trailing: const Icon(Icons.chevron_right, color: AppColors.textTertiary),
+        trailing: const Icon(CupertinoIcons.chevron_right, color: AppColors.textTertiary),
         onTap: onTap,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppTheme.borderRadius),

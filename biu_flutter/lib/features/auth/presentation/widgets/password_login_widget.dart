@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -66,7 +67,7 @@ class _PasswordLoginWidgetState extends ConsumerState<PasswordLoginWidget> {
           decoration: InputDecoration(
             labelText: '账号',
             hintText: '请输入手机号或邮箱',
-            prefixIcon: const Icon(Icons.person_outline),
+            prefixIcon: const Icon(CupertinoIcons.person),
             errorText: state.status == PasswordLoginStatus.error
                 ? state.errorMessage
                 : null,
@@ -85,15 +86,15 @@ class _PasswordLoginWidgetState extends ConsumerState<PasswordLoginWidget> {
           decoration: InputDecoration(
             labelText: '密码',
             hintText: '请输入密码',
-            prefixIcon: const Icon(Icons.lock_outline),
+            prefixIcon: const Icon(CupertinoIcons.lock),
             suffixIcon: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 IconButton(
                   icon: Icon(
                     state.isPasswordVisible
-                        ? Icons.visibility
-                        : Icons.visibility_off,
+                        ? CupertinoIcons.eye
+                        : CupertinoIcons.eye_slash,
                   ),
                   onPressed: () {
                     ref
@@ -102,7 +103,7 @@ class _PasswordLoginWidgetState extends ConsumerState<PasswordLoginWidget> {
                   },
                 ),
                 IconButton(
-                  icon: const Icon(Icons.help_outline),
+                  icon: const Icon(CupertinoIcons.question_circle),
                   onPressed: _openPasswordRecovery,
                 ),
               ],

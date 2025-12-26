@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -147,7 +148,7 @@ class _DynamicFeedDrawerState extends ConsumerState<DynamicFeedDrawer> {
     // Empty state
     if (state.isEmpty) {
       return const EmptyState(
-        icon: Icon(Icons.dynamic_feed, size: 48, color: AppColors.textTertiary),
+        icon: Icon(CupertinoIcons.list_bullet, size: 48, color: AppColors.textTertiary),
         title: '暂无动态',
         message: '关注的用户还没有发布动态',
       );

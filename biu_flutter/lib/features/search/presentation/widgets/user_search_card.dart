@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../shared/theme/theme.dart';
@@ -50,7 +51,7 @@ class UserSearchCard extends StatelessWidget {
               height: 48,
               color: AppColors.surfaceElevated,
               child: const Icon(
-                Icons.person,
+                CupertinoIcons.person_fill,
                 color: AppColors.textTertiary,
               ),
             ),
@@ -59,7 +60,7 @@ class UserSearchCard extends StatelessWidget {
               height: 48,
               color: AppColors.surfaceElevated,
               child: const Icon(
-                Icons.person,
+                CupertinoIcons.person_fill,
                 color: AppColors.textTertiary,
               ),
             ),
@@ -81,7 +82,7 @@ class UserSearchCard extends StatelessWidget {
                 ),
               ),
               child: const Icon(
-                Icons.check,
+                CupertinoIcons.checkmark,
                 size: 10,
                 color: Colors.white,
               ),

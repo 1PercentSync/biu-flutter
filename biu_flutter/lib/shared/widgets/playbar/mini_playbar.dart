@@ -1,4 +1,5 @@
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -118,7 +119,7 @@ class MiniPlaybar extends ConsumerWidget {
       children: [
         // Previous button
         _buildControlButton(
-          icon: Icons.skip_previous,
+          icon: CupertinoIcons.backward_fill,
           onPressed: canSkip ? notifier.prev : null,
           enabled: canSkip,
         ),
@@ -131,7 +132,7 @@ class MiniPlaybar extends ConsumerWidget {
         ),
         // Next button
         _buildControlButton(
-          icon: Icons.skip_next,
+          icon: CupertinoIcons.forward_fill,
           onPressed: canSkip ? notifier.next : null,
           enabled: canSkip,
         ),
@@ -183,7 +184,7 @@ class MiniPlaybar extends ConsumerWidget {
                 ),
               )
             : Icon(
-                isPlaying ? Icons.pause : Icons.play_arrow,
+                isPlaying ? CupertinoIcons.pause_fill : CupertinoIcons.play_fill,
                 size: 28,
                 color: Colors.white,
               ),

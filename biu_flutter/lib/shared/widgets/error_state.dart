@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
@@ -18,7 +19,7 @@ class ErrorState extends StatelessWidget {
       title: '网络错误',
       message: '请检查网络连接后重试',
       icon: const Icon(
-        Icons.wifi_off,
+        CupertinoIcons.wifi_slash,
         size: 48,
         color: AppColors.textTertiary,
       ),
@@ -34,7 +35,7 @@ class ErrorState extends StatelessWidget {
       title: '服务器错误',
       message: '服务器暂时不可用，请稍后重试',
       icon: const Icon(
-        Icons.cloud_off,
+        CupertinoIcons.xmark_circle,
         size: 48,
         color: AppColors.textTertiary,
       ),
@@ -50,7 +51,7 @@ class ErrorState extends StatelessWidget {
       title: '需要登录',
       message: '请登录以访问此内容',
       icon: const Icon(
-        Icons.lock_outline,
+        CupertinoIcons.lock,
         size: 48,
         color: AppColors.textTertiary,
       ),
@@ -93,7 +94,7 @@ class ErrorState extends StatelessWidget {
           children: [
             icon ??
                 const Icon(
-                  Icons.error_outline,
+                  CupertinoIcons.exclamationmark_circle,
                   size: 48,
                   color: AppColors.error,
                 ),
@@ -119,7 +120,7 @@ class ErrorState extends StatelessWidget {
               const SizedBox(height: 24),
               FilledButton.icon(
                 onPressed: onRetry,
-                icon: const Icon(Icons.refresh, size: 18),
+                icon: const Icon(CupertinoIcons.refresh, size: 18),
                 label: Text(retryText ?? 'Retry'),
                 style: FilledButton.styleFrom(
                   backgroundColor: AppColors.primary,
@@ -180,7 +181,7 @@ class ErrorBanner extends StatelessWidget {
         style: const TextStyle(color: Colors.white),
       ),
       backgroundColor: AppColors.error,
-      leading: const Icon(Icons.error_outline, color: Colors.white),
+      leading: const Icon(CupertinoIcons.exclamationmark_circle, color: Colors.white),
       actions: [
         if (onRetry != null)
           TextButton(

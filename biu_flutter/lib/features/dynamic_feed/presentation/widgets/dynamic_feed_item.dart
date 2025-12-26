@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -154,7 +155,7 @@ class DynamicFeedItem extends ConsumerWidget {
         // Source: biu/src/components/dynamic-feed/more-menu.tsx
         if (archive != null)
           IconButton(
-            icon: const Icon(Icons.more_horiz, size: 20),
+            icon: const Icon(CupertinoIcons.ellipsis, size: 20),
             color: AppColors.textSecondary,
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
@@ -195,7 +196,7 @@ class DynamicFeedItem extends ConsumerWidget {
             // Add to next play
             ListTile(
               leading:
-                  const Icon(Icons.playlist_add, color: AppColors.textPrimary),
+                  const Icon(CupertinoIcons.text_badge_plus, color: AppColors.textPrimary),
               title: const Text('添加到下一首播放'),
               onTap: () {
                 Navigator.pop(context);

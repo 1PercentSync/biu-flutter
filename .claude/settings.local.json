@@ -31,7 +31,8 @@
       "Bash(git -C D:/Github/biu-flutter add biu_flutter/lib/features/user_profile/presentation/widgets/video_post_card.dart)",
       "Bash(git -C D:/Github/biu-flutter commit:*)",
       "Bash(git -C D:/Github/biu-flutter status)",
-      "Bash(git -C D:/Github/biu-flutter add:*)"
+      "Bash(git -C D:/Github/biu-flutter add:*)",
+      "mcp__ide__getDiagnostics"
     ]
   }
 }

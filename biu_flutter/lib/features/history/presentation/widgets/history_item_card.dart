@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../shared/theme/theme.dart';
 import '../../../../shared/widgets/cached_image.dart';
@@ -91,16 +92,29 @@ class HistoryItemCard extends StatelessWidget {
               ),
         ),
         const SizedBox(height: 4),
-        // Author
+        // Author - clickable when authorMid exists
+        // Source: biu/src/pages/history/index.tsx:142-145
         if (item.authorName != null)
-          Text(
-            item.authorName!,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppColors.textSecondary,
+          item.authorMid != null
+              ? GestureDetector(
+                  onTap: () => context.push('/user/${item.authorMid}'),
+                  child: Text(
+                    item.authorName!,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                  ),
+                )
+              : Text(
+                  item.authorName!,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
                 ),
-          ),
       ],
     );
   }

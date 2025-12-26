@@ -8,6 +8,7 @@ import 'interceptors/auth_interceptor.dart';
 import 'interceptors/gaia_vgate_interceptor.dart';
 import 'interceptors/logging_interceptor.dart';
 import 'interceptors/response_interceptor.dart';
+import 'interceptors/search_response_interceptor.dart';
 
 /// Singleton Dio client for Bilibili API requests.
 ///
@@ -129,11 +130,12 @@ class DioClient {
     return dio;
   }
 
-  /// Create search Dio instance without BiliResponseInterceptor.
+  /// Create search Dio instance with simple response handling.
   ///
   /// Source: biu/src/service/request/index.ts#searchRequest
-  /// The search API (s.search.bilibili.com) uses a simpler response format
-  /// and doesn't require the same code validation as the main API.
+  /// The search API (s.search.bilibili.com) uses a simpler response format:
+  /// - No code validation (unlike apiRequest)
+  /// - Response may need manual JSON parsing
   Dio _createSearchDio() {
     final dio = Dio(
       BaseOptions(
@@ -155,9 +157,9 @@ class DioClient {
     // Add auth interceptor
     dio.interceptors.add(AuthInterceptor(cookieJar: _cookieJar));
 
-    // Note: NO BiliResponseInterceptor - search API uses simple response format
+    // Add search response interceptor to handle JSON parsing
     // Source: biu/src/service/request/index.ts:42
-    // searchRequest.interceptors.response.use(res => res.data);
+    dio.interceptors.add(SearchResponseInterceptor());
 
     // Add logging interceptor in debug mode
     assert(() {

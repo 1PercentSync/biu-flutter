@@ -1,5 +1,3 @@
-import 'dart:developer' as developer;
-
 import 'package:dio/dio.dart';
 
 import '../../../../core/network/dio_client.dart';
@@ -147,6 +145,7 @@ class SearchRemoteDataSource {
   /// GET https://s.search.bilibili.com/main/suggest
   ///
   /// Source: biu/src/service/main-suggest.ts#getSearchSuggestMain
+  /// Source: biu/src/layout/navbar/search/index.tsx:38
   Future<List<SearchSuggestItem>> getSearchSuggestions({
     required String keyword,
     int? userId,
@@ -155,10 +154,6 @@ class SearchRemoteDataSource {
       return [];
     }
 
-    developer.log('Calling search suggest API for: $keyword', name: 'SearchDataSource');
-
-    // Source: biu/src/layout/navbar/search/index.tsx:38
-    // Only term and userid are passed in source project
     final response = await _searchDio.get<Map<String, dynamic>>(
       '/main/suggest',
       queryParameters: {
@@ -167,33 +162,23 @@ class SearchRemoteDataSource {
       },
     );
 
-    developer.log('Response: ${response.data}', name: 'SearchDataSource');
-
     final data = response.data;
     if (data == null) {
-      developer.log('Response data is null', name: 'SearchDataSource');
       return [];
     }
 
     final result = data['result'] as Map<String, dynamic>?;
     if (result == null) {
-      developer.log('result field is null, keys: ${data.keys}', name: 'SearchDataSource');
       return [];
     }
 
     final tag = result['tag'] as List<dynamic>?;
     if (tag == null) {
-      developer.log('tag field is null, result keys: ${result.keys}', name: 'SearchDataSource');
       return [];
     }
 
-    developer.log('Found ${tag.length} suggestions', name: 'SearchDataSource');
     return tag
         .map((e) => SearchSuggestItem.fromJson(e as Map<String, dynamic>))
         .toList();
   }
-
-  // Hot search keywords feature removed - not in source project.
-  // Source project (biu/Electron) does not have hot search/trending feature.
-  // See: openspec/changes/align-parity-report-decisions/specs/search/spec.md
 }

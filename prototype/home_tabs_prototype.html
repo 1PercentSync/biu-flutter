@@ -857,26 +857,6 @@
         }
 
         /**
-         * Adaptive tab font size - Flutter: LayoutBuilder + FittedBox
-         */
-        function adjustTabFontSize() {
-            const containerWidth = tabBar.parentElement.clientWidth;
-            const MIN_GAP = 10, MAX_SIZE = 28, MIN_SIZE = 16;
-            let low = MIN_SIZE, high = MAX_SIZE, fontSize = MAX_SIZE;
-
-            while (low <= high) {
-                const mid = Math.floor((low + high) / 2);
-                tabBar.style.setProperty('--tab-font-size', mid + 'px');
-
-                let totalWidth = Array.from(tabItems).reduce((sum, tab) => sum + tab.offsetWidth, 0);
-                totalWidth += MIN_GAP * (tabItems.length - 1);
-
-                totalWidth <= containerWidth ? (fontSize = mid, low = mid + 1) : high = mid - 1;
-            }
-            tabBar.style.setProperty('--tab-font-size', fontSize + 'px');
-        }
-
-        /**
          * ============================================================
          * EVENT LISTENERS - Flutter: GestureDetector / onTap
          * ============================================================
@@ -898,7 +878,6 @@
         });
 
         window.addEventListener('resize', () => {
-            adjustTabFontSize();
             if (displayMode === 'grid') requestAnimationFrame(applyTextTruncation);
         });
 
@@ -909,7 +888,6 @@
          */
         updateCoverRadius(4);
         renderContent();
-        adjustTabFontSize();
     </script>
 </body>
 </html>

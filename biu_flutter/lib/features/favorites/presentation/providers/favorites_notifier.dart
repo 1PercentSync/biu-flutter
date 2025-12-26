@@ -237,8 +237,18 @@ class FolderDetailNotifier extends StateNotifier<FolderDetailState> {
         keyword: state.keyword,
       );
 
+      // Only update folder info on initial load (no keyword filter)
+      // This preserves the original mediaCount when searching
+      // Source: biu/src/pages/video-collection/favorites.tsx
+      // currentData?.info?.media_count should reflect total, not filtered count
+      final newFolder = state.folder == null
+          ? result.folder
+          : (state.keyword.isEmpty
+              ? result.folder
+              : state.folder);
+
       state = state.copyWith(
-        folder: result.folder,
+        folder: newFolder,
         medias: refresh ? result.medias : [...state.medias, ...result.medias],
         hasMore: result.hasMore,
         pageNum: (refresh ? 1 : state.pageNum) + 1,

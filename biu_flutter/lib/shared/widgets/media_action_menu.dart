@@ -89,24 +89,18 @@ class MediaActionMenu extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isLoggedIn = ref.watch(authNotifierProvider).isAuthenticated;
 
-    // Use Material + InkWell instead of IconButton to:
-    // 1. Have a larger tap target area
-    // 2. Properly handle tap events without bubbling to parent InkWell
-    // Source: biu/src/components/mv-action/index.tsx uses Dropdown which handles events
-    return Material(
-      type: MaterialType.transparency,
-      child: InkWell(
-        onTap: () => _showActionSheet(context, ref, isLoggedIn),
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(8),
-          child: Icon(
-            Icons.more_vert,
-            size: iconSize,
-            color: iconColor ?? AppColors.textSecondary,
-          ),
-        ),
+    return IconButton(
+      icon: Icon(
+        Icons.more_vert,
+        size: iconSize,
+        color: iconColor ?? AppColors.textSecondary,
       ),
+      padding: const EdgeInsets.all(4),
+      constraints: const BoxConstraints(
+        minWidth: 28,
+        minHeight: 28,
+      ),
+      onPressed: () => _showActionSheet(context, ref, isLoggedIn),
     );
   }
 

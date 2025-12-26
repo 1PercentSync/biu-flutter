@@ -279,7 +279,7 @@ class _HotSongsTab extends ConsumerWidget {
 
     if (displayMode == DisplayMode.list) {
       return SliverPadding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(16, AppTheme.tabContentTopGap, 16, 16),
         sliver: SliverList(
           delegate: SliverChildBuilderDelegate(
             (context, index) {
@@ -305,7 +305,7 @@ class _HotSongsTab extends ConsumerWidget {
     }
 
     return SliverPadding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, AppTheme.tabContentTopGap, 16, 16),
       sliver: SliverGrid(
         gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
           maxCrossAxisExtent: 200,
@@ -443,7 +443,7 @@ class _ArtistsTabState extends ConsumerState<_ArtistsTab>
       slivers: [
         SliverToBoxAdapter(child: SizedBox(height: widget.topPadding)),
         SliverPadding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(16, AppTheme.tabContentTopGap, 16, 16),
           sliver: SliverGrid(
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 3,
@@ -584,7 +584,7 @@ class _RecommendTabState extends ConsumerState<_RecommendTab>
 
     if (displayMode == DisplayMode.list) {
       return SliverPadding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(16, AppTheme.tabContentTopGap, 16, 16),
         sliver: SliverList(
           delegate: SliverChildBuilderDelegate(
             (context, index) {
@@ -610,7 +610,7 @@ class _RecommendTabState extends ConsumerState<_RecommendTab>
     }
 
     return SliverPadding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, AppTheme.tabContentTopGap, 16, 16),
       sliver: SliverGrid(
         gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
           maxCrossAxisExtent: 200,

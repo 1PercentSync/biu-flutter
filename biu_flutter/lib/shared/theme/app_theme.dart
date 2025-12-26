@@ -62,6 +62,9 @@ class AppTheme {
   /// Tab header height (content area, excluding safe area)
   static const double tabHeaderHeight = 66;
 
+  /// Gap between tab header bottom and content top (matches prototype: 86 - 66 = 20)
+  static const double tabContentTopGap = 20;
+
   // ============ Glass Effect Parameters ============
 
   /// Standard blur sigma for frosted glass

@@ -16,7 +16,9 @@ import '../../../settings/presentation/providers/settings_notifier.dart';
 import '../../data/datasources/search_remote_datasource.dart';
 import '../../data/models/search_result.dart';
 import '../providers/search_history_notifier.dart';
+import '../providers/search_suggestions_notifier.dart';
 import '../widgets/search_history_widget.dart';
+import '../widgets/search_suggestions_list.dart';
 import '../widgets/user_search_card.dart';
 
 /// Provider for search data source
@@ -329,6 +331,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                                 ref
                                     .read(searchNotifierProvider.notifier)
                                     .clearQuery();
+                                ref
+                                    .read(searchSuggestionsProvider.notifier)
+                                    .clear();
                                 setState(() {});
                               },
                             )
@@ -343,6 +348,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                     ),
                     onChanged: (value) {
                       ref.read(searchNotifierProvider.notifier).setQuery(value);
+                      // Fetch search suggestions with debounce
+                      ref
+                          .read(searchSuggestionsProvider.notifier)
+                          .updateQuery(value);
                       setState(() {});
                     },
                     onSubmitted: _performSearch,
@@ -655,10 +664,13 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
     context.push(AppRoutes.userSpacePath(user.mid));
   }
 
-  /// Build search suggestions showing only search history.
-  /// Hot searches feature removed - not in source project.
-  /// Source: biu/src/pages/search/index.tsx (only has search history)
+  /// Build search suggestions showing search history and suggestions.
+  ///
+  /// Source: biu/src/layout/navbar/search/index.tsx
+  /// Shows search history as chips and live suggestions as list items.
   Widget _buildSearchSuggestions(BuildContext context) {
+    final suggestionsState = ref.watch(searchSuggestionsProvider);
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -671,6 +683,17 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
               _performSearch(query);
             },
           ),
+          // Search suggestions section (from API)
+          if (suggestionsState.suggestions.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            SearchSuggestionsList(
+              suggestions: suggestionsState.suggestions,
+              onSelect: (query) {
+                _searchController.text = query;
+                _performSearch(query);
+              },
+            ),
+          ],
         ],
       ),
     );
@@ -679,6 +702,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
   void _performSearch(String query) {
     if (query.isEmpty) return;
     _searchFocusNode.unfocus();
+    // Clear suggestions
+    ref.read(searchSuggestionsProvider.notifier).clear();
     // Add to search history
     ref.read(searchHistoryProvider.notifier).add(query);
     // Perform search

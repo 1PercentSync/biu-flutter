@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 
 import '../../../../core/network/dio_client.dart';
 import '../models/search_result.dart';
+import '../models/search_suggest.dart';
 
 /// Search order types for video search
 enum SearchVideoOrder {
@@ -35,9 +36,12 @@ enum SearchVideoDuration {
 /// Source: biu/src/service/main-suggest.ts#getMainSuggest (search suggestions)
 /// Source: biu/src/service/web-interface-search-type.ts#getSearchType
 class SearchRemoteDataSource {
-  SearchRemoteDataSource({Dio? dio}) : _dio = dio ?? DioClient.instance.dio;
+  SearchRemoteDataSource({Dio? dio, Dio? searchDio})
+      : _dio = dio ?? DioClient.instance.dio,
+        _searchDio = searchDio ?? DioClient.instance.searchDio;
 
   final Dio _dio;
+  final Dio _searchDio;
 
   /// Search by type - Video
   /// GET /x/web-interface/wbi/search/type
@@ -137,17 +141,36 @@ class SearchRemoteDataSource {
     );
   }
 
-  /// Get search suggestions
-  /// GET /x/web-interface/search/suggest
-  Future<List<String>> getSearchSuggestions({
+  /// Get search suggestions from search.bilibili.com
+  /// GET https://s.search.bilibili.com/main/suggest
+  ///
+  /// Source: biu/src/service/main-suggest.ts#getSearchSuggestMain
+  Future<List<SearchSuggestItem>> getSearchSuggestions({
     required String keyword,
+    int? userId,
   }) async {
-    final response = await _dio.get<Map<String, dynamic>>(
-      '/x/web-interface/search/suggest',
+    if (keyword.trim().isEmpty) {
+      return [];
+    }
+
+    final response = await _searchDio.get<Map<String, dynamic>>(
+      '/main/suggest',
       queryParameters: {
         'term': keyword,
         'main_ver': 'v1',
         'highlight': '',
+        'func': 'suggest',
+        'suggest_type': 'accurate',
+        'sub_type': 'tag',
+        if (userId != null) 'userid': userId,
+        'bangumi_acc_num': 1,
+        'special_acc_num': 1,
+        'topic_acc_num': 1,
+        'upuser_acc_num': 1,
+        'tag_num': 10,
+        'special_num': 10,
+        'bangumi_num': 10,
+        'upuser_num': 3,
       },
     );
 
@@ -163,9 +186,7 @@ class SearchRemoteDataSource {
     if (tag == null) return [];
 
     return tag
-        .map((e) => (e as Map<String, dynamic>)['value'] as String?)
-        .where((e) => e != null)
-        .cast<String>()
+        .map((e) => SearchSuggestItem.fromJson(e as Map<String, dynamic>))
         .toList();
   }
 

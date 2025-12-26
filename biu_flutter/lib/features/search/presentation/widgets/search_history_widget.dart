@@ -35,23 +35,24 @@ class SearchHistoryWidget extends ConsumerWidget {
     );
   }
 
+  /// Source: biu/src/layout/navbar/search/index.tsx:114-124
   Widget _buildHeader(BuildContext context, WidgetRef ref) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          'Search History',
-          style: Theme.of(context).textTheme.titleMedium,
+          '搜索历史',
+          style: Theme.of(context).textTheme.bodySmall,
         ),
-        TextButton(
-          onPressed: () {
+        GestureDetector(
+          onTap: () {
             _showClearConfirmDialog(context, ref);
           },
           child: const Text(
-            'Clear All',
+            '清除',
             style: TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 13,
+              color: AppColors.textTertiary,
+              fontSize: 12,
             ),
           ),
         ),

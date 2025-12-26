@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../features/settings/presentation/providers/settings_notifier.dart';
@@ -18,9 +18,9 @@ import 'glass_styles.dart';
 /// - Includes bottom safe area padding
 class GlassBottomNav extends ConsumerWidget {
   const GlassBottomNav({
-    super.key,
     required this.selectedIndex,
     required this.onDestinationSelected,
+    super.key,
   });
 
   /// Currently selected navigation index.
@@ -29,12 +29,14 @@ class GlassBottomNav extends ConsumerWidget {
   /// Callback when a navigation item is tapped.
   final ValueChanged<int> onDestinationSelected;
 
+  // iOS-style filled icons (Apple Music style) - same icon for both states,
+  // distinguished by color only (matching prototype)
   static const List<_NavItemData> _items = [
-    _NavItemData(icon: Icons.home_outlined, selectedIcon: Icons.home, label: '首页'),
-    _NavItemData(icon: Icons.search_outlined, selectedIcon: Icons.search, label: '搜索'),
-    _NavItemData(icon: Icons.favorite_outline, selectedIcon: Icons.favorite, label: '收藏'),
-    _NavItemData(icon: Icons.history_outlined, selectedIcon: Icons.history, label: '历史'),
-    _NavItemData(icon: Icons.person_outline, selectedIcon: Icons.person, label: '我的'),
+    _NavItemData(icon: CupertinoIcons.house_fill, label: '首页'),
+    _NavItemData(icon: CupertinoIcons.search, label: '搜索'),
+    _NavItemData(icon: CupertinoIcons.heart_fill, label: '收藏'),
+    _NavItemData(icon: CupertinoIcons.clock_fill, label: '历史'),
+    _NavItemData(icon: CupertinoIcons.person_fill, label: '我的'),
   ];
 
   @override
@@ -56,7 +58,7 @@ class GlassBottomNav extends ConsumerWidget {
 
                 return Expanded(
                   child: _NavItem(
-                    icon: isSelected ? item.selectedIcon : item.icon,
+                    icon: item.icon,
                     label: item.label,
                     isSelected: isSelected,
                     primaryColor: primaryColor,
@@ -77,12 +79,10 @@ class GlassBottomNav extends ConsumerWidget {
 class _NavItemData {
   const _NavItemData({
     required this.icon,
-    required this.selectedIcon,
     required this.label,
   });
 
   final IconData icon;
-  final IconData selectedIcon;
   final String label;
 }
 
@@ -119,7 +119,7 @@ class _NavItem extends StatelessWidget {
               size: AppTheme.bottomNavIconSize,
               color: color,
             ),
-            const SizedBox(height: 2),
+            const SizedBox(height: 1),
             Text(
               label,
               style: TextStyle(

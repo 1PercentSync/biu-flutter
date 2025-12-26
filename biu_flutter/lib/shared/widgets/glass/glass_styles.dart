@@ -23,7 +23,7 @@ class GlassStyles {
   /// Returns the [backgroundColor] with 88% opacity, suitable for
   /// header backdrops and navigation backgrounds.
   static Color glassBackground(Color backgroundColor) {
-    return backgroundColor.withOpacity(AppTheme.glassOpacity);
+    return backgroundColor.withValues(alpha: AppTheme.glassOpacity);
   }
 
   /// Computes the elevated frosted glass background color.
@@ -36,7 +36,7 @@ class GlassStyles {
     final lighter = hsl.withLightness(
       (hsl.lightness + AppTheme.glassLightnessBoost).clamp(0.0, 1.0),
     );
-    return lighter.toColor().withOpacity(AppTheme.glassOpacityElevated);
+    return lighter.toColor().withValues(alpha: AppTheme.glassOpacityElevated);
   }
 
   /// Creates an ImageFilter for standard blur effect.
@@ -64,7 +64,7 @@ class GlassStyles {
   /// Inactive tab/nav item color (white with 35% opacity).
   ///
   /// This matches the iOS system style for inactive navigation items.
-  static Color get inactiveColor => Colors.white.withOpacity(0.35);
+  static Color get inactiveColor => Colors.white.withValues(alpha: 0.35);
 
   /// Active text color (solid white).
   static Color get activeColor => Colors.white;

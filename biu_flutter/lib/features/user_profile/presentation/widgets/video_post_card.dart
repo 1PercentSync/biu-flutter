@@ -33,7 +33,6 @@ class VideoPostItem extends StatelessWidget {
       coverUrl: video.pic,
       ownerName: video.author,
       isActive: isActive,
-      aspectRatio: 1.0,
       actionWidget: _buildActionMenu(),
       onTap: onTap,
       onOwnerTap: () => context.push('/user/${video.mid}'),

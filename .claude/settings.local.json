@@ -35,7 +35,8 @@
       "mcp__ide__getDiagnostics",
       "Bash(git -C D:/Github/biu-flutter status:*)",
       "Bash(findstr:*)",
-      "Bash(openspec show:*)"
+      "Bash(openspec show:*)",
+      "Bash(dart fix:*)"
     ]
   }
 }

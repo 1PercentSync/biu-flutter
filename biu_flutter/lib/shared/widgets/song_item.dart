@@ -59,7 +59,6 @@ class SongItem extends StatelessWidget {
       title: title,
       coverUrl: cover,
       ownerName: author,
-      aspectRatio: 1.0,
       actionWidget: _buildActionMenu(),
       onTap: onTap,
       onLongPress: onLongPress,

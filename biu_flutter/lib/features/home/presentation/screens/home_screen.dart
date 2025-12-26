@@ -10,7 +10,6 @@ import '../../../../shared/widgets/empty_state.dart';
 import '../../../../shared/widgets/error_state.dart';
 import '../../../../shared/widgets/glass/glass.dart';
 import '../../../../shared/widgets/loading_state.dart';
-import '../../../../shared/widgets/media_action_menu.dart';
 import '../../../../shared/widgets/song_item.dart';
 import '../../../artist_rank/data/models/musician.dart';
 import '../../../artist_rank/presentation/providers/artist_rank_notifier.dart';
@@ -101,7 +100,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             right: 0,
             height: headerHeight,
             child: const GlassBackdrop(
-              alignment: Alignment.topCenter,
+              
             ),
           ),
 
@@ -139,12 +138,12 @@ class _AdaptiveTabHeader extends StatelessWidget {
     return SizedBox(
       height: AppTheme.tabHeaderHeight,
       child: Padding(
-        // Match prototype: 16px top/horizontal, 6px bottom (aligned with glass-backdrop)
+        // Match prototype: 16px top/horizontal, 8px bottom (aligned with glass-backdrop)
         padding: const EdgeInsets.fromLTRB(
           AppTheme.padding,
           AppTheme.padding,
           AppTheme.padding,
-          6,
+          8,
         ),
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -155,6 +154,7 @@ class _AdaptiveTabHeader extends StatelessWidget {
 
             return Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: tabs.asMap().entries.map((entry) {
                 final index = entry.key;
                 final label = entry.value;
@@ -191,9 +191,9 @@ class _AdaptiveTabHeader extends StatelessWidget {
     const minSize = AppTheme.tabFontSizeMin;
     const maxSize = AppTheme.tabFontSizeMax;
 
-    double optimalSize = minSize;
+    var optimalSize = minSize;
 
-    for (double size = maxSize; size >= minSize; size -= 1) {
+    for (var size = maxSize; size >= minSize; size -= 1) {
       double totalWidth = 0;
 
       for (final tab in tabs) {

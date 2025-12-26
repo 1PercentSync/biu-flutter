@@ -1,4 +1,3 @@
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -155,7 +154,7 @@ class MiniPlaybar extends ConsumerWidget {
         icon: Icon(
           icon,
           size: 28,
-          color: enabled ? Colors.white : Colors.white.withOpacity(0.3),
+          color: enabled ? Colors.white : Colors.white.withValues(alpha: 0.3),
         ),
       ),
     );

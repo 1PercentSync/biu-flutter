@@ -1,4 +1,3 @@
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -169,10 +168,7 @@ class GlassBackdrop extends ConsumerWidget {
 /// by floating glass elements (mini player, bottom nav).
 class GlassLayoutInfo extends InheritedWidget {
   const GlassLayoutInfo({
-    super.key,
-    required super.child,
-    required this.bottomContentPadding,
-    required this.topContentPadding,
+    required super.child, required this.bottomContentPadding, required this.topContentPadding, super.key,
   });
 
   /// Padding needed at the bottom of content to avoid floating elements.

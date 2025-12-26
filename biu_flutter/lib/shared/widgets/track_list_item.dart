@@ -80,7 +80,7 @@ class TrackListItem extends StatelessWidget {
                   ? BoxDecoration(
                       border: Border(
                         bottom: BorderSide(
-                          color: Colors.white.withOpacity(0.08),
+                          color: Colors.white.withValues(alpha: 0.08),
                           width: 0.5,
                         ),
                       ),
@@ -125,7 +125,7 @@ class TrackListItem extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 fontSize: 13,
-                                color: Colors.white.withOpacity(0.6),
+                                color: Colors.white.withValues(alpha: 0.6),
                               ),
                             ),
                           ),

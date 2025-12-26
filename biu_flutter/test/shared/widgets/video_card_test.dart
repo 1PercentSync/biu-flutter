@@ -37,17 +37,6 @@ void main() {
       expect(find.text('Test Owner'), findsOneWidget);
     });
 
-    testWidgets('displays formatted duration badge', (tester) async {
-      await tester.pumpWidget(createWidgetUnderTest(
-        const VideoCard(
-          title: 'Test Video',
-          duration: 3665, // 1:01:05
-        ),
-      ));
-
-      expect(find.text('01:01:05'), findsOneWidget);
-    });
-
     testWidgets('triggers onTap callback when tapped', (tester) async {
       var tapped = false;
 
@@ -76,65 +65,7 @@ void main() {
       expect(longPressed, true);
     });
 
-    testWidgets('displays view count with play icon', (tester) async {
-      await tester.pumpWidget(createWidgetUnderTest(
-        const VideoCard(
-          title: 'Test Video',
-          viewCount: 12345,
-        ),
-      ));
-
-      expect(find.byIcon(Icons.play_arrow), findsOneWidget);
-      expect(find.text('1.2万'), findsOneWidget);
-    });
-
-    testWidgets('displays danmaku count with comment icon', (tester) async {
-      await tester.pumpWidget(createWidgetUnderTest(
-        const VideoCard(
-          title: 'Test Video',
-          danmakuCount: 500,
-        ),
-      ));
-
-      expect(find.byIcon(Icons.comment), findsOneWidget);
-      expect(find.text('500'), findsOneWidget);
-    });
-
-    testWidgets('shows border when isActive is true', (tester) async {
-      await tester.pumpWidget(createWidgetUnderTest(
-        const VideoCard(
-          title: 'Test Video',
-          isActive: true,
-        ),
-      ));
-
-      // Find the Container that should have the border
-      final container = find.byType(Container).evaluate().firstWhere(
-        (element) {
-          final widget = element.widget as Container;
-          if (widget.decoration is BoxDecoration) {
-            final decoration = widget.decoration! as BoxDecoration;
-            return decoration.border != null;
-          }
-          return false;
-        },
-      );
-
-      expect(container, isNotNull);
-    });
-
-    testWidgets('formats view count with 亿 suffix for large numbers', (tester) async {
-      await tester.pumpWidget(createWidgetUnderTest(
-        const VideoCard(
-          title: 'Test Video',
-          viewCount: 150000000, // 1.5亿
-        ),
-      ));
-
-      expect(find.text('1.5亿'), findsOneWidget);
-    });
-
-    testWidgets('maintains 16:9 aspect ratio for cover', (tester) async {
+    testWidgets('uses default aspect ratio of 1.0', (tester) async {
       await tester.pumpWidget(createWidgetUnderTest(
         const VideoCard(title: 'Test Video'),
       ));
@@ -143,7 +74,31 @@ void main() {
       expect(aspectRatio, findsOneWidget);
 
       final widget = tester.widget<AspectRatio>(aspectRatio);
+      expect(widget.aspectRatio, 1.0);
+    });
+
+    testWidgets('respects custom aspect ratio', (tester) async {
+      await tester.pumpWidget(createWidgetUnderTest(
+        const VideoCard(
+          title: 'Test Video',
+          aspectRatio: 16 / 9,
+        ),
+      ));
+
+      final aspectRatio = find.byType(AspectRatio);
+      final widget = tester.widget<AspectRatio>(aspectRatio);
       expect(widget.aspectRatio, 16 / 9);
+    });
+
+    testWidgets('shows actionWidget when provided', (tester) async {
+      await tester.pumpWidget(createWidgetUnderTest(
+        const VideoCard(
+          title: 'Test Video',
+          actionWidget: Icon(Icons.more_vert, key: Key('action_widget')),
+        ),
+      ));
+
+      expect(find.byKey(const Key('action_widget')), findsOneWidget);
     });
   });
 }

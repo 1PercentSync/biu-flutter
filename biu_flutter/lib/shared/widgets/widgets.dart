@@ -16,4 +16,6 @@ export 'media_item.dart';
 export 'playbar/playbar.dart';
 export 'song_item.dart';
 export 'track_list_item.dart';
+export 'user_avatar.dart';
+export 'user_badges.dart';
 export 'video_card.dart';

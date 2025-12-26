@@ -139,10 +139,12 @@ class VideoCard extends StatelessWidget {
             children: [
               // Cover image with duration overlay
               _buildCoverSection(context),
-              // Info section
-              Padding(
-                padding: const EdgeInsets.all(12),
-                child: _buildInfoSection(context),
+              // Info section - use Expanded to prevent overflow
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: _buildInfoSection(context),
+                ),
               ),
             ],
           ),
@@ -242,30 +244,33 @@ class VideoCard extends StatelessWidget {
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
         // Title row with optional action widget
         // Source: biu/src/components/mv-card/index.tsx#titleExtra
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: highlightTitle
-                  ? HighlightedText(
-                      text: title,
-                      style: titleStyle,
-                      maxLines: 2,
-                    )
-                  : Text(
-                      title,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: titleStyle,
-                    ),
-            ),
-            if (actionWidget != null) actionWidget!,
-          ],
+        Flexible(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: highlightTitle
+                    ? HighlightedText(
+                        text: title,
+                        style: titleStyle,
+                        maxLines: 2,
+                      )
+                    : Text(
+                        title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: titleStyle,
+                      ),
+              ),
+              if (actionWidget != null) actionWidget!,
+            ],
+          ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 6),
         // Owner and stats
         Row(
           children: [
@@ -274,11 +279,11 @@ class VideoCard extends StatelessWidget {
               ClipOval(
                 child: AppCachedImage(
                   imageUrl: ownerAvatar,
-                  width: 20,
-                  height: 20,
+                  width: 18,
+                  height: 18,
                 ),
               ),
-              const SizedBox(width: 6),
+              const SizedBox(width: 4),
             ],
             // Owner name - clickable when onOwnerTap is provided
             if (ownerName != null)

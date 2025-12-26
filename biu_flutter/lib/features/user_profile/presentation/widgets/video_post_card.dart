@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
+import '../../../../core/utils/date_utils.dart' as app_date;
 import '../../../../shared/theme/theme.dart';
 import '../../../../shared/widgets/media_action_menu.dart';
 import '../../../../shared/widgets/media_item.dart';
@@ -57,7 +57,7 @@ class VideoPostItem extends StatelessWidget {
       children: [
         // Date
         Text(
-          _formatDate(video.createdDate),
+          app_date.DateUtils.formatRelative(video.createdDate),
           style: statStyle,
         ),
         // Duration
@@ -67,22 +67,6 @@ class VideoPostItem extends StatelessWidget {
         ),
       ],
     );
-  }
-
-  String _formatDate(DateTime date) {
-    final now = DateTime.now();
-    final diff = now.difference(date);
-
-    if (diff.inDays == 0) {
-      return '今天';
-    } else if (diff.inDays == 1) {
-      return '昨天';
-    } else if (diff.inDays < 7) {
-      return '${diff.inDays}天前';
-    } else if (date.year == now.year) {
-      return DateFormat('MM-dd').format(date);
-    }
-    return DateFormat('yyyy-MM-dd').format(date);
   }
 
   Widget _buildActionMenu() {

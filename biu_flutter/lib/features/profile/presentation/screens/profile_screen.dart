@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/router/routes.dart';
 import '../../../../shared/theme/theme.dart';
-import '../../../../shared/widgets/cached_image.dart';
+import '../../../../shared/widgets/user_avatar.dart';
 import '../../../auth/presentation/providers/auth_notifier.dart';
 import '../../../auth/presentation/providers/auth_state.dart';
 
@@ -74,23 +74,9 @@ class ProfileScreen extends ConsumerWidget {
       child: Row(
         children: [
           // Avatar
-          ClipOval(
-            child: isLoggedIn && user?.face != null
-                ? AppCachedImage(
-                    imageUrl: user!.face,
-                    width: 64,
-                    height: 64,
-                  )
-                : Container(
-                    width: 64,
-                    height: 64,
-                    color: AppColors.surface,
-                    child: const Icon(
-                      Icons.person,
-                      size: 32,
-                      color: AppColors.textTertiary,
-                    ),
-                  ),
+          UserAvatar(
+            avatarUrl: isLoggedIn ? user?.face : null,
+            size: 64,
           ),
           const SizedBox(width: 16),
           // User info

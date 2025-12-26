@@ -1,125 +1,17 @@
 import 'package:flutter/material.dart';
 
 import '../../../../shared/theme/theme.dart';
-import '../../../../shared/widgets/cached_image.dart';
+import '../../../../shared/widgets/user_avatar.dart';
+import '../../../../shared/widgets/user_badges.dart';
 import '../../data/models/following_user.dart';
 
 // ══════════════════════════════════════════════════════════════════════════
-// Shared Helper Widgets
+// Helper Functions
 // ══════════════════════════════════════════════════════════════════════════
-
-/// Build user avatar with optional VIP badge overlay.
-Widget _buildUserAvatar(FollowingUser user, {required double size}) {
-  return Stack(
-    children: [
-      ClipOval(
-        child: user.face != null
-            ? AppCachedImage(
-                imageUrl: user.face,
-                width: size,
-                height: size,
-              )
-            : Container(
-                width: size,
-                height: size,
-                color: AppColors.surface,
-                child: Icon(
-                  Icons.person,
-                  size: size / 2,
-                  color: AppColors.textTertiary,
-                ),
-              ),
-      ),
-      // VIP badge on avatar
-      if (user.vip?.isVip ?? false)
-        Positioned(
-          right: 0,
-          bottom: 0,
-          child: Container(
-            padding: const EdgeInsets.all(2),
-            decoration: BoxDecoration(
-              color: Colors.pink,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: const Icon(
-              Icons.star,
-              size: 12,
-              color: Colors.white,
-            ),
-          ),
-        ),
-    ],
-  );
-}
-
-/// Build verification icon based on official verify type.
-Widget? _buildVerificationIcon(FollowingUser user) {
-  if (!user.isVerified) return null;
-  return Icon(
-    Icons.verified,
-    size: 14,
-    color: user.officialVerify?.type == 0 ? Colors.amber : Colors.blue,
-  );
-}
-
-/// Build inline VIP badge.
-Widget _buildVipBadge() {
-  return Container(
-    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-    decoration: BoxDecoration(
-      color: Colors.pink,
-      borderRadius: BorderRadius.circular(4),
-    ),
-    child: const Text(
-      'VIP',
-      style: TextStyle(
-        color: Colors.white,
-        fontSize: 10,
-        fontWeight: FontWeight.bold,
-      ),
-    ),
-  );
-}
-
-/// Build mutual follow badge.
-Widget _buildMutualBadge() {
-  return Container(
-    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-    decoration: BoxDecoration(
-      color: Colors.green.withValues(alpha: 0.2),
-      borderRadius: BorderRadius.circular(4),
-    ),
-    child: const Text(
-      'Mutual',
-      style: TextStyle(
-        color: Colors.green,
-        fontSize: 10,
-      ),
-    ),
-  );
-}
-
-/// Build special badge.
-Widget _buildSpecialBadge() {
-  return Container(
-    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-    decoration: BoxDecoration(
-      color: Colors.orange.withValues(alpha: 0.2),
-      borderRadius: BorderRadius.circular(4),
-    ),
-    child: const Text(
-      'Special',
-      style: TextStyle(
-        color: Colors.orange,
-        fontSize: 10,
-      ),
-    ),
-  );
-}
 
 /// Get signature text with fallback.
 String _getSignatureText(FollowingUser user) {
-  return user.sign?.isNotEmpty ?? false ? user.sign! : 'No signature';
+  return user.sign?.isNotEmpty ?? false ? user.sign! : '暂无签名';
 }
 
 // ══════════════════════════════════════════════════════════════════════════
@@ -127,6 +19,8 @@ String _getSignatureText(FollowingUser user) {
 // ══════════════════════════════════════════════════════════════════════════
 
 /// Card displaying a following user's info
+///
+/// Uses shared UserAvatar and badge widgets for consistent UI.
 class FollowingCard extends StatelessWidget {
   const FollowingCard({
     required this.user,
@@ -155,7 +49,11 @@ class FollowingCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               // Avatar with VIP badge
-              _buildUserAvatar(user, size: 72),
+              UserAvatar(
+                avatarUrl: user.face,
+                size: 72,
+                showVipBadge: user.vip?.isVip ?? false,
+              ),
               const SizedBox(height: 8),
               // Name with verification icon
               _buildNameRow(context),
@@ -184,8 +82,6 @@ class FollowingCard extends StatelessWidget {
   }
 
   Widget _buildNameRow(BuildContext context) {
-    final verificationIcon = _buildVerificationIcon(user);
-
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
@@ -199,10 +95,10 @@ class FollowingCard extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
         ),
-        if (verificationIcon != null)
+        if (user.isVerified)
           Padding(
             padding: const EdgeInsets.only(left: 4),
-            child: verificationIcon,
+            child: VerificationIcon(type: user.officialVerify?.type ?? 1),
           ),
       ],
     );
@@ -213,14 +109,14 @@ class FollowingCard extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         if (user.isMutual)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 2),
-            child: _buildMutualBadge(),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 2),
+            child: MutualFollowBadge(),
           ),
         if (user.isSpecial)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 2),
-            child: _buildSpecialBadge(),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 2),
+            child: SpecialAttentionBadge(),
           ),
       ],
     );
@@ -248,6 +144,8 @@ class FollowingCard extends StatelessWidget {
 }
 
 /// List tile version of following user card
+///
+/// Uses shared UserAvatar and badge widgets for consistent UI.
 class FollowingListTile extends StatelessWidget {
   const FollowingListTile({
     required this.user,
@@ -270,7 +168,10 @@ class FollowingListTile extends StatelessWidget {
       child: ListTile(
         onTap: onTap,
         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-        leading: _buildUserAvatar(user, size: 48),
+        leading: UserAvatar(
+          avatarUrl: user.face,
+          showVipBadge: user.vip?.isVip ?? false,
+        ),
         title: _buildTitleRow(),
         subtitle: Text(
           _getSignatureText(user),
@@ -290,8 +191,6 @@ class FollowingListTile extends StatelessWidget {
   }
 
   Widget _buildTitleRow() {
-    final verificationIcon = _buildVerificationIcon(user);
-
     return Row(
       children: [
         Flexible(
@@ -301,20 +200,20 @@ class FollowingListTile extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
         ),
-        if (verificationIcon != null)
+        if (user.isVerified)
           Padding(
             padding: const EdgeInsets.only(left: 4),
-            child: verificationIcon,
+            child: VerificationIcon(type: user.officialVerify?.type ?? 1),
           ),
         if (user.vip?.isVip ?? false)
-          Padding(
-            padding: const EdgeInsets.only(left: 4),
-            child: _buildVipBadge(),
+          const Padding(
+            padding: EdgeInsets.only(left: 4),
+            child: VipBadge(),
           ),
         if (user.isMutual)
-          Padding(
-            padding: const EdgeInsets.only(left: 4),
-            child: _buildMutualBadge(),
+          const Padding(
+            padding: EdgeInsets.only(left: 4),
+            child: MutualFollowBadge(),
           ),
       ],
     );

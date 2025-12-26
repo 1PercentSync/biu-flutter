@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Biu - Home Tabs Prototype</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --background: #000000;
+            --surface: #1c1c1e;
+            --card-bg: #2c2c2e;
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.6);
+            --text-tertiary: rgba(255, 255, 255, 0.35);
+            --accent: #fa2d5a;
+            --divider: rgba(255, 255, 255, 0.08);
+            --safe-area-top: 44px;
+            --safe-area-bottom: 34px;
+            --cover-radius: 4px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', 'PingFang SC', sans-serif;
+            background-color: #000;
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            padding: 20px;
+        }
+
+        /* ========== SETTINGS PANEL (Outside Phone) ========== */
+        .settings-panel {
+            width: 280px;
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 20px;
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .settings-panel h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .setting-group {
+            margin-bottom: 24px;
+        }
+
+        .setting-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .setting-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .setting-btn {
+            flex: 1;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: none;
+            background: var(--card-bg);
+            color: var(--text-secondary);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .setting-btn.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        .setting-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .slider {
+            flex: 1;
+            -webkit-appearance: none;
+            height: 4px;
+            border-radius: 2px;
+            background: var(--card-bg);
+            outline: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+        }
+
+        .slider-value {
+            font-size: 13px;
+            color: var(--text-primary);
+            min-width: 36px;
+            text-align: right;
+        }
+
+        .preview-box {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            margin-top: 12px;
+        }
+
+        /* ========== PHONE FRAME ========== */
+        .phone-frame {
+            width: 390px;
+            height: 844px;
+            background: var(--background);
+            border-radius: 47px;
+            border: 8px solid #333;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+            flex-shrink: 0;
+        }
+
+        .status-bar {
+            height: var(--safe-area-top);
+            background: var(--background);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 28px 0;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .main-container {
+            height: calc(100% - var(--safe-area-top) - var(--safe-area-bottom) - 140px);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header - Fixed Height */
+        .header {
+            padding: 8px 16px;
+            background: var(--background);
+            height: 48px;
+        }
+
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 100%;
+        }
+
+        /* Tab Bar - Larger Text */
+        .tab-bar {
+            display: flex;
+            gap: 20px;
+            align-items: flex-end;
+            height: 36px;
+        }
+
+        .tab-item {
+            font-size: 17px;
+            font-weight: 500;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            transition: color 0.2s ease, font-size 0.2s ease;
+            user-select: none;
+            line-height: 1;
+            padding-bottom: 2px;
+        }
+
+        .tab-item.active {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* Content Area */
+        .content-wrapper {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .swipe-container {
+            display: flex;
+            height: 100%;
+            transition: transform 0.35s cubic-bezier(0.25, 0.1, 0.25, 1);
+            width: 300%;
+        }
+
+        .tab-content {
+            width: 33.333%;
+            height: 100%;
+            overflow-y: auto;
+            padding: 8px 16px;
+        }
+
+        .tab-content::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* ========== CARD MODE - Compact ========== */
+        .song-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            align-items: start;
+        }
+
+        .song-card {
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .song-card:active {
+            transform: scale(0.98);
+        }
+
+        .song-cover {
+            width: 100%;
+            aspect-ratio: 1;
+            position: relative;
+            overflow: hidden;
+            border-radius: var(--cover-radius);
+        }
+
+        .play-count {
+            position: absolute;
+            bottom: 6px;
+            right: 6px;
+            font-size: 11px;
+            color: white;
+            background: rgba(0,0,0,0.6);
+            padding: 2px 6px;
+            border-radius: 4px;
+            backdrop-filter: blur(4px);
+        }
+
+        .song-info {
+            padding: 4px 0 0 0;
+            height: 36px;
+        }
+
+        .song-title {
+            font-size: 13px;
+            font-weight: 500;
+            line-height: 1.3;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .song-artist {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.3;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* ========== LIST MODE - Apple Music Style ========== */
+        .song-list {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .song-list-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 4px 0;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .song-list-item:active {
+            background: rgba(255, 255, 255, 0.05);
+            margin: 0 -16px;
+            padding: 4px 16px;
+        }
+
+        .song-list-item .cover {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--cover-radius);
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .song-list-item .content {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 0;
+            border-bottom: 0.5px solid var(--divider);
+        }
+
+        .song-list-item:last-child .content {
+            border-bottom: none;
+        }
+
+        .song-list-item .info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .song-list-item .title {
+            font-size: 15px;
+            font-weight: 400;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 1px;
+        }
+
+        .song-list-item .artist {
+            font-size: 13px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .song-list-item .more-btn {
+            width: 28px;
+            height: 28px;
+            border: none;
+            background: transparent;
+            color: #ffffff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            flex-shrink: 0;
+            letter-spacing: 1px;
+        }
+
+        /* ========== ARTIST CARD MODE ========== */
+        .artist-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            align-items: start;
+        }
+
+        .artist-card {
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .artist-card:active {
+            transform: scale(0.98);
+        }
+
+        .artist-avatar {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 50%;
+            margin-bottom: 6px;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .artist-name {
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .artist-fans {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            line-height: 1.2;
+        }
+
+        /* ========== ARTIST LIST MODE ========== */
+        .artist-list {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .artist-list-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 4px 0;
+            cursor: pointer;
+        }
+
+        .artist-list-item:active {
+            background: rgba(255, 255, 255, 0.05);
+            margin: 0 -16px;
+            padding: 4px 16px;
+        }
+
+        .artist-list-item .avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .artist-list-item .content {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 0;
+            border-bottom: 0.5px solid var(--divider);
+        }
+
+        .artist-list-item:last-child .content {
+            border-bottom: none;
+        }
+
+        .artist-list-item .info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .artist-list-item .name {
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 1px;
+        }
+
+        .artist-list-item .fans {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .artist-list-item .more-btn {
+            width: 28px;
+            height: 28px;
+            border: none;
+            background: transparent;
+            color: #ffffff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            flex-shrink: 0;
+            letter-spacing: 1px;
+        }
+
+        /* Mini Player */
+        .mini-player {
+            height: 64px;
+            background: #2c2c2e;
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            gap: 12px;
+        }
+
+        .mini-player-cover {
+            width: 48px;
+            height: 48px;
+            border-radius: 6px;
+            background: linear-gradient(135deg, var(--accent), #8b5cf6);
+            flex-shrink: 0;
+        }
+
+        .mini-player-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .mini-player-title {
+            font-size: 15px;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .mini-player-artist {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .mini-player-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .mini-player-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: none;
+            background: transparent;
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            height: 83px;
+            background: var(--surface);
+            border-top: 1px solid var(--divider);
+            display: flex;
+            padding-bottom: var(--safe-area-bottom);
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            cursor: pointer;
+            color: var(--text-tertiary);
+            transition: color 0.2s;
+        }
+
+        .nav-item.active {
+            color: var(--accent);
+        }
+
+        .nav-item svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .nav-item span {
+            font-size: 10px;
+            font-weight: 500;
+        }
+
+        .home-indicator {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 134px;
+            height: 5px;
+            background: white;
+            border-radius: 3px;
+            opacity: 0.3;
+        }
+    </style>
+</head>
+<body>
+    <!-- Settings Panel (Outside Phone) -->
+    <div class="settings-panel">
+        <h3>设置项预览</h3>
+
+        <div class="setting-group">
+            <div class="setting-label">显示模式 (displayMode)</div>
+            <div class="setting-row">
+                <button class="setting-btn active" id="gridBtn">卡片</button>
+                <button class="setting-btn" id="listBtn">列表</button>
+            </div>
+        </div>
+
+        <div class="setting-group">
+            <div class="setting-label">封面圆角 (coverRadius)</div>
+            <div class="slider-container">
+                <input type="range" class="slider" id="radiusSlider" min="0" max="24" value="4">
+                <span class="slider-value" id="radiusValue">4px</span>
+            </div>
+            <div class="preview-box" id="previewBox"></div>
+        </div>
+    </div>
+
+    <!-- Phone Frame -->
+    <div class="phone-frame">
+        <div class="status-bar">
+            <span class="time">9:41</span>
+            <div class="icons">
+                <svg width="17" height="12" fill="currentColor"><path d="M1 4.5A1.5 1.5 0 012.5 3h2A1.5 1.5 0 016 4.5v3A1.5 1.5 0 014.5 9h-2A1.5 1.5 0 011 7.5v-3zm5.5 0A1.5 1.5 0 018 3h2a1.5 1.5 0 011.5 1.5v3A1.5 1.5 0 0110 9H8a1.5 1.5 0 01-1.5-1.5v-3zm5.5 0A1.5 1.5 0 0113.5 3h2A1.5 1.5 0 0117 4.5v3a1.5 1.5 0 01-1.5 1.5h-2A1.5 1.5 0 0112 7.5v-3z"/></svg>
+                <svg width="15" height="12" fill="currentColor"><path d="M7.5 1.5c-3 0-5.5 2-6.5 4.5 1 2.5 3.5 4.5 6.5 4.5s5.5-2 6.5-4.5c-1-2.5-3.5-4.5-6.5-4.5z"/></svg>
+                <svg width="24" height="12" fill="currentColor"><rect x="0" y="2" width="22" height="8" rx="2" fill="none" stroke="currentColor"/><rect x="22" y="4" width="2" height="4" rx="1"/><rect x="2" y="4" width="18" height="4" rx="1" fill="#34c759"/></svg>
+            </div>
+        </div>
+
+        <div class="main-container">
+            <div class="header">
+                <div class="header-row">
+                    <div class="tab-bar" id="tabBar">
+                        <div class="tab-item active" data-tab="0">热歌精选</div>
+                        <div class="tab-item" data-tab="1">音乐大咖</div>
+                        <div class="tab-item" data-tab="2">音乐推荐</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-wrapper">
+                <div class="swipe-container" id="swipeContainer">
+                    <div class="tab-content" id="tab0"></div>
+                    <div class="tab-content" id="tab1"></div>
+                    <div class="tab-content" id="tab2"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mini-player">
+            <div class="mini-player-cover"></div>
+            <div class="mini-player-info">
+                <div class="mini-player-title">andata</div>
+                <div class="mini-player-artist">Ludovico Einaudi</div>
+            </div>
+            <div class="mini-player-controls">
+                <button class="mini-player-btn">▶</button>
+                <button class="mini-player-btn">⏭</button>
+            </div>
+        </div>
+
+        <div class="bottom-nav">
+            <div class="nav-item active">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                <span>首页</span>
+            </div>
+            <div class="nav-item">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                <span>搜索</span>
+            </div>
+            <div class="nav-item">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                <span>收藏</span>
+            </div>
+            <div class="nav-item">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
+                <span>历史</span>
+            </div>
+            <div class="nav-item">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                <span>我的</span>
+            </div>
+        </div>
+
+        <div class="home-indicator"></div>
+    </div>
+
+    <script>
+        const songs1 = [
+            { title: 'By The Whispers of Our Memo...', artist: 'Xeuphoria', color: '#ff6b6b, #ee5a24' },
+            { title: 'さようなら世界夫人よ', artist: 'Zuno Keisatsu', color: '#a29bfe, #6c5ce7' },
+            { title: 'La Marseillaise', artist: 'Rouget de Lisle', color: '#74b9ff, #0984e3' },
+            { title: 'Time', artist: 'Hans Zimmer', color: '#55efc4, #00b894' },
+            { title: 'Someone Like You', artist: 'Adele', color: '#fd79a8, #e84393' },
+            { title: 'Nova', artist: 'Ahrix', color: '#ffeaa7, #fdcb6e' },
+            { title: 'If Only', artist: 'JJ Lin', color: '#00cec9, #00b894' },
+            { title: 'Intro', artist: 'Dreamtale', color: '#fab1a0, #e17055' },
+            { title: 'Hello', artist: 'Adele', color: '#dfe6e9, #b2bec3' },
+            { title: 'Cornfield Chase', artist: 'Hans Zimmer', color: '#636e72, #2d3436' },
+        ];
+
+        const songs2 = [
+            { title: '错位时空', artist: '艾辰', color: '#00cec9, #00b894' },
+            { title: '半岛铁盒', artist: '周杰伦', color: '#fab1a0, #e17055' },
+            { title: '漠河舞厅', artist: '柳爽', color: '#81ecec, #00cec9' },
+            { title: '白月光与朱砂痣', artist: '大籽', color: '#dfe6e9, #b2bec3' },
+            { title: '可可托海的牧羊人', artist: '王琪', color: '#ff7675, #d63031' },
+            { title: '踏山河', artist: '是七叔呢', color: '#a29bfe, #6c5ce7' },
+        ];
+
+        const artists = [
+            { name: '周杰伦', fans: '1234.5万', color: '#6c5ce7, #a29bfe' },
+            { name: '林俊杰', fans: '987.2万', color: '#00b894, #55efc4' },
+            { name: '陈奕迅', fans: '856.3万', color: '#e17055, #fab1a0' },
+            { name: '薛之谦', fans: '745.8万', color: '#0984e3, #74b9ff' },
+            { name: '邓紫棋', fans: '698.1万', color: '#e84393, #fd79a8' },
+            { name: '毛不易', fans: '523.4万', color: '#fdcb6e, #ffeaa7' },
+        ];
+
+        let currentTab = 0;
+        let displayMode = 'grid';
+        let coverRadius = 4;
+
+        const tabItems = document.querySelectorAll('.tab-item');
+        const swipeContainer = document.getElementById('swipeContainer');
+        const gridBtn = document.getElementById('gridBtn');
+        const listBtn = document.getElementById('listBtn');
+        const radiusSlider = document.getElementById('radiusSlider');
+        const radiusValue = document.getElementById('radiusValue');
+        const previewBox = document.getElementById('previewBox');
+
+        function updateCoverRadius(value) {
+            coverRadius = value;
+            document.documentElement.style.setProperty('--cover-radius', value + 'px');
+            radiusValue.textContent = value + 'px';
+            previewBox.style.borderRadius = value + 'px';
+        }
+
+        function renderSongCard(song) {
+            return `
+                <div class="song-card">
+                    <div class="song-cover" style="background: linear-gradient(135deg, ${song.color});">
+                        <span class="play-count">12.3万</span>
+                    </div>
+                    <div class="song-info">
+                        <div class="song-title">${song.title}</div>
+                        <div class="song-artist">${song.artist}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderSongListItem(song) {
+            return `
+                <div class="song-list-item">
+                    <div class="cover" style="background: linear-gradient(135deg, ${song.color});"></div>
+                    <div class="content">
+                        <div class="info">
+                            <div class="title">${song.title}</div>
+                            <div class="artist">${song.artist}</div>
+                        </div>
+                        <button class="more-btn">•••</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderArtistCard(artist) {
+            return `
+                <div class="artist-card">
+                    <div class="artist-avatar" style="background: linear-gradient(135deg, ${artist.color});"></div>
+                    <div class="artist-name">${artist.name}</div>
+                    <div class="artist-fans">${artist.fans} 粉丝</div>
+                </div>
+            `;
+        }
+
+        function renderArtistListItem(artist) {
+            return `
+                <div class="artist-list-item">
+                    <div class="avatar" style="background: linear-gradient(135deg, ${artist.color});"></div>
+                    <div class="content">
+                        <div class="info">
+                            <div class="name">${artist.name}</div>
+                            <div class="fans">${artist.fans} 粉丝</div>
+                        </div>
+                        <button class="more-btn">•••</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderContent() {
+            const tab0 = document.getElementById('tab0');
+            const tab1 = document.getElementById('tab1');
+            const tab2 = document.getElementById('tab2');
+
+            if (displayMode === 'grid') {
+                // Tab 0: 热歌精选 (songs)
+                tab0.innerHTML = `<div class="song-grid">${songs1.map(renderSongCard).join('')}</div>`;
+                // Tab 1: 音乐大咖 (artists)
+                tab1.innerHTML = `<div class="artist-grid">${artists.map(renderArtistCard).join('')}</div>`;
+                // Tab 2: 音乐推荐 (songs)
+                tab2.innerHTML = `<div class="song-grid">${songs2.map(renderSongCard).join('')}</div>`;
+            } else {
+                tab0.innerHTML = `<div class="song-list">${songs1.map(renderSongListItem).join('')}</div>`;
+                tab1.innerHTML = `<div class="artist-list">${artists.map(renderArtistListItem).join('')}</div>`;
+                tab2.innerHTML = `<div class="song-list">${songs2.map(renderSongListItem).join('')}</div>`;
+            }
+        }
+
+        function switchTab(index) {
+            if (index === currentTab) return;
+            tabItems[currentTab].classList.remove('active');
+            tabItems[index].classList.add('active');
+            currentTab = index;
+            swipeContainer.style.transform = `translateX(-${index * 33.333}%)`;
+        }
+
+        function setDisplayMode(mode) {
+            displayMode = mode;
+            gridBtn.classList.toggle('active', mode === 'grid');
+            listBtn.classList.toggle('active', mode === 'list');
+            renderContent();
+        }
+
+        tabItems.forEach((tab, index) => {
+            tab.addEventListener('click', () => switchTab(index));
+        });
+
+        gridBtn.addEventListener('click', () => setDisplayMode('grid'));
+        listBtn.addEventListener('click', () => setDisplayMode('list'));
+
+        radiusSlider.addEventListener('input', (e) => {
+            updateCoverRadius(e.target.value);
+        });
+
+        let touchStartX = 0;
+        swipeContainer.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+        swipeContainer.addEventListener('touchend', (e) => {
+            const diff = touchStartX - e.changedTouches[0].screenX;
+            if (Math.abs(diff) > 50) {
+                if (diff > 0 && currentTab < 2) switchTab(currentTab + 1);
+                else if (diff < 0 && currentTab > 0) switchTab(currentTab - 1);
+            }
+        });
+
+        // Initialize
+        updateCoverRadius(4);
+        renderContent();
+    </script>
+</body>
+</html>

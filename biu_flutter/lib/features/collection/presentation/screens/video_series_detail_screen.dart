@@ -5,6 +5,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../../../core/constants/audio.dart';
 import '../../../../core/router/routes.dart';
+import '../../../../core/utils/number_utils.dart';
 import '../../../../shared/theme/theme.dart';
 import '../../../../shared/utils/global_snackbar.dart';
 import '../../../../shared/widgets/cached_image.dart';
@@ -572,7 +573,7 @@ class _MediaListItem extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
               child: Text(
-                _formatNumber(media.cntInfo.play),
+                NumberUtils.formatCompact(media.cntInfo.play),
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: AppColors.textSecondary,
                     ),
@@ -602,15 +603,6 @@ class _MediaListItem extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  String _formatNumber(int num) {
-    if (num >= 100000000) {
-      return '${(num / 100000000).toStringAsFixed(2)}亿';
-    } else if (num >= 10000) {
-      return '${(num / 10000).toStringAsFixed(2)}万';
-    }
-    return num.toString();
   }
 }
 
@@ -675,7 +667,7 @@ class _MediaCardItem extends StatelessWidget {
                           ),
                           const SizedBox(width: 2),
                           Text(
-                            _formatNumber(media.cntInfo.play),
+                            NumberUtils.formatCompact(media.cntInfo.play),
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 10,
@@ -750,14 +742,5 @@ class _MediaCardItem extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  String _formatNumber(int num) {
-    if (num >= 100000000) {
-      return '${(num / 100000000).toStringAsFixed(1)}亿';
-    } else if (num >= 10000) {
-      return '${(num / 10000).toStringAsFixed(1)}万';
-    }
-    return num.toString();
   }
 }

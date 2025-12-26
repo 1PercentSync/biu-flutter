@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/utils/number_utils.dart';
 import '../../../../shared/theme/theme.dart';
 import '../../../../shared/widgets/cached_image.dart';
 import '../../data/models/space_acc_info.dart';
@@ -246,7 +247,7 @@ class SpaceInfoHeader extends StatelessWidget {
     return Column(
       children: [
         Text(
-          _formatNumber(value),
+          NumberUtils.formatCompact(value),
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
@@ -298,14 +299,5 @@ class SpaceInfoHeader extends StatelessWidget {
       default:
         return Colors.grey;
     }
-  }
-
-  String _formatNumber(int num) {
-    if (num >= 100000000) {
-      return '${(num / 100000000).toStringAsFixed(1)}B';
-    } else if (num >= 10000) {
-      return '${(num / 10000).toStringAsFixed(1)}W';
-    }
-    return num.toString();
   }
 }

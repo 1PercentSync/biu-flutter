@@ -43,6 +43,8 @@ class VideoCard extends StatelessWidget {
     this.pubDate,
     this.isActive = false,
     this.highlightTitle = false,
+    this.aspectRatio = 16 / 9,
+    this.footer,
     this.onTap,
     this.onLongPress,
     this.onOwnerTap,
@@ -85,6 +87,16 @@ class VideoCard extends StatelessWidget {
   ///
   /// Source: biu/src/components/mv-card/index.tsx#isTitleIncludeHtmlTag
   final bool highlightTitle;
+
+  /// Cover image aspect ratio (default: 16/9 for video, use 1.0 for square audio covers)
+  ///
+  /// Source: biu/src/components/mv-card/index.tsx#coverHeight (converted to aspectRatio)
+  final double aspectRatio;
+
+  /// Optional custom footer widget (replaces default stats row)
+  ///
+  /// Source: biu/src/components/mv-card/index.tsx#footer
+  final Widget? footer;
 
   /// Callback when tapped
   final VoidCallback? onTap;
@@ -134,7 +146,7 @@ class VideoCard extends StatelessWidget {
 
   Widget _buildCoverSection(BuildContext context) {
     return AspectRatio(
-      aspectRatio: 16 / 9,
+      aspectRatio: aspectRatio,
       child: Stack(
         fit: StackFit.expand,
         children: [
@@ -262,8 +274,11 @@ class VideoCard extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 4),
-        // Stats row
-        _buildStatsRow(context),
+        // Stats row or custom footer
+        if (footer != null)
+          footer!
+        else
+          _buildStatsRow(context),
       ],
     );
   }

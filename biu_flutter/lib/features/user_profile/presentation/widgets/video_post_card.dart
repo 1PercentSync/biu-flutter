@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/utils/number_utils.dart';
 import '../../../../shared/theme/theme.dart';
 import '../../../../shared/widgets/cached_image.dart';
 import '../../../../shared/widgets/media_action_menu.dart';
@@ -219,7 +220,7 @@ class VideoPostListTile extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: Text(
-                  _formatNumber(video.play),
+                  NumberUtils.formatCompact(video.play),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: AppColors.textSecondary,
                       ),
@@ -239,14 +240,5 @@ class VideoPostListTile extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  String _formatNumber(int num) {
-    if (num >= 100000000) {
-      return '${(num / 100000000).toStringAsFixed(2)}亿';
-    } else if (num >= 10000) {
-      return '${(num / 10000).toStringAsFixed(2)}万';
-    }
-    return num.toString();
   }
 }

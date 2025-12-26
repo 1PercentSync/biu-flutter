@@ -14,8 +14,7 @@ import '../../../settings/presentation/providers/settings_notifier.dart';
 import '../../data/models/watch_later_item.dart';
 import '../providers/later_notifier.dart';
 import '../providers/later_state.dart';
-import '../widgets/later_item_card.dart';
-import '../widgets/later_item_list_tile.dart';
+import '../widgets/later_item.dart';
 
 const _uuid = Uuid();
 
@@ -162,8 +161,9 @@ class _LaterScreenState extends ConsumerState<LaterScreen> {
             }
 
             final item = state.items[index];
-            return LaterItemCard(
+            return LaterItem(
               item: item,
+              displayMode: DisplayMode.card,
               onTap: () => _playItem(item),
               onDelete: () => _confirmDelete(context, item),
             );
@@ -190,8 +190,9 @@ class _LaterScreenState extends ConsumerState<LaterScreen> {
             final item = state.items[index];
             return Padding(
               padding: const EdgeInsets.only(bottom: 4),
-              child: LaterItemListTile(
+              child: LaterItem(
                 item: item,
+                displayMode: DisplayMode.list,
                 onTap: () => _playItem(item),
                 onDelete: () => _confirmDelete(context, item),
               ),

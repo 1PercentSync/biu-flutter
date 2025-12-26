@@ -11,6 +11,7 @@ export 'error_state.dart';
 export 'folder_select_sheet.dart';
 export 'highlighted_text.dart';
 export 'loading_state.dart';
+export 'media_item.dart';
 export 'playbar/playbar.dart';
 export 'track_list_item.dart';
 export 'video_card.dart';

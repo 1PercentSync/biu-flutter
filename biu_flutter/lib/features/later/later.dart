@@ -10,4 +10,4 @@ export 'presentation/providers/later_state.dart';
 // Screens
 export 'presentation/screens/later_screen.dart';
 // Widgets
-export 'presentation/widgets/later_item_card.dart';
+export 'presentation/widgets/later_item.dart';

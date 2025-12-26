@@ -91,7 +91,7 @@ class MediaActionMenu extends ConsumerWidget {
 
     return IconButton(
       icon: Icon(
-        Icons.more_vert,
+        Icons.more_horiz,
         size: iconSize,
         color: iconColor ?? AppColors.textSecondary,
       ),

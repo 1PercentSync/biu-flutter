@@ -214,18 +214,19 @@
          * ============================================================
          */
         .header {
-            padding: var(--spacing-lg);
+            padding: 16px 16px 6px 16px; /* top/right/bottom/left - bottom reduced to align with glass-backdrop */
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
+            height: 66px; /* Must match glass-backdrop height (safe-area-top + 66px) */
             z-index: 10;
         }
         .tab-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex: 1;
+            height: 100%;
         }
         .tab-item {
             font-size: var(--tab-font-size);
@@ -234,6 +235,7 @@
             cursor: pointer;
             transition: color 0.2s;
             user-select: none;
+            line-height: 1;
         }
         .tab-item.active {
             color: var(--color-on-background);

@@ -139,7 +139,13 @@ class _AdaptiveTabHeader extends StatelessWidget {
     return SizedBox(
       height: AppTheme.tabHeaderHeight,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: AppTheme.padding),
+        // Match prototype: 16px top/horizontal, 6px bottom (aligned with glass-backdrop)
+        padding: const EdgeInsets.fromLTRB(
+          AppTheme.padding,
+          AppTheme.padding,
+          AppTheme.padding,
+          6,
+        ),
         child: LayoutBuilder(
           builder: (context, constraints) {
             final fontSize = _calculateOptimalFontSize(

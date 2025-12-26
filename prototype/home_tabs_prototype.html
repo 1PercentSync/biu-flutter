@@ -21,7 +21,7 @@
             --accent: #fa2d5a;
             --divider: rgba(255, 255, 255, 0.08);
             --safe-area-top: 44px;
-            --safe-area-bottom: 34px;
+            --safe-area-bottom: 20px;
             --cover-radius: 4px;
         }
 
@@ -142,31 +142,51 @@
             position: relative;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
             flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
         }
 
         .status-bar {
             height: var(--safe-area-top);
-            background: var(--background);
+            background: transparent;
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 14px 28px 0;
             font-size: 14px;
             font-weight: 600;
+            position: relative;
+            z-index: 11;
         }
 
         .main-container {
-            height: calc(100% - var(--safe-area-top) - var(--safe-area-bottom) - 140px);
+            flex: 1;
             overflow: hidden;
-            display: flex;
-            flex-direction: column;
+            position: relative;
         }
 
-        /* Header - Fixed Height */
+        /* Header - Positioned above content */
         .header {
-            padding: 8px 16px;
-            background: var(--background);
-            height: 48px;
+            padding: 16px 16px 16px 16px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+        }
+
+        /* Frosted glass backdrop covering status bar + header */
+        .glass-backdrop {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: calc(var(--safe-area-top) + 66px);
+            background: rgba(28, 28, 30, 0.88);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            z-index: 8;
+            pointer-events: none;
         }
 
         .header-row {
@@ -176,36 +196,37 @@
             height: 100%;
         }
 
-        /* Tab Bar - Larger Text */
+        /* Tab Bar */
         .tab-bar {
             display: flex;
-            gap: 20px;
-            align-items: flex-end;
-            height: 36px;
+            justify-content: space-between;
+            align-items: center;
+            flex: 1;
+            --tab-font-size: 28px;
         }
 
         .tab-item {
-            font-size: 17px;
-            font-weight: 500;
+            font-size: var(--tab-font-size);
+            font-weight: 600;
             color: var(--text-tertiary);
             cursor: pointer;
-            transition: color 0.2s ease, font-size 0.2s ease;
+            transition: color 0.2s ease;
             user-select: none;
-            line-height: 1;
-            padding-bottom: 2px;
+            white-space: nowrap;
         }
 
         .tab-item.active {
-            font-size: 24px;
-            font-weight: 700;
             color: var(--text-primary);
         }
 
         /* Content Area */
         .content-wrapper {
-            flex: 1;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             overflow: hidden;
-            position: relative;
         }
 
         .swipe-container {
@@ -219,7 +240,7 @@
             width: 33.333%;
             height: 100%;
             overflow-y: auto;
-            padding: 8px 16px;
+            padding: 86px 16px 140px 16px;
         }
 
         .tab-content::-webkit-scrollbar {
@@ -274,7 +295,6 @@
             line-height: 1.3;
             white-space: nowrap;
             overflow: hidden;
-            text-overflow: ellipsis;
         }
 
         .song-artist {
@@ -283,7 +303,6 @@
             line-height: 1.3;
             white-space: nowrap;
             overflow: hidden;
-            text-overflow: ellipsis;
         }
 
         /* ========== LIST MODE - Apple Music Style ========== */
@@ -296,7 +315,6 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            padding: 4px 0;
             cursor: pointer;
             transition: background 0.15s;
         }
@@ -304,12 +322,12 @@
         .song-list-item:active {
             background: rgba(255, 255, 255, 0.05);
             margin: 0 -16px;
-            padding: 4px 16px;
+            padding: 0 16px;
         }
 
         .song-list-item .cover {
-            width: 44px;
-            height: 44px;
+            width: 48px;
+            height: 48px;
             border-radius: var(--cover-radius);
             flex-shrink: 0;
             overflow: hidden;
@@ -321,7 +339,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            padding: 8px 0;
+            padding: 6px 0;
             border-bottom: 0.5px solid var(--divider);
         }
 
@@ -370,7 +388,7 @@
         /* ========== ARTIST CARD MODE ========== */
         .artist-grid {
             display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
+            grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 12px;
             align-items: start;
         }
@@ -395,9 +413,9 @@
         }
 
         .artist-name {
-            font-size: 13px;
+            font-size: 15px;
             font-weight: 600;
-            line-height: 1.2;
+            line-height: 1.3;
         }
 
         .artist-fans {
@@ -480,20 +498,42 @@
             letter-spacing: 1px;
         }
 
+        /* Bottom glass backdrop - iOS standard tab bar height */
+        .glass-backdrop-bottom {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: calc(49px + var(--safe-area-bottom));
+            background: rgba(28, 28, 30, 0.88);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            z-index: 8;
+            pointer-events: none;
+        }
+
         /* Mini Player */
         .mini-player {
-            height: 64px;
-            background: #2c2c2e;
+            position: absolute;
+            bottom: calc(49px + var(--safe-area-bottom) + 8px);
+            left: 8px;
+            right: 8px;
+            height: 48px;
+            background: rgba(50, 50, 55, 0.85);
+            backdrop-filter: saturate(180%) blur(30px);
+            -webkit-backdrop-filter: saturate(180%) blur(30px);
             display: flex;
             align-items: center;
-            padding: 0 12px;
-            gap: 12px;
+            padding: 0 8px;
+            gap: 10px;
+            border-radius: 14px;
+            z-index: 10;
         }
 
         .mini-player-cover {
-            width: 48px;
-            height: 48px;
-            border-radius: 6px;
+            width: 36px;
+            height: 36px;
+            border-radius: 5px;
             background: linear-gradient(135deg, var(--accent), #8b5cf6);
             flex-shrink: 0;
         }
@@ -504,26 +544,22 @@
         }
 
         .mini-player-title {
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 500;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
-        .mini-player-artist {
-            font-size: 13px;
-            color: var(--text-secondary);
-        }
-
         .mini-player-controls {
             display: flex;
-            gap: 8px;
+            gap: 4px;
+            align-items: center;
         }
 
         .mini-player-btn {
-            width: 44px;
-            height: 44px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             border: none;
             background: transparent;
@@ -532,16 +568,25 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
         }
 
-        /* Bottom Navigation */
+        .mini-player-btn svg {
+            width: 28px;
+            height: 28px;
+        }
+
+        /* Bottom Navigation - iOS standard: 49pt content + 34pt safe area */
         .bottom-nav {
-            height: 83px;
-            background: var(--surface);
-            border-top: 1px solid var(--divider);
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: calc(49px + var(--safe-area-bottom));
+            background: transparent;
             display: flex;
-            padding-bottom: var(--safe-area-bottom);
+            align-items: flex-start;
+            padding-top: 6px;
+            z-index: 10;
         }
 
         .nav-item {
@@ -549,8 +594,8 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            gap: 4px;
+            justify-content: flex-start;
+            gap: 1px;
             cursor: pointer;
             color: var(--text-tertiary);
             transition: color 0.2s;
@@ -561,8 +606,8 @@
         }
 
         .nav-item svg {
-            width: 24px;
-            height: 24px;
+            width: 28px;
+            height: 28px;
         }
 
         .nav-item span {
@@ -580,6 +625,7 @@
             background: white;
             border-radius: 3px;
             opacity: 0.3;
+            z-index: 20;
         }
     </style>
 </head>
@@ -608,6 +654,11 @@
 
     <!-- Phone Frame -->
     <div class="phone-frame">
+        <!-- Frosted glass backdrop (top) -->
+        <div class="glass-backdrop"></div>
+        <!-- Frosted glass backdrop (bottom) -->
+        <div class="glass-backdrop-bottom"></div>
+
         <div class="status-bar">
             <span class="time">9:41</span>
             <div class="icons">
@@ -641,33 +692,60 @@
             <div class="mini-player-cover"></div>
             <div class="mini-player-info">
                 <div class="mini-player-title">andata</div>
-                <div class="mini-player-artist">Ludovico Einaudi</div>
             </div>
             <div class="mini-player-controls">
-                <button class="mini-player-btn">▶</button>
-                <button class="mini-player-btn">⏭</button>
+                <button class="mini-player-btn">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
+                    </svg>
+                </button>
+                <button class="mini-player-btn">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M8 5v14l11-7z"/>
+                    </svg>
+                </button>
+                <button class="mini-player-btn">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/>
+                    </svg>
+                </button>
             </div>
         </div>
 
         <div class="bottom-nav">
             <div class="nav-item active">
-                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                <!-- house.fill -->
+                <svg viewBox="0 0 22 22" fill="currentColor">
+                    <path d="M11.38 1.25a.75.75 0 00-.76 0l-9 5.25a.75.75 0 00-.37.65v11.1c0 .97.78 1.75 1.75 1.75h4.25a.75.75 0 00.75-.75v-5.5a1 1 0 011-1h2.5a1 1 0 011 1v5.5c0 .41.34.75.75.75H17c.97 0 1.75-.78 1.75-1.75V7.15a.75.75 0 00-.37-.65l-9-5.25z"/>
+                </svg>
                 <span>首页</span>
             </div>
             <div class="nav-item">
-                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                <!-- magnifyingglass -->
+                <svg viewBox="0 0 22 22" fill="currentColor">
+                    <path fill-rule="evenodd" d="M9.5 2a7.5 7.5 0 015.65 12.44l4.7 4.7a.75.75 0 01-1.06 1.06l-4.7-4.7A7.5 7.5 0 119.5 2zm0 1.5a6 6 0 100 12 6 6 0 000-12z"/>
+                </svg>
                 <span>搜索</span>
             </div>
             <div class="nav-item">
-                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                <!-- heart.fill -->
+                <svg viewBox="0 0 22 22" fill="currentColor">
+                    <path d="M11 19.5l-.9-.8C5.4 14.4 2 11.4 2 7.5 2 4.4 4.4 2 7.5 2c1.7 0 3.4.8 4.5 2.1C13.1 2.8 14.8 2 16.5 2 19.6 2 22 4.4 22 7.5c0 3.9-3.4 6.9-8.1 11.2l-.9.8z"/>
+                </svg>
                 <span>收藏</span>
             </div>
             <div class="nav-item">
-                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
+                <!-- clock.fill -->
+                <svg viewBox="0 0 22 22" fill="currentColor">
+                    <path fill-rule="evenodd" d="M11 20a9 9 0 100-18 9 9 0 000 18zm.75-13a.75.75 0 00-1.5 0v4.5c0 .28.16.53.4.66l3 1.75a.75.75 0 10.76-1.3l-2.66-1.54V7z"/>
+                </svg>
                 <span>历史</span>
             </div>
             <div class="nav-item">
-                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                <!-- person.fill -->
+                <svg viewBox="0 0 22 22" fill="currentColor">
+                    <path d="M11 11a4 4 0 100-8 4 4 0 000 8zm0 2c-4 0-8 2-8 5v1.5c0 .28.22.5.5.5h15c.28 0 .5-.22.5-.5V18c0-3-4-5-8-5z"/>
+                </svg>
                 <span>我的</span>
             </div>
         </div>
@@ -760,7 +838,6 @@
                 <div class="artist-card">
                     <div class="artist-avatar" style="background: linear-gradient(135deg, ${artist.color});"></div>
                     <div class="artist-name">${artist.name}</div>
-                    <div class="artist-fans">${artist.fans} 粉丝</div>
                 </div>
             `;
         }
@@ -785,18 +862,50 @@
             const tab1 = document.getElementById('tab1');
             const tab2 = document.getElementById('tab2');
 
+            // Tab 1: 音乐大咖 (artists) - always card mode
+            tab1.innerHTML = `<div class="artist-grid">${artists.map(renderArtistCard).join('')}</div>`;
+
             if (displayMode === 'grid') {
                 // Tab 0: 热歌精选 (songs)
                 tab0.innerHTML = `<div class="song-grid">${songs1.map(renderSongCard).join('')}</div>`;
-                // Tab 1: 音乐大咖 (artists)
-                tab1.innerHTML = `<div class="artist-grid">${artists.map(renderArtistCard).join('')}</div>`;
                 // Tab 2: 音乐推荐 (songs)
                 tab2.innerHTML = `<div class="song-grid">${songs2.map(renderSongCard).join('')}</div>`;
+                // Apply text truncation with bottom-aligned ellipsis
+                requestAnimationFrame(applyTextTruncation);
             } else {
                 tab0.innerHTML = `<div class="song-list">${songs1.map(renderSongListItem).join('')}</div>`;
-                tab1.innerHTML = `<div class="artist-list">${artists.map(renderArtistListItem).join('')}</div>`;
                 tab2.innerHTML = `<div class="song-list">${songs2.map(renderSongListItem).join('')}</div>`;
             }
+        }
+
+        function applyTextTruncation() {
+            const elements = document.querySelectorAll('.song-title, .song-artist');
+            elements.forEach(el => {
+                // Store original text if not already stored
+                if (!el.dataset.originalText) {
+                    el.dataset.originalText = el.textContent;
+                }
+                // Reset to original text
+                el.textContent = el.dataset.originalText;
+
+                // Check if text overflows
+                if (el.scrollWidth > el.clientWidth) {
+                    const text = el.dataset.originalText;
+                    let truncated = text;
+                    // Binary search for the right length
+                    let low = 0, high = text.length;
+                    while (low < high) {
+                        const mid = Math.ceil((low + high) / 2);
+                        el.textContent = text.substring(0, mid) + '...';
+                        if (el.scrollWidth <= el.clientWidth) {
+                            low = mid;
+                        } else {
+                            high = mid - 1;
+                        }
+                    }
+                    el.textContent = text.substring(0, low) + '...';
+                }
+            });
         }
 
         function switchTab(index) {
@@ -837,9 +946,55 @@
             }
         });
 
+        // Tab font size adjustment
+        const MIN_TAB_GAP = 10; // Minimum gap between tabs in pixels
+        const MAX_TAB_FONT_SIZE = 28;
+        const MIN_TAB_FONT_SIZE = 16;
+        const tabBar = document.getElementById('tabBar');
+
+        function adjustTabFontSize() {
+            const containerWidth = tabBar.parentElement.clientWidth;
+            let fontSize = MAX_TAB_FONT_SIZE;
+
+            // Binary search for optimal font size
+            let low = MIN_TAB_FONT_SIZE;
+            let high = MAX_TAB_FONT_SIZE;
+
+            while (low <= high) {
+                const mid = Math.floor((low + high) / 2);
+                tabBar.style.setProperty('--tab-font-size', mid + 'px');
+
+                // Calculate total width needed
+                let totalTabWidth = 0;
+                tabItems.forEach(tab => {
+                    totalTabWidth += tab.offsetWidth;
+                });
+                const totalGapWidth = MIN_TAB_GAP * (tabItems.length - 1);
+                const totalNeeded = totalTabWidth + totalGapWidth;
+
+                if (totalNeeded <= containerWidth) {
+                    fontSize = mid;
+                    low = mid + 1;
+                } else {
+                    high = mid - 1;
+                }
+            }
+
+            tabBar.style.setProperty('--tab-font-size', fontSize + 'px');
+        }
+
         // Initialize
         updateCoverRadius(4);
         renderContent();
+        adjustTabFontSize();
+
+        // Reapply on resize
+        window.addEventListener('resize', () => {
+            adjustTabFontSize();
+            if (displayMode === 'grid') {
+                requestAnimationFrame(applyTextTruncation);
+            }
+        });
     </script>
 </body>
 </html>

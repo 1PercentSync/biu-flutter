@@ -1,3 +1,5 @@
+import 'dart:developer' as developer;
+
 import 'package:dio/dio.dart';
 
 import '../../../../core/network/dio_client.dart';
@@ -153,38 +155,39 @@ class SearchRemoteDataSource {
       return [];
     }
 
+    developer.log('Calling search suggest API for: $keyword', name: 'SearchDataSource');
+
+    // Source: biu/src/layout/navbar/search/index.tsx:38
+    // Only term and userid are passed in source project
     final response = await _searchDio.get<Map<String, dynamic>>(
       '/main/suggest',
       queryParameters: {
         'term': keyword,
-        'main_ver': 'v1',
-        'highlight': '',
-        'func': 'suggest',
-        'suggest_type': 'accurate',
-        'sub_type': 'tag',
         if (userId != null) 'userid': userId,
-        'bangumi_acc_num': 1,
-        'special_acc_num': 1,
-        'topic_acc_num': 1,
-        'upuser_acc_num': 1,
-        'tag_num': 10,
-        'special_num': 10,
-        'bangumi_num': 10,
-        'upuser_num': 3,
       },
     );
 
+    developer.log('Response: ${response.data}', name: 'SearchDataSource');
+
     final data = response.data;
     if (data == null) {
+      developer.log('Response data is null', name: 'SearchDataSource');
       return [];
     }
 
     final result = data['result'] as Map<String, dynamic>?;
-    if (result == null) return [];
+    if (result == null) {
+      developer.log('result field is null, keys: ${data.keys}', name: 'SearchDataSource');
+      return [];
+    }
 
     final tag = result['tag'] as List<dynamic>?;
-    if (tag == null) return [];
+    if (tag == null) {
+      developer.log('tag field is null, result keys: ${result.keys}', name: 'SearchDataSource');
+      return [];
+    }
 
+    developer.log('Found ${tag.length} suggestions', name: 'SearchDataSource');
     return tag
         .map((e) => SearchSuggestItem.fromJson(e as Map<String, dynamic>))
         .toList();

@@ -72,10 +72,10 @@ class DioClient {
     );
 
     // Create search Dio instance for s.search.bilibili.com
-    _searchDio = _createDio(
-      baseUrl: 'https://s.search.bilibili.com',
-      withAuth: true,
-    );
+    // Source: biu/src/service/request/index.ts#searchRequest
+    // Note: searchRequest in source project only uses simple response handler (res => res.data)
+    // without code validation, unlike apiRequest
+    _searchDio = _createSearchDio();
 
     // Create bili Dio instance for www.bilibili.com
     // Source: biu/src/service/request/index.ts#biliRequest
@@ -119,6 +119,45 @@ class DioClient {
     // Add Gaia VGate interceptor for risk control handling
     // Source: biu/src/service/request/response-interceptors.ts#geetestInterceptors
     dio.interceptors.add(GaiaVgateInterceptor());
+
+    // Add logging interceptor in debug mode
+    assert(() {
+      dio.interceptors.add(LoggingInterceptor());
+      return true;
+    }());
+
+    return dio;
+  }
+
+  /// Create search Dio instance without BiliResponseInterceptor.
+  ///
+  /// Source: biu/src/service/request/index.ts#searchRequest
+  /// The search API (s.search.bilibili.com) uses a simpler response format
+  /// and doesn't require the same code validation as the main API.
+  Dio _createSearchDio() {
+    final dio = Dio(
+      BaseOptions(
+        baseUrl: 'https://s.search.bilibili.com',
+        connectTimeout: const Duration(milliseconds: ApiConstants.defaultTimeout),
+        receiveTimeout: const Duration(milliseconds: ApiConstants.defaultTimeout),
+        sendTimeout: const Duration(milliseconds: ApiConstants.defaultTimeout),
+        headers: {
+          'User-Agent': ApiConstants.webUserAgent,
+          'Referer': 'https://www.bilibili.com/',
+          'Origin': 'https://www.bilibili.com',
+        },
+      ),
+    );
+
+    // Add cookie manager
+    dio.interceptors.add(CookieManager(_cookieJar));
+
+    // Add auth interceptor
+    dio.interceptors.add(AuthInterceptor(cookieJar: _cookieJar));
+
+    // Note: NO BiliResponseInterceptor - search API uses simple response format
+    // Source: biu/src/service/request/index.ts:42
+    // searchRequest.interceptors.response.use(res => res.data);
 
     // Add logging interceptor in debug mode
     assert(() {

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer' as developer;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -72,11 +73,13 @@ class SearchSuggestionsNotifier extends StateNotifier<SearchSuggestionsState> {
     }
 
     state = state.copyWith(isLoading: true);
+    developer.log('Fetching suggestions for: $query', name: 'SearchSuggestions');
 
     try {
       final suggestions = await _dataSource.getSearchSuggestions(
         keyword: query,
       );
+      developer.log('Got ${suggestions.length} suggestions', name: 'SearchSuggestions');
       // Only update if query hasn't changed
       if (state.query == query) {
         state = state.copyWith(
@@ -84,7 +87,8 @@ class SearchSuggestionsNotifier extends StateNotifier<SearchSuggestionsState> {
           isLoading: false,
         );
       }
-    } catch (e) {
+    } catch (e, stack) {
+      developer.log('Error fetching suggestions: $e', name: 'SearchSuggestions', error: e, stackTrace: stack);
       // Silently fail - suggestions are not critical
       if (state.query == query) {
         state = state.copyWith(

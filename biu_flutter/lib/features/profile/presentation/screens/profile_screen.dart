@@ -29,7 +29,7 @@ class ProfileScreen extends ConsumerWidget {
             title: const Text('我的'),
             actions: [
               IconButton(
-                icon: const Icon(CupertinoIcons.settings),
+                icon: const Icon(CupertinoIcons.gear_alt_fill),
                 onPressed: () => context.push(AppRoutes.settings),
               ),
             ],

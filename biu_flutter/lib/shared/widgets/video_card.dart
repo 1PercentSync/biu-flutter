@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../core/extensions/duration_extensions.dart';
-import '../../core/utils/number_utils.dart';
 import '../theme/theme.dart';
 import 'cached_image.dart';
 import 'highlighted_text.dart';
@@ -21,14 +19,17 @@ class VideoCardAction {
   final VoidCallback onTap;
 }
 
-/// A card widget for displaying video content.
+/// A card widget for displaying video/song content (iOS-style).
 ///
-/// Shows cover image, title, author, view count, duration, etc.
-/// Mobile-adapted version with additional stats (danmaku count) and popup menu actions.
-/// Supports highlighted titles (for search results) and clickable owner names.
+/// Shows cover image, title, and author in a minimal design.
+/// - No background container
+/// - 1:1 cover with configurable border radius
+/// - Title: 13px, weight 500
+/// - Author: 12px, 60% opacity
+/// - Action widget aligned right
 ///
+/// Source: prototype/home_tabs_prototype.html (song-card)
 /// Source: biu/src/components/mv-card/index.tsx#MVCard
-/// Source: biu/src/components/image-card/index.tsx#ImageCard
 class VideoCard extends StatelessWidget {
   const VideoCard({
     required this.title,
@@ -62,8 +63,6 @@ class VideoCard extends StatelessWidget {
   final String? ownerName;
 
   /// Owner/author mid (user ID) for navigation
-  ///
-  /// Source: biu/src/components/mv-card/index.tsx (via MVAction ownerMid)
   final int? ownerMid;
 
   /// Owner avatar URL
@@ -85,18 +84,12 @@ class VideoCard extends StatelessWidget {
   final bool isActive;
 
   /// Whether title contains HTML highlight tags (from search results)
-  ///
-  /// Source: biu/src/components/mv-card/index.tsx#isTitleIncludeHtmlTag
   final bool highlightTitle;
 
   /// Cover image aspect ratio (default: 16/9 for video, use 1.0 for square audio covers)
-  ///
-  /// Source: biu/src/components/mv-card/index.tsx#coverHeight (converted to aspectRatio)
   final double aspectRatio;
 
   /// Optional custom footer widget (replaces default stats row)
-  ///
-  /// Source: biu/src/components/mv-card/index.tsx#footer
   final Widget? footer;
 
   /// Callback when tapped
@@ -112,280 +105,88 @@ class VideoCard extends StatelessWidget {
   final List<VideoCardAction>? actions;
 
   /// Action widget displayed next to title (e.g., MediaActionMenu)
-  ///
-  /// Alternative to [actions] which shows popup menu on cover.
-  /// Source: biu/src/components/mv-card/index.tsx#titleExtra
   final Widget? actionWidget;
 
   @override
   Widget build(BuildContext context) {
-    // Use Stack to place actionWidget outside of InkWell's gesture area
-    // This completely avoids gesture competition between card tap and action button
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final cardWidth = constraints.maxWidth;
-        final coverHeight = cardWidth / aspectRatio;
-
-        return Stack(
-          clipBehavior: Clip.none,
-          children: [
-            // Main card with InkWell - excludes actionWidget from gesture area
-            Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: onTap,
-                onLongPress: onLongPress,
-                borderRadius: BorderRadius.circular(AppTheme.borderRadius),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: AppColors.contentBackground,
-                    borderRadius: BorderRadius.circular(AppTheme.borderRadius),
-                    border: isActive
-                        ? Border.all(color: AppColors.primary, width: 2)
-                        : null,
-                  ),
-                  clipBehavior: Clip.antiAlias,
+    return GestureDetector(
+      onTap: onTap,
+      onLongPress: onLongPress,
+      behavior: HitTestBehavior.opaque,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Cover image
+          AspectRatio(
+            aspectRatio: aspectRatio,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
+              child: AppCachedImage(
+                imageUrl: coverUrl,
+                fileType: FileType.video,
+              ),
+            ),
+          ),
+          // Info section - minimal padding
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Text content
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Cover image with duration overlay
-                      _buildCoverSection(context),
-                      // Info section - use Expanded to prevent overflow
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.all(10),
-                          child: _buildInfoSection(context, showAction: false),
+                      // Title - 13px, weight 500
+                      if (highlightTitle)
+                        HighlightedText(
+                          text: title,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white,
+                            height: 1.3,
+                          ),
+                          maxLines: 1,
+                        )
+                      else
+                        Text(
+                          title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white,
+                            height: 1.3,
+                          ),
                         ),
-                      ),
+                      // Owner - 12px, 60% opacity
+                      if (ownerName != null)
+                        GestureDetector(
+                          onTap: onOwnerTap,
+                          child: Text(
+                            ownerName!,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.white.withOpacity(0.6),
+                              height: 1.3,
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                 ),
-              ),
+                // Action widget
+                if (actionWidget != null) actionWidget!,
+              ],
             ),
-            // Action widget positioned outside InkWell to avoid gesture conflict
-            // Source: biu/src/components/image-card/index.tsx titleExtra
-            if (actionWidget != null)
-              Positioned(
-                right: 4,
-                top: coverHeight + 6,
-                child: actionWidget!,
-              ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _buildCoverSection(BuildContext context) {
-    return AspectRatio(
-      aspectRatio: aspectRatio,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          // Cover image
-          AppCachedImage(
-            imageUrl: coverUrl,
-            fileType: FileType.video,
           ),
-          // Duration badge
-          if (duration != null)
-            Positioned(
-              right: 8,
-              bottom: 8,
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 6,
-                  vertical: 2,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.7),
-                  borderRadius:
-                      BorderRadius.circular(AppTheme.borderRadiusSmall),
-                ),
-                child: Text(
-                  Duration(seconds: duration!).formatted,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 11,
-                    fontFeatures: [FontFeature.tabularFigures()],
-                  ),
-                ),
-              ),
-            ),
-          // Actions menu button
-          if (actions != null && actions!.isNotEmpty)
-            Positioned(
-              right: 4,
-              top: 4,
-              child: _buildActionsButton(context),
-            ),
         ],
       ),
     );
   }
-
-  Widget _buildActionsButton(BuildContext context) {
-    return PopupMenuButton<VideoCardAction>(
-      icon: Container(
-        padding: const EdgeInsets.all(4),
-        decoration: BoxDecoration(
-          color: Colors.black.withValues(alpha: 0.5),
-          borderRadius: BorderRadius.circular(4),
-        ),
-        child: const Icon(
-          Icons.more_vert,
-          color: Colors.white,
-          size: 18,
-        ),
-      ),
-      padding: EdgeInsets.zero,
-      iconSize: 26,
-      position: PopupMenuPosition.under,
-      onSelected: (action) => action.onTap(),
-      itemBuilder: (context) => actions!
-          .map(
-            (action) => PopupMenuItem<VideoCardAction>(
-              value: action,
-              child: Row(
-                children: [
-                  Icon(action.icon, size: 20),
-                  const SizedBox(width: 12),
-                  Text(action.label),
-                ],
-              ),
-            ),
-          )
-          .toList(),
-    );
-  }
-
-  Widget _buildInfoSection(BuildContext context, {bool showAction = true}) {
-    final titleStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
-          fontWeight: FontWeight.w500,
-          height: 1.3,
-        );
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // Title row with optional action widget
-        // Source: biu/src/components/mv-card/index.tsx#titleExtra
-        Flexible(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: highlightTitle
-                    ? HighlightedText(
-                        text: title,
-                        style: titleStyle,
-                        maxLines: 2,
-                      )
-                    : Text(
-                        title,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: titleStyle,
-                      ),
-              ),
-              // Reserve space for action widget when it's rendered in Stack overlay
-              if (actionWidget != null && showAction) actionWidget!,
-              if (actionWidget != null && !showAction) const SizedBox(width: 28),
-            ],
-          ),
-        ),
-        const SizedBox(height: 6),
-        // Owner and stats
-        Row(
-          children: [
-            // Owner avatar (optional)
-            if (ownerAvatar != null) ...[
-              ClipOval(
-                child: AppCachedImage(
-                  imageUrl: ownerAvatar,
-                  width: 18,
-                  height: 18,
-                ),
-              ),
-              const SizedBox(width: 4),
-            ],
-            // Owner name - clickable when onOwnerTap is provided
-            if (ownerName != null)
-              Expanded(
-                child: _buildOwnerName(context),
-              ),
-          ],
-        ),
-        const SizedBox(height: 4),
-        // Stats row or custom footer
-        if (footer != null)
-          footer!
-        else
-          _buildStatsRow(context),
-      ],
-    );
-  }
-
-  Widget _buildOwnerName(BuildContext context) {
-    final ownerWidget = Text(
-      ownerName!,
-      maxLines: 1,
-      overflow: TextOverflow.ellipsis,
-      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: AppColors.textSecondary,
-            decoration: onOwnerTap != null ? TextDecoration.underline : null,
-            decorationColor: AppColors.textSecondary.withValues(alpha: 0.5),
-          ),
-    );
-
-    if (onOwnerTap != null) {
-      return GestureDetector(
-        onTap: onOwnerTap,
-        behavior: HitTestBehavior.opaque,
-        child: ownerWidget,
-      );
-    }
-
-    return ownerWidget;
-  }
-
-  Widget _buildStatsRow(BuildContext context) {
-    final statStyle = Theme.of(context).textTheme.labelSmall?.copyWith(
-          color: AppColors.textTertiary,
-        );
-
-    return Row(
-      children: [
-        // View count
-        if (viewCount != null) ...[
-          const Icon(
-            Icons.play_arrow,
-            size: 12,
-            color: AppColors.textTertiary,
-          ),
-          const SizedBox(width: 2),
-          Text(
-            NumberUtils.formatCompact(viewCount),
-            style: statStyle,
-          ),
-          const SizedBox(width: 12),
-        ],
-        // Danmaku count
-        if (danmakuCount != null) ...[
-          const Icon(
-            Icons.comment,
-            size: 12,
-            color: AppColors.textTertiary,
-          ),
-          const SizedBox(width: 2),
-          Text(
-            NumberUtils.formatCompact(danmakuCount),
-            style: statStyle,
-          ),
-        ],
-      ],
-    );
-  }
-
 }

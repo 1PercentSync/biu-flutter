@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 
-import '../../core/extensions/duration_extensions.dart';
-import '../../core/utils/number_utils.dart';
 import '../theme/theme.dart';
 import 'cached_image.dart';
 import 'highlighted_text.dart';
 
-/// A list item widget for displaying music/audio tracks.
+/// A list item widget for displaying music/audio tracks (iOS-style).
 ///
-/// Shows cover image, title, artist name, duration, and optional actions.
-/// Supports highlighted titles (for search results) and clickable artist names.
+/// Shows cover image, title, and artist in a minimal design.
+/// - 48x48 cover
+/// - Gap 10px
+/// - Title: 15px
+/// - Artist: 13px, 60% opacity
+/// - Bottom divider (0.5px, 8% opacity)
 ///
+/// Source: prototype/home_tabs_prototype.html (song-list-item)
 /// Source: biu/src/components/music-list-item/index.tsx#MusicListItem
 class TrackListItem extends StatelessWidget {
   const TrackListItem({
@@ -24,6 +27,7 @@ class TrackListItem extends StatelessWidget {
     this.isActive = false,
     this.isPlaying = false,
     this.highlightTitle = false,
+    this.showDivider = true,
     this.onTap,
     this.onDoubleTap,
     this.onMorePressed,
@@ -41,8 +45,6 @@ class TrackListItem extends StatelessWidget {
   final String? artistName;
 
   /// Artist/owner mid (user ID) for navigation
-  ///
-  /// Source: biu/src/components/music-list-item/index.tsx#ownerMid
   final int? artistMid;
 
   /// Track duration in seconds
@@ -58,9 +60,10 @@ class TrackListItem extends StatelessWidget {
   final bool isPlaying;
 
   /// Whether title contains HTML highlight tags (from search results)
-  ///
-  /// Source: biu/src/components/music-list-item/index.tsx#isTitleIncludeHtmlTag
   final bool highlightTitle;
+
+  /// Show bottom divider
+  final bool showDivider;
 
   /// Callback when tapped
   final VoidCallback? onTap;
@@ -69,216 +72,100 @@ class TrackListItem extends StatelessWidget {
   final VoidCallback? onDoubleTap;
 
   /// Callback when more button is pressed
-  ///
-  /// Creates a default more button (three dots icon) that triggers this callback.
-  /// Ignored if [trailingAction] is provided.
-  ///
-  /// For simple use cases where only a callback is needed.
   final VoidCallback? onMorePressed;
 
   /// Custom trailing action widget (e.g., MediaActionMenu)
-  ///
-  /// When provided, this widget is rendered as the trailing action,
-  /// replacing the default more button created by [onMorePressed].
-  ///
-  /// This is the preferred approach for complex action widgets.
-  /// Source: biu/src/components/music-list-item/index.tsx directly renders
-  /// `<MVAction />` as a child component, which corresponds to this pattern.
   final Widget? trailingAction;
 
   /// Callback when artist name is tapped
-  ///
-  /// If not provided but [artistMid] is set, tapping artist name has no effect.
-  /// Typically used to navigate to user profile.
   final VoidCallback? onArtistTap;
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: isActive
-          ? AppColors.primary.withValues(alpha: 0.1)
-          : Colors.transparent,
-      borderRadius: BorderRadius.circular(AppTheme.borderRadius),
-      child: InkWell(
-        onTap: onTap,
-        onDoubleTap: onDoubleTap,
-        borderRadius: BorderRadius.circular(AppTheme.borderRadius),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 12,
-            vertical: 8,
+    return GestureDetector(
+      onTap: onTap,
+      onDoubleTap: onDoubleTap,
+      behavior: HitTestBehavior.opaque,
+      child: Row(
+        children: [
+          // Cover image (48x48)
+          ClipRRect(
+            borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
+            child: AppCachedImage(
+              imageUrl: coverUrl,
+              width: 48,
+              height: 48,
+            ),
           ),
-          child: Row(
-            children: [
-              // Cover image
-              _buildCoverImage(),
-              const SizedBox(width: 12),
-              // Track info
-              Expanded(
-                child: _buildTrackInfo(context),
+          const SizedBox(width: 10),
+          // Content with divider
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 6),
+              decoration: showDivider
+                  ? BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(
+                          color: Colors.white.withOpacity(0.08),
+                          width: 0.5,
+                        ),
+                      ),
+                    )
+                  : null,
+              child: Row(
+                children: [
+                  // Text info
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Title - 15px
+                        if (highlightTitle)
+                          HighlightedText(
+                            text: title,
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: isActive ? AppColors.primary : Colors.white,
+                            ),
+                            maxLines: 1,
+                          )
+                        else
+                          Text(
+                            title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: isActive ? AppColors.primary : Colors.white,
+                            ),
+                          ),
+                        const SizedBox(height: 1),
+                        // Artist - 13px, 60% opacity
+                        if (artistName != null)
+                          GestureDetector(
+                            onTap: onArtistTap,
+                            child: Text(
+                              artistName!,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.white.withOpacity(0.6),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                  // Trailing action
+                  if (trailingAction != null) trailingAction!,
+                ],
               ),
-              // Duration and more button
-              _buildTrailingSection(context),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
-    );
-  }
-
-  Widget _buildCoverImage() {
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        AppCachedImage(
-          imageUrl: coverUrl,
-          width: 48,
-          height: 48,
-          borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
-        ),
-        // Playing indicator overlay
-        if (isActive && !isPlaying)
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.4),
-              borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
-            ),
-            child: const Icon(
-              Icons.pause,
-              color: Colors.white,
-              size: 20,
-            ),
-          ),
-        if (isPlaying)
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.4),
-              borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
-            ),
-            child: const Icon(
-              Icons.graphic_eq,
-              color: AppColors.primary,
-              size: 20,
-            ),
-          ),
-      ],
-    );
-  }
-
-  Widget _buildTrackInfo(BuildContext context) {
-    final titleStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
-          color: isActive ? AppColors.primary : AppColors.textPrimary,
-          fontWeight: isActive ? FontWeight.w500 : FontWeight.normal,
-        );
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // Title - supports HTML highlight tags from search results
-        // Source: biu/src/components/music-list-item/index.tsx#isTitleIncludeHtmlTag
-        if (highlightTitle)
-          HighlightedText(
-            text: title,
-            style: titleStyle,
-            highlightStyle: titleStyle?.copyWith(
-              color: AppColors.primary,
-              fontWeight: FontWeight.w600,
-            ),
-            maxLines: 1,
-          )
-        else
-          Text(
-            title,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: titleStyle,
-          ),
-        if (artistName != null) ...[
-          const SizedBox(height: 4),
-          // Artist name - clickable when onArtistTap is provided
-          // Source: biu/src/components/music-list-item/index.tsx#ownerMid
-          _buildArtistName(context),
-        ],
-      ],
-    );
-  }
-
-  Widget _buildArtistName(BuildContext context) {
-    final artistWidget = Text(
-      artistName ?? '未知',
-      maxLines: 1,
-      overflow: TextOverflow.ellipsis,
-      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: AppColors.textSecondary,
-            // Show underline hint when tappable
-            decoration: onArtistTap != null ? TextDecoration.underline : null,
-            decorationColor: AppColors.textSecondary.withValues(alpha: 0.5),
-          ),
-    );
-
-    if (onArtistTap != null) {
-      return GestureDetector(
-        onTap: onArtistTap,
-        behavior: HitTestBehavior.opaque,
-        child: artistWidget,
-      );
-    }
-
-    return artistWidget;
-  }
-
-  Widget _buildTrailingSection(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // Play count
-        // Source: biu/src/common/utils/number.ts#formatNumber
-        if (playCount != null && playCount! > 0) ...[
-          Text(
-            NumberUtils.formatCompact(playCount),
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppColors.textTertiary,
-                ),
-          ),
-          const SizedBox(width: 16),
-        ],
-        // Duration
-        if (duration != null) ...[
-          Text(
-            Duration(seconds: duration!).formatted,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppColors.textTertiary,
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                ),
-          ),
-        ],
-        // Trailing action widget or more button
-        if (trailingAction != null) ...[
-          const SizedBox(width: 8),
-          trailingAction!,
-        ] else if (onMorePressed != null) ...[
-          const SizedBox(width: 8),
-          IconButton(
-            onPressed: onMorePressed,
-            icon: const Icon(
-              Icons.more_vert,
-              size: 20,
-              color: AppColors.textTertiary,
-            ),
-            visualDensity: VisualDensity.compact,
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(
-              minWidth: 32,
-              minHeight: 32,
-            ),
-          ),
-        ],
-      ],
     );
   }
 }

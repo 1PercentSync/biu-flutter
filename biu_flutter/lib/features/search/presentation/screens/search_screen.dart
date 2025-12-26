@@ -4,11 +4,13 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/audio.dart';
 import '../../../../core/router/routes.dart';
+import '../../../../core/utils/number_utils.dart';
 import '../../../../shared/theme/theme.dart';
+import '../../../../shared/widgets/cached_image.dart';
 import '../../../../shared/widgets/empty_state.dart';
+import '../../../../shared/widgets/highlighted_text.dart';
 import '../../../../shared/widgets/loading_state.dart';
-import '../../../../shared/widgets/video_card.dart';
-import '../../../later/presentation/providers/later_notifier.dart';
+import '../../../../shared/widgets/media_action_menu.dart';
 import '../../../player/domain/entities/play_item.dart';
 import '../../../player/presentation/providers/playlist_notifier.dart';
 import '../../../settings/domain/entities/app_settings.dart';
@@ -465,6 +467,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
 
     final displayMode = ref.watch(displayModeProvider);
 
+    // Source: biu/src/pages/search/video-list.tsx
+    // Search results don't show duration on cover badge
+    // Use MediaActionMenu for consistent action menu across the app
     if (displayMode == DisplayMode.list) {
       // List view mode
       return ListView.builder(
@@ -486,26 +491,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
           final video = results[index];
           return Padding(
             padding: const EdgeInsets.only(bottom: 12),
-            child: VideoListTile(
-              title: video.title,
-              highlightTitle: true,
-              coverUrl: video.pic,
-              ownerName: video.author,
-              ownerMid: video.mid,
-              duration: video.duration,
-              viewCount: video.play,
-              onTap: () => _playVideo(video),
-              onOwnerTap: video.mid > 0
-                  ? () => context.push('/user/${video.mid}')
-                  : null,
-              actions: [
-                VideoCardAction(
-                  label: '稍后再看',
-                  icon: Icons.watch_later_outlined,
-                  onTap: () => _addToWatchLater(video),
-                ),
-              ],
-            ),
+            child: _buildVideoListItem(context, video),
           );
         },
       );
@@ -532,27 +518,213 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
           );
         }
         final video = results[index];
-        return VideoCard(
-          title: video.title,
-          highlightTitle: true,
-          coverUrl: video.pic,
-          ownerName: video.author,
-          ownerMid: video.mid,
-          duration: video.duration,
-          viewCount: video.play,
-          onTap: () => _playVideo(video),
-          onOwnerTap: video.mid > 0
-              ? () => context.push('/user/${video.mid}')
-              : null,
-          actions: [
-            VideoCardAction(
-              label: '稍后再看',
-              icon: Icons.watch_later_outlined,
-              onTap: () => _addToWatchLater(video),
-            ),
-          ],
-        );
+        return _buildVideoCardItem(context, video);
       },
+    );
+  }
+
+  /// Build video list item (list mode).
+  Widget _buildVideoListItem(BuildContext context, SearchVideoItem video) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => _playVideo(video),
+        borderRadius: BorderRadius.circular(AppTheme.borderRadius),
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: AppColors.contentBackground,
+            borderRadius: BorderRadius.circular(AppTheme.borderRadius),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Cover image (no duration badge in search results)
+              _buildVideoCover(video.pic),
+              const SizedBox(width: 12),
+              // Info section
+              Expanded(child: _buildVideoInfo(context, video)),
+              // Action menu
+              MediaActionMenu(
+                title: video.titlePlain,
+                bvid: video.bvid,
+                aid: video.aid.toString(),
+                cover: video.pic,
+                ownerName: video.author,
+                ownerMid: video.mid,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Build video card item (grid mode).
+  Widget _buildVideoCardItem(BuildContext context, SearchVideoItem video) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => _playVideo(video),
+        borderRadius: BorderRadius.circular(AppTheme.borderRadius),
+        child: Container(
+          decoration: BoxDecoration(
+            color: AppColors.contentBackground,
+            borderRadius: BorderRadius.circular(AppTheme.borderRadius),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Cover image (no duration badge in search results)
+              AspectRatio(
+                aspectRatio: 16 / 9,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    AppCachedImage(
+                      imageUrl: video.pic,
+                      fileType: FileType.video,
+                    ),
+                    // Action menu button
+                    Positioned(
+                      right: 4,
+                      top: 4,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.5),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: MediaActionMenu(
+                          title: video.titlePlain,
+                          bvid: video.bvid,
+                          aid: video.aid.toString(),
+                          cover: video.pic,
+                          ownerName: video.author,
+                          ownerMid: video.mid,
+                          iconSize: 18,
+                          iconColor: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Info section
+              Padding(
+                padding: const EdgeInsets.all(12),
+                child: _buildVideoCardInfo(context, video),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildVideoCover(String? coverUrl) {
+    return SizedBox(
+      width: 120,
+      height: 68,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
+        child: AppCachedImage(
+          imageUrl: coverUrl,
+          fileType: FileType.video,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildVideoInfo(BuildContext context, SearchVideoItem video) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Title with highlight
+        HighlightedText(
+          text: video.title,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w500,
+                height: 1.3,
+              ),
+          maxLines: 2,
+        ),
+        const SizedBox(height: 6),
+        // Owner
+        GestureDetector(
+          onTap: video.mid > 0 ? () => context.push('/user/${video.mid}') : null,
+          child: Text(
+            video.author,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+          ),
+        ),
+        const SizedBox(height: 4),
+        // Stats
+        Row(
+          children: [
+            if (video.play != null) ...[
+              const Icon(Icons.play_arrow, size: 12, color: AppColors.textTertiary),
+              const SizedBox(width: 2),
+              Text(
+                NumberUtils.formatCompact(video.play),
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: AppColors.textTertiary,
+                    ),
+              ),
+            ],
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildVideoCardInfo(BuildContext context, SearchVideoItem video) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Title with highlight
+        HighlightedText(
+          text: video.title,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w500,
+                height: 1.3,
+              ),
+          maxLines: 2,
+        ),
+        const SizedBox(height: 8),
+        // Owner
+        GestureDetector(
+          onTap: video.mid > 0 ? () => context.push('/user/${video.mid}') : null,
+          child: Text(
+            video.author,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+          ),
+        ),
+        const SizedBox(height: 4),
+        // Stats
+        Row(
+          children: [
+            if (video.play != null) ...[
+              const Icon(Icons.play_arrow, size: 12, color: AppColors.textTertiary),
+              const SizedBox(width: 2),
+              Text(
+                NumberUtils.formatCompact(video.play),
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: AppColors.textTertiary,
+                    ),
+              ),
+            ],
+          ],
+        ),
+      ],
     );
   }
 
@@ -622,40 +794,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
       duration: video.duration,
     );
     ref.read(playlistProvider.notifier).play(playItem);
-  }
-
-  Future<void> _addToWatchLater(SearchVideoItem video) async {
-    try {
-      final success = await ref.read(laterProvider.notifier).addItem(
-            aid: video.aid,
-            bvid: video.bvid,
-          );
-      if (success && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('已添加到稍后再看'),
-            duration: Duration(seconds: 2),
-          ),
-        );
-      } else if (mounted) {
-        final error = ref.read(laterProvider).errorMessage;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(error ?? 'Failed to add to Watch Later'),
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('错误: $e'),
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      }
-    }
   }
 
   /// Navigate to user profile screen.

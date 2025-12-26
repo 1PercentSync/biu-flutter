@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
@@ -54,6 +56,12 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
   int _currentTabIndex = 0;
   List<_ProfileTab> _visibleTabs = [];
 
+  /// Debounce timer for keyword search
+  /// Source: biu/src/pages/user-profile/video-post.tsx
+  /// Source project uses refreshDeps to auto-refresh on keyword change
+  Timer? _keywordDebounceTimer;
+  static const _keywordDebounceDuration = Duration(milliseconds: 300);
+
   @override
   void initState() {
     super.initState();
@@ -62,6 +70,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
 
   @override
   void dispose() {
+    _keywordDebounceTimer?.cancel();
     _tabController?.dispose();
     _scrollController.dispose();
     _keywordController.dispose();
@@ -268,10 +277,15 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                     fillColor: AppColors.surface,
                   ),
                   style: const TextStyle(fontSize: 14),
-                  onSubmitted: (value) {
-                    ref
-                        .read(userProfileProvider(widget.mid).notifier)
-                        .setVideoKeyword(value);
+                  // Source: biu/src/pages/user-profile/video-post.tsx
+                  // Source project updates results on every keystroke (via refreshDeps)
+                  onChanged: (value) {
+                    _keywordDebounceTimer?.cancel();
+                    _keywordDebounceTimer = Timer(_keywordDebounceDuration, () {
+                      ref
+                          .read(userProfileProvider(widget.mid).notifier)
+                          .setVideoKeyword(value);
+                    });
                   },
                 ),
               ),

@@ -16,6 +16,7 @@ import '../../features/search/search.dart';
 import '../../features/settings/settings.dart';
 import '../../features/user_profile/user_profile.dart';
 import '../../shared/theme/theme.dart';
+import '../../shared/widgets/glass/glass.dart';
 import '../../shared/widgets/playbar/playbar.dart';
 import 'auth_guard.dart';
 import 'routes.dart';
@@ -221,7 +222,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   );
 });
 
-/// Main shell widget with bottom navigation and playbar
+/// Main shell widget with iOS-style floating playbar and glass bottom navigation.
+///
+/// Uses Stack layout to layer:
+/// 1. Main content area (with bottom padding for floating elements)
+/// 2. Bottom frosted glass backdrop
+/// 3. Floating mini playbar
+/// 4. Glass bottom navigation
+///
+/// Source: prototype/home_tabs_prototype.html (iOS-native design)
 class MainShell extends ConsumerWidget {
   const MainShell({required this.child, super.key});
 
@@ -229,60 +238,71 @@ class MainShell extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      body: Column(
-        children: [
-          // Main content area
-          Expanded(child: child),
-          // Mini playbar
-          MiniPlaybar(
-            onTap: () => context.push('/player'),
-          ),
-        ],
-      ),
-      bottomNavigationBar: _buildNavigationBar(context),
-    );
-  }
+    final mediaQuery = MediaQuery.of(context);
+    final bottomSafeArea = mediaQuery.padding.bottom;
 
-  Widget _buildNavigationBar(BuildContext context) {
-    return DecoratedBox(
-      decoration: const BoxDecoration(
-        border: Border(
-          top: BorderSide(
-            color: AppColors.divider,
+    // Calculate the bottom padding needed for content to avoid floating elements
+    final contentBottomPadding = AppTheme.bottomNavHeight +
+        bottomSafeArea +
+        AppTheme.miniPlayerHeight +
+        AppTheme.miniPlayerMargin * 2;
+
+    // Height of the glass backdrop at the bottom (nav + safe area)
+    final bottomGlassHeight = AppTheme.bottomNavHeight + bottomSafeArea;
+
+    // Position of mini player from bottom
+    final miniPlayerBottom =
+        AppTheme.bottomNavHeight + bottomSafeArea + AppTheme.miniPlayerMargin;
+
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: Stack(
+        children: [
+          // 1. Main content area with bottom padding
+          Positioned.fill(
+            child: MediaQuery(
+              // Provide adjusted padding to child for proper scroll behavior
+              data: mediaQuery.copyWith(
+                padding: mediaQuery.padding.copyWith(
+                  bottom: contentBottomPadding,
+                ),
+              ),
+              child: child,
+            ),
           ),
-        ),
-      ),
-      child: NavigationBar(
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
-            label: '首页',
+
+          // 2. Bottom frosted glass backdrop
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            height: bottomGlassHeight,
+            child: const GlassBackdrop(
+              alignment: Alignment.bottomCenter,
+            ),
           ),
-          NavigationDestination(
-            icon: Icon(Icons.search_outlined),
-            selectedIcon: Icon(Icons.search),
-            label: '搜索',
+
+          // 3. Floating mini playbar
+          Positioned(
+            left: AppTheme.miniPlayerMargin,
+            right: AppTheme.miniPlayerMargin,
+            bottom: miniPlayerBottom,
+            child: MiniPlaybar(
+              onTap: () => context.push('/player'),
+            ),
           ),
-          NavigationDestination(
-            icon: Icon(Icons.favorite_outline),
-            selectedIcon: Icon(Icons.favorite),
-            label: '收藏',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.history_outlined),
-            selectedIcon: Icon(Icons.history),
-            label: '历史',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
-            label: '我的',
+
+          // 4. Glass bottom navigation (on top of backdrop)
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: GlassBottomNav(
+              selectedIndex: _calculateSelectedIndex(context),
+              onDestinationSelected: (index) => _onItemTapped(index, context),
+            ),
           ),
         ],
-        selectedIndex: _calculateSelectedIndex(context),
-        onDestinationSelected: (index) => _onItemTapped(index, context),
       ),
     );
   }
@@ -315,21 +335,51 @@ class MainShell extends ConsumerWidget {
   }
 }
 
-/// Scaffold wrapper that includes MiniPlaybar for non-shell routes
-class PlaybarScaffold extends StatelessWidget {
+/// Scaffold wrapper that includes floating MiniPlaybar for non-shell routes.
+///
+/// Provides iOS-style floating playbar at the bottom of screens that are
+/// outside the main shell (e.g., artist rank, music recommend).
+class PlaybarScaffold extends ConsumerWidget {
   const PlaybarScaffold({required this.child, super.key});
 
   final Widget child;
 
   @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Expanded(child: child),
-        MiniPlaybar(
-          onTap: () => context.push('/player'),
-        ),
-      ],
+  Widget build(BuildContext context, WidgetRef ref) {
+    final mediaQuery = MediaQuery.of(context);
+    final bottomSafeArea = mediaQuery.padding.bottom;
+
+    // Calculate bottom padding for content
+    final contentBottomPadding =
+        AppTheme.miniPlayerHeight + AppTheme.miniPlayerMargin * 2 + bottomSafeArea;
+
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: Stack(
+        children: [
+          // Main content with bottom padding
+          Positioned.fill(
+            child: MediaQuery(
+              data: mediaQuery.copyWith(
+                padding: mediaQuery.padding.copyWith(
+                  bottom: contentBottomPadding,
+                ),
+              ),
+              child: child,
+            ),
+          ),
+
+          // Floating mini playbar
+          Positioned(
+            left: AppTheme.miniPlayerMargin,
+            right: AppTheme.miniPlayerMargin,
+            bottom: bottomSafeArea + AppTheme.miniPlayerMargin,
+            child: MiniPlaybar(
+              onTap: () => context.push('/player'),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

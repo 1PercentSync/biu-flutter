@@ -1,23 +1,29 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../features/player/presentation/providers/playlist_notifier.dart';
 import '../../../features/player/presentation/providers/playlist_state.dart';
+import '../../../features/settings/presentation/providers/settings_notifier.dart';
 import '../../theme/theme.dart';
 import '../cached_image.dart';
+import '../glass/glass_styles.dart';
 
-/// Mini playbar widget that shows at the bottom of the screen.
+/// iOS-style floating mini playbar with frosted glass effect.
 ///
-/// Displays current track info, progress, and basic controls.
+/// Displays current track info and basic controls in a floating container
+/// with backdrop blur. Designed to be positioned above bottom navigation
+/// in a Stack layout.
+///
 /// Source: biu/src/layout/playbar/left/index.tsx#Left
-/// Source: biu/src/layout/playbar/center/progress.tsx#Progress
+/// Source: prototype/home_tabs_prototype.html (iOS-native design)
 ///
 /// NOTE: This widget imports from features/player/ which is technically
 /// a cross-layer dependency (shared -> features). This is accepted because:
 /// 1. Source project has same pattern: layout/playbar/ imports from store/play-list.ts
 /// 2. Player state is a cross-cutting concern used by many features
 /// 3. Playbar widgets are inherently player-dependent by design
-/// See: openspec/changes/align-parity-report-decisions/tasks.md (Phase 5.2)
 class MiniPlaybar extends ConsumerWidget {
   const MiniPlaybar({
     super.key,
@@ -37,102 +43,72 @@ class MiniPlaybar extends ConsumerWidget {
       return const SizedBox.shrink();
     }
 
+    final settings = ref.watch(settingsNotifierProvider);
+    final primaryColor = settings.primaryColor;
+    final backgroundColor = settings.backgroundColor;
+    final coverRadius = settings.borderRadius;
+
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        height: AppTheme.miniPlaybarHeight,
-        decoration: const BoxDecoration(
-          color: AppColors.contentBackground,
-          border: Border(
-            top: BorderSide(
-              color: AppColors.divider,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(AppTheme.miniPlayerRadius),
+        child: BackdropFilter(
+          filter: GlassStyles.blurFilterStrong,
+          child: Container(
+            height: AppTheme.miniPlayerHeight,
+            decoration: BoxDecoration(
+              color: GlassStyles.glassBackgroundElevated(backgroundColor),
+              borderRadius: BorderRadius.circular(AppTheme.miniPlayerRadius),
+            ),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppTheme.paddingSmall,
+            ),
+            child: Row(
+              children: [
+                // Cover image
+                _buildCoverImage(currentItem.displayCover, coverRadius),
+                const SizedBox(width: 10),
+                // Track info (title only in compact mode)
+                Expanded(
+                  child: _buildTrackInfo(context, currentItem.displayTitle),
+                ),
+                // Controls
+                _buildControls(ref, playlistState, primaryColor),
+              ],
             ),
           ),
         ),
-        child: Column(
-          children: [
-            // Progress bar at top
-            _buildProgressBar(playlistState),
-            // Playbar content
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  children: [
-                    // Cover image
-                    _buildCoverImage(currentItem.displayCover),
-                    const SizedBox(width: 12),
-                    // Track info
-                    Expanded(
-                      child: _buildTrackInfo(
-                        context,
-                        currentItem.displayTitle,
-                        currentItem.ownerName,
-                      ),
-                    ),
-                    // Controls
-                    _buildControls(ref, playlistState),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
 
-  Widget _buildProgressBar(PlaylistState playlistState) {
-    final duration = playlistState.duration ?? 0.0;
-    final currentTime = playlistState.currentTime;
-    final progress = duration > 0 ? (currentTime / duration).clamp(0.0, 1.0) : 0.0;
-
-    return SizedBox(
-      height: 2,
-      child: LinearProgressIndicator(
-        value: progress,
-        backgroundColor: AppColors.progressBackground,
-        valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
-      ),
-    );
-  }
-
-  Widget _buildCoverImage(String? coverUrl) {
+  Widget _buildCoverImage(String? coverUrl, double borderRadius) {
     return AppCachedImage(
       imageUrl: coverUrl,
-      width: 44,
-      height: 44,
-      borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
+      width: AppTheme.miniPlayerCoverSize,
+      height: AppTheme.miniPlayerCoverSize,
+      borderRadius: BorderRadius.circular(borderRadius.clamp(0, 8)),
     );
   }
 
-  Widget _buildTrackInfo(BuildContext context, String title, String? artist) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
-        if (artist != null) ...[
-          const SizedBox(height: 2),
-          Text(
-            artist,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-          ),
-        ],
-      ],
+  Widget _buildTrackInfo(BuildContext context, String title) {
+    return Text(
+      title,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: const TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w500,
+        color: Colors.white,
+      ),
     );
   }
 
-  Widget _buildControls(WidgetRef ref, PlaylistState playlistState) {
+  Widget _buildControls(
+    WidgetRef ref,
+    PlaylistState playlistState,
+    Color primaryColor,
+  ) {
     final notifier = ref.read(playlistProvider.notifier);
     final isPlaying = playlistState.isPlaying;
     final isLoading = playlistState.isLoading;
@@ -142,40 +118,77 @@ class MiniPlaybar extends ConsumerWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         // Previous button
-        // Source: biu/src/layout/playbar/center/index.tsx - has prev button
-        IconButton(
+        _buildControlButton(
+          icon: Icons.skip_previous,
           onPressed: canSkip ? notifier.prev : null,
-          icon: Icon(
-            Icons.skip_previous,
-            color: canSkip ? AppColors.textPrimary : AppColors.textDisabled,
-          ),
+          enabled: canSkip,
         ),
         // Play/Pause button
-        IconButton(
+        _buildPlayPauseButton(
+          isPlaying: isPlaying,
+          isLoading: isLoading,
+          primaryColor: primaryColor,
           onPressed: isLoading ? null : notifier.togglePlay,
-          icon: isLoading
-              ? const SizedBox(
-                  width: 24,
-                  height: 24,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: AppColors.primary,
-                  ),
-                )
-              : Icon(
-                  isPlaying ? Icons.pause : Icons.play_arrow,
-                  color: AppColors.textPrimary,
-                ),
         ),
         // Next button
-        IconButton(
+        _buildControlButton(
+          icon: Icons.skip_next,
           onPressed: canSkip ? notifier.next : null,
-          icon: Icon(
-            Icons.skip_next,
-            color: canSkip ? AppColors.textPrimary : AppColors.textDisabled,
-          ),
+          enabled: canSkip,
         ),
       ],
+    );
+  }
+
+  Widget _buildControlButton({
+    required IconData icon,
+    required VoidCallback? onPressed,
+    required bool enabled,
+  }) {
+    return SizedBox(
+      width: 32,
+      height: 32,
+      child: IconButton(
+        padding: EdgeInsets.zero,
+        constraints: const BoxConstraints(),
+        onPressed: onPressed,
+        icon: Icon(
+          icon,
+          size: 28,
+          color: enabled ? Colors.white : Colors.white.withOpacity(0.3),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPlayPauseButton({
+    required bool isPlaying,
+    required bool isLoading,
+    required Color primaryColor,
+    required VoidCallback? onPressed,
+  }) {
+    return SizedBox(
+      width: 32,
+      height: 32,
+      child: IconButton(
+        padding: EdgeInsets.zero,
+        constraints: const BoxConstraints(),
+        onPressed: onPressed,
+        icon: isLoading
+            ? SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: primaryColor,
+                ),
+              )
+            : Icon(
+                isPlaying ? Icons.pause : Icons.play_arrow,
+                size: 28,
+                color: Colors.white,
+              ),
+      ),
     );
   }
 }

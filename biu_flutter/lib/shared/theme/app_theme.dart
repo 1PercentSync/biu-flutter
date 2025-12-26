@@ -25,11 +25,67 @@ class AppTheme {
   /// Large padding value
   static const double paddingLarge = 24;
 
-  /// Mini playbar height
+  // ============ iOS-Native Layout Constants ============
+  // These dimensions follow iOS Human Interface Guidelines
+  // and are device-independent (work across all iPhone sizes)
+
+  /// Mini playbar height (iOS-style floating player)
+  static const double miniPlayerHeight = 48;
+
+  /// Mini playbar border radius
+  static const double miniPlayerRadius = 14;
+
+  /// Mini playbar horizontal margin from screen edges
+  static const double miniPlayerMargin = 8;
+
+  /// Mini playbar cover image size
+  static const double miniPlayerCoverSize = 36;
+
+  /// Bottom navigation height (iOS standard: 49pt)
+  static const double bottomNavHeight = 49;
+
+  /// Bottom navigation icon size
+  static const double bottomNavIconSize = 28;
+
+  /// Bottom navigation label font size
+  static const double bottomNavLabelSize = 10;
+
+  /// Tab header minimum font size
+  static const double tabFontSizeMin = 16;
+
+  /// Tab header maximum font size
+  static const double tabFontSizeMax = 28;
+
+  /// Minimum gap between tab items
+  static const double tabMinGap = 10;
+
+  /// Tab header height (content area, excluding safe area)
+  static const double tabHeaderHeight = 66;
+
+  // ============ Glass Effect Parameters ============
+
+  /// Standard blur sigma for frosted glass
+  static const double glassBlur = 20;
+
+  /// Strong blur sigma for elevated elements (mini player)
+  static const double glassBlurStrong = 30;
+
+  /// Glass background opacity (standard)
+  static const double glassOpacity = 0.88;
+
+  /// Glass background opacity (elevated)
+  static const double glassOpacityElevated = 0.85;
+
+  /// Lightness increase for elevated glass
+  static const double glassLightnessBoost = 0.08;
+
+  // ============ Legacy Constants (for backward compatibility) ============
+
+  /// @Deprecated Use [miniPlayerHeight] instead
   static const double miniPlaybarHeight = 64;
 
-  /// Bottom navigation height
-  static const double bottomNavHeight = 80;
+  /// Legacy bottom nav height (Material style)
+  static const double bottomNavHeightLegacy = 80;
 
   /// Font family for proper Chinese character rendering
   /// Uses system-ui with fallbacks for Chinese fonts on different platforms

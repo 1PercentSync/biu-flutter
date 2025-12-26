@@ -50,7 +50,12 @@ class ProfileScreen extends ConsumerWidget {
           _buildUserCard(context, ref, authState),
           const SizedBox(height: 24),
           // Menu items
-          _buildMenuSection(context),
+          _buildMenuSection(context, authState.isAuthenticated),
+          // Logout button (only when logged in)
+          if (authState.isAuthenticated) ...[
+            const SizedBox(height: 24),
+            _buildLogoutButton(context, ref),
+          ],
         ],
       ),
     );
@@ -125,23 +130,75 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildMenuSection(BuildContext context) {
+  Widget _buildMenuSection(BuildContext context, bool isLoggedIn) {
     return Column(
       children: [
-        _buildMenuItem(
-          context,
-          icon: Icons.people_outline,
-          title: '我的关注',
-          onTap: () => context.push(AppRoutes.followList),
-        ),
-        _buildMenuItem(
-          context,
-          icon: Icons.watch_later_outlined,
-          title: '稍后再看',
-          onTap: () => context.push(AppRoutes.later),
-        ),
+        if (isLoggedIn) ...[
+          _buildMenuItem(
+            context,
+            icon: Icons.people_outline,
+            title: '我的关注',
+            onTap: () => context.push(AppRoutes.followList),
+          ),
+          _buildMenuItem(
+            context,
+            icon: Icons.watch_later_outlined,
+            title: '稍后再看',
+            onTap: () => context.push(AppRoutes.later),
+          ),
+        ],
       ],
     );
+  }
+
+  Widget _buildLogoutButton(BuildContext context, WidgetRef ref) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: AppColors.contentBackground,
+        borderRadius: BorderRadius.circular(AppTheme.borderRadius),
+      ),
+      child: ListTile(
+        leading: const Icon(Icons.logout, color: AppColors.error),
+        title: const Text(
+          '退出登录',
+          style: TextStyle(color: AppColors.error),
+        ),
+        onTap: () => _showLogoutDialog(context, ref),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppTheme.borderRadius),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showLogoutDialog(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('退出登录'),
+        content: const Text('确定要退出登录吗？'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('取消'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: AppColors.error),
+            child: const Text('退出登录'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed ?? false) {
+      await ref.read(authNotifierProvider.notifier).logout();
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('已退出登录')),
+        );
+      }
+    }
   }
 
   Widget _buildMenuItem(

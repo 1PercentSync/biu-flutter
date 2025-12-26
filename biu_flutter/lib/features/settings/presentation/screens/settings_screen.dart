@@ -7,7 +7,6 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/router/routes.dart';
 import '../../../../shared/theme/theme.dart';
 import '../../../../shared/widgets/cached_image.dart';
-import '../../../auth/domain/entities/user.dart';
 import '../../../auth/presentation/providers/auth_notifier.dart';
 import '../../../favorites/presentation/providers/favorites_notifier.dart';
 import '../../domain/entities/app_settings.dart';
@@ -25,7 +24,6 @@ class SettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsNotifierProvider);
     final authState = ref.watch(authNotifierProvider);
-    final user = authState.user;
     final isLoggedIn = authState.isAuthenticated;
 
     return Scaffold(
@@ -37,13 +35,6 @@ class SettingsScreen extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          // Account section (only show when logged in)
-          if (isLoggedIn) ...[
-            _buildSectionHeader(context, '账户'),
-            _buildUserTile(context, ref, user),
-            const SizedBox(height: 24),
-          ],
-
           // Audio settings
           _buildSectionHeader(context, '音频'),
           _buildSettingTile(
@@ -158,18 +149,6 @@ class SettingsScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 24),
 
-          // Account actions (only show when logged in)
-          if (isLoggedIn) ...[
-            _buildSectionHeader(context, '会话'),
-            _buildSettingTile(
-              context,
-              title: '退出登录',
-              titleColor: AppColors.error,
-              onTap: () => _showLogoutDialog(context, ref),
-            ),
-            const SizedBox(height: 24),
-          ],
-
           // About settings
           _buildSectionHeader(context, '关于'),
           _buildVersionTile(context, ref),
@@ -203,44 +182,6 @@ class SettingsScreen extends ConsumerWidget {
         style: Theme.of(context).textTheme.titleSmall?.copyWith(
               color: AppColors.textSecondary,
             ),
-      ),
-    );
-  }
-
-  Widget _buildUserTile(BuildContext context, WidgetRef ref, User? user) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      decoration: BoxDecoration(
-        color: AppColors.contentBackground,
-        borderRadius: BorderRadius.circular(AppTheme.borderRadius),
-      ),
-      child: ListTile(
-        leading: ClipOval(
-          child: user?.face != null
-              ? AppCachedImage(
-                  imageUrl: user!.face,
-                  width: 48,
-                  height: 48,
-                )
-              : Container(
-                  width: 48,
-                  height: 48,
-                  color: AppColors.surface,
-                  child: const Icon(
-                    Icons.person,
-                    size: 24,
-                    color: AppColors.textTertiary,
-                  ),
-                ),
-        ),
-        title: Text(user?.uname ?? '用户'),
-        subtitle: Text(
-          'UID: ${user?.mid ?? ''}',
-          style: const TextStyle(color: AppColors.textSecondary),
-        ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppTheme.borderRadius),
-        ),
       ),
     );
   }
@@ -452,38 +393,6 @@ class SettingsScreen extends ConsumerWidget {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('缓存已清除')),
       );
-    }
-  }
-
-  Future<void> _showLogoutDialog(BuildContext context, WidgetRef ref) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('退出登录'),
-        content: const Text('确定要退出登录吗？'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: AppColors.error),
-            child: const Text('退出登录'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed ?? false) {
-      await ref.read(authNotifierProvider.notifier).logout();
-      if (context.mounted) {
-        // Navigate back to main screen
-        context.go(AppRoutes.home);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('已退出登录')),
-        );
-      }
     }
   }
 

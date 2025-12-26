@@ -1,6 +1,15 @@
 // User space detailed information model
 // Reference: biu/src/service/space-wbi-acc-info.ts
 
+/// Safely parse a number to int (handles both int and double from JSON)
+int _parseIntSafe(dynamic value, [int defaultValue = 0]) {
+  if (value == null) return defaultValue;
+  if (value is int) return value;
+  if (value is double) return value.toInt();
+  if (value is String) return int.tryParse(value) ?? defaultValue;
+  return defaultValue;
+}
+
 /// User space detailed information
 class SpaceAccInfo {
   const SpaceAccInfo({
@@ -33,16 +42,16 @@ class SpaceAccInfo {
 
   factory SpaceAccInfo.fromJson(Map<String, dynamic> json) {
     return SpaceAccInfo(
-      mid: json['mid'] as int? ?? 0,
+      mid: _parseIntSafe(json['mid']),
       name: json['name'] as String? ?? '',
       sex: json['sex'] as String? ?? 'unknown',
       face: json['face'] as String? ?? '',
       sign: json['sign'] as String? ?? '',
-      level: json['level'] as int? ?? 0,
-      faceNft: json['face_nft'] as int? ?? 0,
-      rank: json['rank'] as int? ?? 0,
-      silence: json['silence'] as int? ?? 0,
-      coins: json['coins'] as int? ?? 0,
+      level: _parseIntSafe(json['level']),
+      faceNft: _parseIntSafe(json['face_nft']),
+      rank: _parseIntSafe(json['rank']),
+      silence: _parseIntSafe(json['silence']),
+      coins: _parseIntSafe(json['coins']),
       fansBadge: json['fans_badge'] as bool? ?? false,
       fansMedal: json['fans_medal'] != null
           ? FansMedal.fromJson(json['fans_medal'] as Map<String, dynamic>)
@@ -75,7 +84,7 @@ class SpaceAccInfo {
           ? Profession.fromJson(json['profession'] as Map<String, dynamic>)
           : null,
       tags: (json['tags'] as List<dynamic>?)?.cast<String>(),
-      isSeniorMember: json['is_senior_member'] as int? ?? 0,
+      isSeniorMember: _parseIntSafe(json['is_senior_member']),
     );
   }
 
@@ -203,15 +212,15 @@ class Medal {
 
   factory Medal.fromJson(Map<String, dynamic> json) {
     return Medal(
-      uid: json['uid'] as int? ?? 0,
-      targetId: json['target_id'] as int? ?? 0,
-      medalId: json['medal_id'] as int? ?? 0,
-      level: json['level'] as int? ?? 0,
+      uid: _parseIntSafe(json['uid']),
+      targetId: _parseIntSafe(json['target_id']),
+      medalId: _parseIntSafe(json['medal_id']),
+      level: _parseIntSafe(json['level']),
       medalName: json['medal_name'] as String? ?? '',
-      medalColor: json['medal_color'] as int? ?? 0,
-      intimacy: json['intimacy'] as int? ?? 0,
-      nextIntimacy: json['next_intimacy'] as int? ?? 0,
-      wearingStatus: json['wearing_status'] as int? ?? 0,
+      medalColor: _parseIntSafe(json['medal_color']),
+      intimacy: _parseIntSafe(json['intimacy']),
+      nextIntimacy: _parseIntSafe(json['next_intimacy']),
+      wearingStatus: _parseIntSafe(json['wearing_status']),
     );
   }
 
@@ -237,10 +246,10 @@ class OfficialInfo {
 
   factory OfficialInfo.fromJson(Map<String, dynamic> json) {
     return OfficialInfo(
-      role: json['role'] as int? ?? 0,
+      role: _parseIntSafe(json['role']),
       title: json['title'] as String? ?? '',
       desc: json['desc'] as String? ?? '',
-      type: json['type'] as int? ?? -1,
+      type: _parseIntSafe(json['type'], -1),
     );
   }
 
@@ -279,15 +288,15 @@ class VipInfo {
 
   factory VipInfo.fromJson(Map<String, dynamic> json) {
     return VipInfo(
-      type: json['type'] as int? ?? 0,
-      status: json['status'] as int? ?? 0,
-      dueDate: json['due_date'] as int? ?? 0,
-      vipPayType: json['vip_pay_type'] as int? ?? 0,
-      themeType: json['theme_type'] as int? ?? 0,
+      type: _parseIntSafe(json['type']),
+      status: _parseIntSafe(json['status']),
+      dueDate: _parseIntSafe(json['due_date']),
+      vipPayType: _parseIntSafe(json['vip_pay_type']),
+      themeType: _parseIntSafe(json['theme_type']),
       label: json['label'] != null
           ? VipLabel.fromJson(json['label'] as Map<String, dynamic>)
           : null,
-      avatarSubscript: json['avatar_subscript'] as int? ?? 0,
+      avatarSubscript: _parseIntSafe(json['avatar_subscript']),
       nicknameColor: json['nickname_color'] as String?,
       avatarSubscriptUrl: json['avatar_subscript_url'] as String?,
     );
@@ -347,7 +356,7 @@ class VipLabel {
       text: json['text'] as String?,
       labelTheme: json['label_theme'] as String?,
       textColor: json['text_color'] as String?,
-      bgStyle: json['bg_style'] as int? ?? 0,
+      bgStyle: _parseIntSafe(json['bg_style']),
       bgColor: json['bg_color'] as String?,
       borderColor: json['border_color'] as String?,
       imgLabelUriHansStatic: json['img_label_uri_hans_static'] as String?,
@@ -379,10 +388,10 @@ class Pendant {
 
   factory Pendant.fromJson(Map<String, dynamic> json) {
     return Pendant(
-      pid: json['pid'] as int? ?? 0,
+      pid: _parseIntSafe(json['pid']),
       name: json['name'] as String?,
       image: json['image'] as String?,
-      expire: json['expire'] as int? ?? 0,
+      expire: _parseIntSafe(json['expire']),
       imageEnhance: json['image_enhance'] as String?,
       imageEnhanceFrame: json['image_enhance_frame'] as String?,
     );
@@ -409,7 +418,7 @@ class Nameplate {
 
   factory Nameplate.fromJson(Map<String, dynamic> json) {
     return Nameplate(
-      nid: json['nid'] as int? ?? 0,
+      nid: _parseIntSafe(json['nid']),
       name: json['name'] as String?,
       image: json['image'] as String?,
       imageSmall: json['image_small'] as String?,
@@ -438,7 +447,7 @@ class TopPhotoV2 {
     return TopPhotoV2(
       l200hImg: json['l_200h_img'] as String?,
       lImg: json['l_img'] as String?,
-      sid: json['sid'] as int? ?? 0,
+      sid: _parseIntSafe(json['sid']),
     );
   }
 
@@ -467,14 +476,14 @@ class LiveRoom {
 
   factory LiveRoom.fromJson(Map<String, dynamic> json) {
     return LiveRoom(
-      roomStatus: json['roomStatus'] as int? ?? 0,
-      liveStatus: json['liveStatus'] as int? ?? 0,
+      roomStatus: _parseIntSafe(json['roomStatus']),
+      liveStatus: _parseIntSafe(json['liveStatus']),
       url: json['url'] as String?,
       title: json['title'] as String?,
       cover: json['cover'] as String?,
-      roomId: json['roomid'] as int? ?? 0,
-      roundStatus: json['roundStatus'] as int? ?? 0,
-      broadcastType: json['broadcast_type'] as int? ?? 0,
+      roomId: _parseIntSafe(json['roomid']),
+      roundStatus: _parseIntSafe(json['roundStatus']),
+      broadcastType: _parseIntSafe(json['broadcast_type']),
       watchedShow: json['watched_show'] != null
           ? WatchedShow.fromJson(json['watched_show'] as Map<String, dynamic>)
           : null,
@@ -515,7 +524,7 @@ class WatchedShow {
   factory WatchedShow.fromJson(Map<String, dynamic> json) {
     return WatchedShow(
       switchFlag: json['switch'] as bool? ?? false,
-      num: json['num'] as int? ?? 0,
+      num: _parseIntSafe(json['num']),
       textSmall: json['text_small'] as String?,
       textLarge: json['text_large'] as String?,
       icon: json['icon'] as String?,
@@ -554,7 +563,7 @@ class Profession {
       name: json['name'] as String?,
       department: json['department'] as String?,
       title: json['title'] as String?,
-      isShow: json['is_show'] as int? ?? 0,
+      isShow: _parseIntSafe(json['is_show']),
     );
   }
 

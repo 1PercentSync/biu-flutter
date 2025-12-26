@@ -115,10 +115,10 @@ class ProfileScreen extends ConsumerWidget {
               onPressed: () => context.push(AppRoutes.login),
               child: const Text('登录'),
             )
-          else
+          else if (user?.mid != null)
             IconButton(
               icon: const Icon(Icons.chevron_right),
-              onPressed: () => context.push('/user/${user?.mid}'),
+              onPressed: () => context.push(AppRoutes.userSpacePath(user!.mid)),
             ),
         ],
       ),
@@ -133,12 +133,6 @@ class ProfileScreen extends ConsumerWidget {
           icon: Icons.people_outline,
           title: '我的关注',
           onTap: () => context.push(AppRoutes.followList),
-        ),
-        _buildMenuItem(
-          context,
-          icon: Icons.history,
-          title: '观看历史',
-          onTap: () => context.push(AppRoutes.history),
         ),
         _buildMenuItem(
           context,

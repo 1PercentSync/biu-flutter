@@ -66,6 +66,25 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
+    // Initialize default tabs immediately
+    // This ensures TabController is ready when data loads
+    _initDefaultTabs();
+  }
+
+  void _initDefaultTabs() {
+    // Create TabController with default 4 tabs (dynamic, video, favorites, union)
+    // Will be updated when spacePrivacy determines favorites visibility
+    _tabController = TabController(length: 4, vsync: this);
+    _tabController!.addListener(_onTabChanged);
+    _lastTabCount = 4;
+  }
+
+  void _onTabChanged() {
+    if (mounted) {
+      setState(() {
+        _currentTabIndex = _tabController!.index;
+      });
+    }
   }
 
   @override
@@ -119,17 +138,19 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
 
   /// Ensure TabController matches the tab count
   void _ensureTabController(int tabCount) {
-    if (_tabController == null || _lastTabCount != tabCount) {
-      _tabController?.dispose();
-      _tabController = TabController(length: tabCount, vsync: this);
-      _tabController!.addListener(() {
-        if (mounted) {
+    if (_lastTabCount != tabCount) {
+      // Schedule update for next frame to avoid issues during build
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _lastTabCount != tabCount) {
           setState(() {
-            _currentTabIndex = _tabController!.index;
+            _tabController?.removeListener(_onTabChanged);
+            _tabController?.dispose();
+            _tabController = TabController(length: tabCount, vsync: this);
+            _tabController!.addListener(_onTabChanged);
+            _lastTabCount = tabCount;
           });
         }
       });
-      _lastTabCount = tabCount;
     }
   }
 
@@ -195,7 +216,10 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                   child: Text('该用户已被拉黑'),
                 ),
               )
-            else if (_tabController != null && visibleTabs.isNotEmpty) ...[
+            // Only show tabs when controller length matches visible tabs
+            else if (_tabController != null &&
+                visibleTabs.isNotEmpty &&
+                _tabController!.length == visibleTabs.length) ...[
               // Tab bar
               SliverToBoxAdapter(
                 child: _buildTabBar(context, visibleTabs),

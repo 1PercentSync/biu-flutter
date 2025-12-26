@@ -448,14 +448,15 @@ class _ArtistsTabState extends ConsumerState<_ArtistsTab>
           sliver: SliverGrid(
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 3,
-              childAspectRatio: 0.75,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
+              // Avatar 1:1 + name ~24px = aspect ratio ~0.82
+              childAspectRatio: 0.82,
+              crossAxisSpacing: 16,
+              mainAxisSpacing: 16,
             ),
             delegate: SliverChildBuilderDelegate(
               (context, index) {
                 final musician = musicians[index];
-                return MusicianCard(
+                return ArtistAvatarCard(
                   musician: musician,
                   onTap: () => context.push(AppRoutes.userSpacePath(musician.uid)),
                 );

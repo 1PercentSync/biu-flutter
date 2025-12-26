@@ -5,7 +5,73 @@ import '../../../../shared/theme/theme.dart';
 import '../../../../shared/widgets/cached_image.dart';
 import '../../data/models/musician.dart';
 
-/// Card widget for displaying a musician
+/// Simple avatar card for artist grid display (iOS-style).
+///
+/// Displays a circular avatar with the artist name below.
+/// Used in the Home screen's Artists tab.
+///
+/// Source: prototype/home_tabs_prototype.html (artist-card)
+class ArtistAvatarCard extends StatelessWidget {
+  const ArtistAvatarCard({
+    required this.musician,
+    required this.onTap,
+    super.key,
+  });
+
+  final Musician musician;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Circular avatar
+          AspectRatio(
+            aspectRatio: 1,
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.3),
+                    blurRadius: 16,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: ClipOval(
+                child: AppCachedImage(
+                  imageUrl: musician.userProfile,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 6),
+          // Artist name
+          Text(
+            musician.username,
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+            ),
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Card widget for displaying a musician with cover image.
+///
+/// Used in standalone Artist Rank screen (not Home tabs).
 class MusicianCard extends StatelessWidget {
   const MusicianCard({
     required this.musician,

@@ -111,76 +111,101 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
     // Build tabs - computed on each render like source project
     final visibleTabs = _buildTabs(state, currentUserId, isSelf);
 
+    // Show error if loading failed
+    if (state.spaceInfo == null) {
+      return Scaffold(
+        appBar: AppBar(),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, size: 48, color: AppColors.error),
+              const SizedBox(height: 16),
+              Text(
+                state.errorMessage ?? '加载失败',
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: AppColors.textSecondary),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => ref
+                    .read(userProfileProvider(widget.mid).notifier)
+                    .loadProfile(),
+                child: const Text('重试'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
-      body: state.spaceInfo == null
-          ? const Center(child: Text('加载失败'))
-          : DefaultTabController(
-              length: visibleTabs.length,
-              child: NestedScrollView(
-                controller: _scrollController,
-                headerSliverBuilder: (context, innerBoxIsScrolled) => [
-                  // App bar
-                  const SliverAppBar(
-                    floating: true,
-                    snap: true,
-                    forceElevated: false,
-                  ),
-                  // Header
-                  SliverToBoxAdapter(
-                    child: SpaceInfoHeader(
-                      spaceInfo: state.spaceInfo!,
-                      relationStat: state.relationStat,
-                      relationData: state.relationData,
-                      isSelf: isSelf,
-                      isLoggedIn: authState.isAuthenticated,
-                      onFollowTap: authState.isAuthenticated
-                          ? () => ref
-                              .read(userProfileProvider(widget.mid).notifier)
-                              .toggleFollow()
-                          : null,
-                    ),
-                  ),
-                  // Blocked view or Tab bar
-                  if (state.isBlocked)
-                    const SliverFillRemaining(
-                      child: Center(child: Text('该用户已被拉黑')),
-                    )
-                  else
-                    SliverPersistentHeader(
-                      pinned: true,
-                      delegate: _TabBarDelegate(
-                        TabBar(
-                          tabs: visibleTabs
-                              .map((tab) => Tab(text: tab.label))
-                              .toList(),
-                          indicatorColor: AppColors.primary,
-                          labelColor: AppColors.textPrimary,
-                          unselectedLabelColor: AppColors.textTertiary,
-                        ),
-                      ),
-                    ),
-                ],
-                body: state.isBlocked
-                    ? const SizedBox.shrink()
-                    : TabBarView(
-                        children: visibleTabs.map((tab) {
-                          switch (tab.key) {
-                            case 'dynamic':
-                              return DynamicList(mid: widget.mid);
-                            case 'video':
-                              return _buildVideosContent(
-                                  context, state, displayMode);
-                            case 'favorites':
-                              return UserFavoritesTab(mid: widget.mid);
-                            case 'union':
-                              return VideoSeriesTab(mid: widget.mid);
-                            default:
-                              return const SizedBox.shrink();
-                          }
-                        }).toList(),
-                      ),
+      body: DefaultTabController(
+        length: visibleTabs.length,
+        child: NestedScrollView(
+          controller: _scrollController,
+          headerSliverBuilder: (context, innerBoxIsScrolled) => [
+            // App bar
+            const SliverAppBar(
+              floating: true,
+              snap: true,
+              forceElevated: false,
+            ),
+            // Header
+            SliverToBoxAdapter(
+              child: SpaceInfoHeader(
+                spaceInfo: state.spaceInfo!,
+                relationStat: state.relationStat,
+                relationData: state.relationData,
+                isSelf: isSelf,
+                isLoggedIn: authState.isAuthenticated,
+                onFollowTap: authState.isAuthenticated
+                    ? () => ref
+                        .read(userProfileProvider(widget.mid).notifier)
+                        .toggleFollow()
+                    : null,
               ),
             ),
+            // Blocked view or Tab bar
+            if (state.isBlocked)
+              const SliverFillRemaining(
+                child: Center(child: Text('该用户已被拉黑')),
+              )
+            else
+              SliverPersistentHeader(
+                pinned: true,
+                delegate: _TabBarDelegate(
+                  TabBar(
+                    tabs: visibleTabs
+                        .map((tab) => Tab(text: tab.label))
+                        .toList(),
+                    indicatorColor: AppColors.primary,
+                    labelColor: AppColors.textPrimary,
+                    unselectedLabelColor: AppColors.textTertiary,
+                  ),
+                ),
+              ),
+          ],
+          body: state.isBlocked
+              ? const SizedBox.shrink()
+              : TabBarView(
+                  children: visibleTabs.map((tab) {
+                    switch (tab.key) {
+                      case 'dynamic':
+                        return DynamicList(mid: widget.mid);
+                      case 'video':
+                        return _buildVideosContent(context, state, displayMode);
+                      case 'favorites':
+                        return UserFavoritesTab(mid: widget.mid);
+                      case 'union':
+                        return VideoSeriesTab(mid: widget.mid);
+                      default:
+                        return const SizedBox.shrink();
+                    }
+                  }).toList(),
+                ),
+        ),
+      ),
     );
   }
 

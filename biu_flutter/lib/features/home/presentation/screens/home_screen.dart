@@ -294,7 +294,6 @@ class _HotSongsTab extends ConsumerWidget {
                   aid: song.aid,
                   cid: song.cid,
                   cover: song.cover,
-                  playCount: song.totalVv,
                   onTap: () => _playSong(ref, song),
                 ),
               );
@@ -325,7 +324,6 @@ class _HotSongsTab extends ConsumerWidget {
               aid: song.aid,
               cid: song.cid,
               cover: song.cover,
-              playCount: song.totalVv,
               onTap: () => _playSong(ref, song),
             );
           },
@@ -601,7 +599,6 @@ class _RecommendTabState extends ConsumerState<_RecommendTab>
                   aid: song.aid,
                   cid: song.cid,
                   cover: song.cover,
-                  playCount: song.playCount,
                   onTap: () => _playSong(song),
                 ),
               );
@@ -632,7 +629,6 @@ class _RecommendTabState extends ConsumerState<_RecommendTab>
               aid: song.aid,
               cid: song.cid,
               cover: song.cover,
-              playCount: song.playCount,
               onTap: () => _playSong(song),
             );
           },

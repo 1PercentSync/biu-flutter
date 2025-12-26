@@ -1,19 +1,16 @@
 import 'package:flutter/material.dart';
 
-import '../../core/utils/number_utils.dart';
 import '../../features/settings/domain/entities/app_settings.dart';
-import '../theme/theme.dart';
 import 'media_action_menu.dart';
 import 'media_item.dart';
 
-/// Unified song item widget for music display.
+/// Unified song item widget for music display (iOS-style).
 ///
-/// Wraps MediaItem with song-specific defaults (1:1 aspect ratio, play count badge).
+/// Wraps MediaItem with song-specific defaults (1:1 aspect ratio).
 /// Used for HotSong, RecommendedSong, and similar music data.
 ///
-/// Source: biu/src/components/media-item/index.tsx (music mode)
+/// Source: prototype/home_tabs_prototype.html
 /// Source: biu/src/pages/music-rank/index.tsx
-/// Source: biu/src/pages/music-recommend/index.tsx
 class SongItem extends StatelessWidget {
   const SongItem({
     required this.displayMode,
@@ -24,8 +21,6 @@ class SongItem extends StatelessWidget {
     this.aid,
     this.cid,
     this.cover,
-    this.playCount,
-    this.isActive = false,
     this.onTap,
     this.onLongPress,
   });
@@ -51,12 +46,6 @@ class SongItem extends StatelessWidget {
   /// Cover image URL
   final String? cover;
 
-  /// Play count
-  final int? playCount;
-
-  /// Whether this song is currently playing/selected
-  final bool isActive;
-
   /// Callback when tapped
   final VoidCallback? onTap;
 
@@ -70,37 +59,10 @@ class SongItem extends StatelessWidget {
       title: title,
       coverUrl: cover,
       ownerName: author,
-      playCount: playCount,
-      isActive: isActive,
-      aspectRatio: 1, // Square cover for music
-      footer: displayMode == DisplayMode.card ? _buildCardFooter(context) : null,
+      aspectRatio: 1.0,
       actionWidget: _buildActionMenu(),
       onTap: onTap,
       onLongPress: onLongPress,
-    );
-  }
-
-  /// Card mode footer with play count badge style
-  /// Source: biu/src/components/mv-card/index.tsx (music variant)
-  Widget _buildCardFooter(BuildContext context) {
-    return Row(
-      children: [
-        // Play count with icon
-        if (playCount != null && playCount! > 0) ...[
-          const Icon(
-            Icons.play_arrow,
-            size: 14,
-            color: AppColors.textTertiary,
-          ),
-          const SizedBox(width: 2),
-          Text(
-            NumberUtils.formatCompact(playCount),
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-          ),
-        ],
-      ],
     );
   }
 

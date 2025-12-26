@@ -153,7 +153,6 @@ class _MusicRecommendScreenState extends ConsumerState<MusicRecommendScreen> {
                   aid: song.aid,
                   cid: song.cid,
                   cover: song.cover,
-                  playCount: song.playCount,
                   onTap: () => _playSong(song),
                 ),
               );
@@ -187,7 +186,6 @@ class _MusicRecommendScreenState extends ConsumerState<MusicRecommendScreen> {
               aid: song.aid,
               cid: song.cid,
               cover: song.cover,
-              playCount: song.playCount,
               onTap: () => _playSong(song),
             );
           },

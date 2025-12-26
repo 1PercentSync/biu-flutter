@@ -29,7 +29,6 @@ class HistoryItemCard extends StatelessWidget {
       title: item.title,
       coverUrl: item.cover,
       ownerName: item.authorName,
-      ownerMid: item.authorMid,
       isActive: isActive,
       actionWidget: item.isPlayable ? _buildActionMenu() : null,
       onTap: onTap,
@@ -46,7 +45,6 @@ class HistoryItemCard extends StatelessWidget {
       aid: item.history.oid.toString(),
       cover: item.cover,
       ownerName: item.authorName,
-      ownerMid: item.authorMid,
     );
   }
 }

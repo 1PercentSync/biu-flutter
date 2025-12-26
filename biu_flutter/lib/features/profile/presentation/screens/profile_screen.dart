@@ -7,6 +7,7 @@ import '../../../../shared/theme/theme.dart';
 import '../../../../shared/widgets/user_avatar.dart';
 import '../../../auth/presentation/providers/auth_notifier.dart';
 import '../../../auth/presentation/providers/auth_state.dart';
+import '../../../dynamic_feed/dynamic_feed.dart';
 
 /// Profile screen showing user information and settings.
 class ProfileScreen extends ConsumerWidget {
@@ -120,6 +121,12 @@ class ProfileScreen extends ConsumerWidget {
     return Column(
       children: [
         if (isLoggedIn) ...[
+          _buildMenuItem(
+            context,
+            icon: Icons.dynamic_feed,
+            title: '动态',
+            onTap: () => DynamicFeedDrawer.show(context),
+          ),
           _buildMenuItem(
             context,
             icon: Icons.people_outline,

@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../../core/constants/audio.dart';
+import '../../../../core/utils/date_utils.dart' as date_utils;
 import '../../../../core/utils/number_utils.dart';
 import '../../../../shared/theme/theme.dart';
 import '../../../../shared/utils/global_snackbar.dart';
@@ -56,10 +57,10 @@ class _DynamicCardState extends ConsumerState<DynamicCard> {
     final textContent =
         dynamic.desc?.text ?? opus?.summary?.text ?? '';
 
-    // Format time
+    // Format time - matches source: moment(pub_ts * 1000).fromNow()
     final timeDisplay = author.pubTime.isNotEmpty
         ? author.pubTime
-        : _formatTime(author.pubTs);
+        : date_utils.DateUtils.formatMomentStyleFromTimestamp(author.pubTs);
 
     return Card(
       color: AppColors.contentBackground,
@@ -425,27 +426,6 @@ class _DynamicCardState extends ConsumerState<DynamicCard> {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
       GlobalSnackbar.showError('无法打开浏览器');
-    }
-  }
-
-  /// Format timestamp to relative time.
-  String _formatTime(int timestamp) {
-    if (timestamp == 0) return '';
-
-    final date = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
-    final now = DateTime.now();
-    final diff = now.difference(date);
-
-    if (diff.inMinutes < 1) {
-      return 'Just now';
-    } else if (diff.inHours < 1) {
-      return '${diff.inMinutes} min ago';
-    } else if (diff.inDays < 1) {
-      return '${diff.inHours} hours ago';
-    } else if (diff.inDays < 7) {
-      return '${diff.inDays} days ago';
-    } else {
-      return '${date.month}-${date.day}';
     }
   }
 

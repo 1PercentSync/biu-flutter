@@ -2,9 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
-import '../../../../core/router/routes.dart';
 import '../../../../shared/theme/theme.dart';
 import '../../../../shared/widgets/cached_image.dart';
 import '../../../auth/presentation/providers/auth_notifier.dart';
@@ -35,17 +33,8 @@ class SettingsScreen extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          // Audio settings
-          _buildSectionHeader(context, '音频'),
-          _buildSettingTile(
-            context,
-            title: '音频质量',
-            subtitle: settings.audioQuality.label,
-            onTap: () => _showAudioQualityPicker(context, ref, settings),
-          ),
-          const SizedBox(height: 24),
-
-          // Appearance settings
+          // Appearance settings (外观)
+          // Source: biu/src/pages/settings/system-settings.tsx - 外观 section first
           _buildSectionHeader(context, '外观'),
           _buildSettingTile(
             context,
@@ -55,21 +44,7 @@ class SettingsScreen extends ConsumerWidget {
           ),
           _buildSettingTile(
             context,
-            title: '主题色',
-            trailing: Container(
-              width: 24,
-              height: 24,
-              decoration: BoxDecoration(
-                color: settings.primaryColor,
-                shape: BoxShape.circle,
-                border: Border.all(color: AppColors.border),
-              ),
-            ),
-            onTap: () => _showColorPicker(context, ref, settings),
-          ),
-          _buildSettingTile(
-            context,
-            title: '内容背景',
+            title: '内容区域颜色',
             trailing: Container(
               width: 24,
               height: 24,
@@ -83,7 +58,7 @@ class SettingsScreen extends ConsumerWidget {
           ),
           _buildSettingTile(
             context,
-            title: '背景色',
+            title: '布局颜色',
             trailing: Container(
               width: 24,
               height: 24,
@@ -97,21 +72,41 @@ class SettingsScreen extends ConsumerWidget {
           ),
           _buildSettingTile(
             context,
+            title: '主题颜色',
+            trailing: Container(
+              width: 24,
+              height: 24,
+              decoration: BoxDecoration(
+                color: settings.primaryColor,
+                shape: BoxShape.circle,
+                border: Border.all(color: AppColors.border),
+              ),
+            ),
+            onTap: () => _showColorPicker(context, ref, settings),
+          ),
+          _buildSettingTile(
+            context,
             title: '圆角',
             subtitle: '${settings.borderRadius.toInt()}px',
             onTap: () => _showBorderRadiusPicker(context, ref, settings),
           ),
+          const SizedBox(height: 24),
+
+          // Audio settings (播放)
+          // Source: biu/src/pages/settings/system-settings.tsx - 播放 section
+          _buildSectionHeader(context, '播放'),
           _buildSettingTile(
             context,
-            title: '重置主题',
-            subtitle: '恢复默认颜色',
-            onTap: () => _showResetThemeDialog(context, ref),
+            title: '音质偏好',
+            subtitle: settings.audioQuality.label,
+            onTap: () => _showAudioQualityPicker(context, ref, settings),
           ),
           const SizedBox(height: 24),
 
-          // Menu customization (only show when logged in)
+          // Menu customization (菜单设置 - only show when logged in)
+          // Source: biu/src/pages/settings/menu-settings.tsx
           if (isLoggedIn) ...[
-            _buildSectionHeader(context, '菜单定制'),
+            _buildSectionHeader(context, '菜单设置'),
             _buildSettingTile(
               context,
               title: '隐藏的收藏夹',
@@ -123,52 +118,10 @@ class SettingsScreen extends ConsumerWidget {
             const SizedBox(height: 24),
           ],
 
-          // Storage settings
-          _buildSectionHeader(context, '存储'),
-          _buildSettingTile(
-            context,
-            title: '清除缓存',
-            subtitle: '释放存储空间',
-            onTap: () => _showClearCacheDialog(context, ref),
-          ),
-          const SizedBox(height: 24),
-
-          // Data settings (import/export)
-          _buildSectionHeader(context, '数据'),
-          _buildSettingTile(
-            context,
-            title: '导出设置',
-            subtitle: '将设置保存到文件',
-            onTap: () => _exportSettings(context, ref),
-          ),
-          _buildSettingTile(
-            context,
-            title: '导入设置',
-            subtitle: '从文件加载设置',
-            onTap: () => _importSettings(context, ref),
-          ),
-          const SizedBox(height: 24),
-
-          // About settings
-          _buildSectionHeader(context, '关于'),
+          // About app (关于应用)
+          // Source: biu/src/pages/settings/system-settings.tsx - 关于应用 section
+          _buildSectionHeader(context, '关于应用'),
           _buildVersionTile(context, ref),
-          _buildSettingTile(
-            context,
-            title: '关于',
-            onTap: () => context.push(AppRoutes.about),
-          ),
-          _buildSettingTile(
-            context,
-            title: '开源许可证',
-            onTap: () {
-              final packageInfo = ref.read(packageInfoProvider).valueOrNull;
-              showLicensePage(
-                context: context,
-                applicationName: 'Biu',
-                applicationVersion: packageInfo?.version ?? '...',
-              );
-            },
-          ),
         ],
       ),
     );
@@ -330,72 +283,6 @@ class SettingsScreen extends ConsumerWidget {
     }
   }
 
-  Future<void> _showResetThemeDialog(BuildContext context, WidgetRef ref) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('重置主题'),
-        content: const Text(
-          'This will restore all appearance settings to their default values. Continue?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('重置'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed ?? false) {
-      await ref.read(settingsNotifierProvider.notifier).resetToDefaults();
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('主题已重置')),
-        );
-      }
-    }
-  }
-
-  Future<void> _showClearCacheDialog(
-    BuildContext context,
-    WidgetRef ref,
-  ) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('清除缓存'),
-        content: const Text(
-          'This will clear cached images and temporary data. Your login and settings will not be affected.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('清除'),
-          ),
-        ],
-      ),
-    );
-
-    if ((confirmed ?? false) && context.mounted) {
-      // Clear image cache
-      PaintingBinding.instance.imageCache.clear();
-      PaintingBinding.instance.imageCache.clearLiveImages();
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('缓存已清除')),
-      );
-    }
-  }
-
   Future<void> _showDisplayModePicker(
     BuildContext context,
     WidgetRef ref,
@@ -438,36 +325,6 @@ class SettingsScreen extends ConsumerWidget {
       context: context,
       builder: (context) => _HiddenFoldersDialog(),
     );
-  }
-
-  /// Export settings to file.
-  /// Source: biu/src/pages/settings/export-import.tsx#handleExport
-  Future<void> _exportSettings(BuildContext context, WidgetRef ref) async {
-    final result = await ref.read(settingsNotifierProvider.notifier).exportSettings();
-
-    if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(result.message),
-          backgroundColor: result.success ? null : AppColors.error,
-        ),
-      );
-    }
-  }
-
-  /// Import settings from file.
-  /// Source: biu/src/pages/settings/export-import.tsx#handleImportClick
-  Future<void> _importSettings(BuildContext context, WidgetRef ref) async {
-    final result = await ref.read(settingsNotifierProvider.notifier).importSettings();
-
-    if (context.mounted && !result.cancelled) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(result.message),
-          backgroundColor: result.success ? null : AppColors.error,
-        ),
-      );
-    }
   }
 }
 

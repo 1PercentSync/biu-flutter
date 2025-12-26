@@ -25,19 +25,19 @@ enum DisplayMode {
 /// Source: biu/shared/settings/app-settings.ts#AudioQuality
 enum AudioQualitySetting {
   /// Automatically select best available quality
-  auto('auto', 'Auto', 'Automatically select best quality'),
+  auto('auto', '自动', '自动选择最高音质'),
 
   /// Lossless quality (FLAC / Hi-Res)
-  lossless('lossless', 'Lossless', 'FLAC / Hi-Res (requires VIP)'),
+  lossless('lossless', '无损', 'FLAC / Hi-Res'),
 
   /// High quality (180-320 kbps)
-  high('high', 'High', '180-320 kbps'),
+  high('high', '高品质', '180-320 kbps'),
 
   /// Medium quality (100-140 kbps)
-  medium('medium', 'Medium', '100-140 kbps'),
+  medium('medium', '中等', '100-140 kbps'),
 
   /// Low quality (60-80 kbps)
-  low('low', 'Low', '60-80 kbps');
+  low('low', '低品质', '60-80 kbps');
 
   const AudioQualitySetting(this.value, this.label, this.description);
 

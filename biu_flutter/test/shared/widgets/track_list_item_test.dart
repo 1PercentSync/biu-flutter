@@ -106,6 +106,31 @@ void main() {
       expect(morePressed, true);
     });
 
+    testWidgets('shows trailingAction when provided', (tester) async {
+      await tester.pumpWidget(createWidgetUnderTest(
+        const TrackListItem(
+          title: 'Test Track',
+          trailingAction: Icon(Icons.star, key: Key('trailing_action')),
+        ),
+      ));
+
+      expect(find.byKey(const Key('trailing_action')), findsOneWidget);
+    });
+
+    testWidgets('trailingAction takes precedence over onMorePressed', (tester) async {
+      await tester.pumpWidget(createWidgetUnderTest(
+        TrackListItem(
+          title: 'Test Track',
+          onMorePressed: () {},
+          trailingAction: const Icon(Icons.star, key: Key('trailing_action')),
+        ),
+      ));
+
+      // Should show trailingAction, not the default more_vert icon
+      expect(find.byKey(const Key('trailing_action')), findsOneWidget);
+      expect(find.byIcon(Icons.more_vert), findsNothing);
+    });
+
     testWidgets('shows playing indicator when isPlaying is true', (tester) async {
       await tester.pumpWidget(createWidgetUnderTest(
         const TrackListItem(

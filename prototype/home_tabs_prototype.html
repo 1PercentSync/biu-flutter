@@ -225,6 +225,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex: 1;
         }
         .tab-item {
             font-size: var(--tab-font-size);
@@ -312,19 +313,30 @@
             position: relative;
             overflow: hidden;
         }
-        .play-count {
-            position: absolute;
-            bottom: 6px;
-            right: 6px;
-            font-size: 11px;
-            background: rgba(0,0,0,0.6);
-            padding: 2px 6px;
-            border-radius: var(--radius-sm);
-            backdrop-filter: blur(4px);
-        }
         .song-info {
             padding: var(--spacing-xs) 0 0;
-            height: 36px;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+        .song-info .text {
+            flex: 1;
+            min-width: 0;
+        }
+        .song-info .more-btn {
+            width: 28px;
+            height: 28px;
+            border: none;
+            background: transparent;
+            color: var(--color-on-background-medium);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+            flex-shrink: 0;
+            margin-right: -6px;
         }
         .song-title {
             font-size: 13px;
@@ -732,12 +744,13 @@
         // SongCard widget
         const renderSongCard = (song) => `
             <div class="song-card">
-                <div class="song-cover" style="background: linear-gradient(135deg, ${song.color})">
-                    <span class="play-count">12.3万</span>
-                </div>
+                <div class="song-cover" style="background: linear-gradient(135deg, ${song.color})"></div>
                 <div class="song-info">
-                    <div class="song-title">${song.title}</div>
-                    <div class="song-artist">${song.artist}</div>
+                    <div class="text">
+                        <div class="song-title">${song.title}</div>
+                        <div class="song-artist">${song.artist}</div>
+                    </div>
+                    <button class="more-btn">•••</button>
                 </div>
             </div>
         `;

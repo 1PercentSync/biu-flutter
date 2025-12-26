@@ -27,6 +27,7 @@ class TrackListItem extends StatelessWidget {
     this.onTap,
     this.onDoubleTap,
     this.onMorePressed,
+    this.trailingAction,
     this.onArtistTap,
   });
 
@@ -68,7 +69,22 @@ class TrackListItem extends StatelessWidget {
   final VoidCallback? onDoubleTap;
 
   /// Callback when more button is pressed
+  ///
+  /// Creates a default more button (three dots icon) that triggers this callback.
+  /// Ignored if [trailingAction] is provided.
+  ///
+  /// For simple use cases where only a callback is needed.
   final VoidCallback? onMorePressed;
+
+  /// Custom trailing action widget (e.g., MediaActionMenu)
+  ///
+  /// When provided, this widget is rendered as the trailing action,
+  /// replacing the default more button created by [onMorePressed].
+  ///
+  /// This is the preferred approach for complex action widgets.
+  /// Source: biu/src/components/music-list-item/index.tsx directly renders
+  /// `<MVAction />` as a child component, which corresponds to this pattern.
+  final Widget? trailingAction;
 
   /// Callback when artist name is tapped
   ///
@@ -241,8 +257,11 @@ class TrackListItem extends StatelessWidget {
                 ),
           ),
         ],
-        // More button
-        if (onMorePressed != null) ...[
+        // Trailing action widget or more button
+        if (trailingAction != null) ...[
+          const SizedBox(width: 8),
+          trailingAction!,
+        ] else if (onMorePressed != null) ...[
           const SizedBox(width: 8),
           IconButton(
             onPressed: onMorePressed,

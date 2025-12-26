@@ -100,8 +100,11 @@ class MediaItem extends StatelessWidget {
 
   /// Action widget (e.g., MediaActionMenu)
   ///
-  /// For list mode, this widget's onPressed callback will be extracted.
-  /// For card mode, this widget will be displayed next to the title.
+  /// Renders as:
+  /// - List mode: Trailing action in [TrackListItem.trailingAction]
+  ///   Source: biu/src/components/music-list-item/index.tsx renders `<MVAction />`
+  /// - Card mode: Next to title in [VideoCard.actionWidget]
+  ///   Source: biu/src/components/image-card/index.tsx uses `titleExtra` prop
   final Widget? actionWidget;
 
   /// Actions for card mode popup menu (displayed on cover)
@@ -145,17 +148,8 @@ class MediaItem extends StatelessWidget {
       onTap: onTap,
       onDoubleTap: onDoubleTap,
       onArtistTap: onOwnerTap,
-      onMorePressed: _extractOnMorePressed(),
+      trailingAction: actionWidget,
     );
-  }
-
-  /// Extract onPressed callback from actionWidget if it's an IconButton
-  VoidCallback? _extractOnMorePressed() {
-    if (actionWidget == null) return null;
-    if (actionWidget is IconButton) {
-      return (actionWidget! as IconButton).onPressed;
-    }
-    return null;
   }
 
   Widget _buildCardItem(BuildContext context) {

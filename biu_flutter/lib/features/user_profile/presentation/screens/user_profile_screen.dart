@@ -54,7 +54,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
   final _scrollController = ScrollController();
   final _keywordController = TextEditingController();
   int _currentTabIndex = 0;
-  List<_ProfileTab> _visibleTabs = [];
+  int _lastTabCount = 0;
 
   /// Debounce timer for keyword search
   /// Source: biu/src/pages/user-profile/video-post.tsx
@@ -82,8 +82,13 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
         _scrollController.position.maxScrollExtent - 200) {
       // Load more based on current tab key
       // Note: dynamic and union tabs manage their own scroll loading
-      if (_currentTabIndex < _visibleTabs.length) {
-        final tabKey = _visibleTabs[_currentTabIndex].key;
+      final tabs = _buildTabs(
+        ref.read(userProfileProvider(widget.mid)),
+        ref.read(authNotifierProvider).user?.mid,
+        ref.read(authNotifierProvider).user?.mid == widget.mid,
+      );
+      if (_currentTabIndex < tabs.length) {
+        final tabKey = tabs[_currentTabIndex].key;
         if (tabKey == 'video') {
           ref.read(userProfileProvider(widget.mid).notifier).loadMoreVideos();
         } else if (tabKey == 'favorites') {
@@ -93,11 +98,14 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
     }
   }
 
-  void _updateTabs(UserProfileState state, int? currentUserId, bool isSelf) {
-    // Build tabs based on privacy settings
-    // Source: biu/src/pages/user-profile/index.tsx:96-118
-    // Labels: 动态, 投稿, 收藏夹, 合集
-    final newTabs = <_ProfileTab>[
+  /// Build visible tabs based on current state
+  /// Source: biu/src/pages/user-profile/index.tsx:96-118
+  List<_ProfileTab> _buildTabs(
+    UserProfileState state,
+    int? currentUserId,
+    bool isSelf,
+  ) {
+    return <_ProfileTab>[
       const _ProfileTab(key: 'dynamic', label: '动态'),
       const _ProfileTab(key: 'video', label: '投稿'),
       _ProfileTab(
@@ -107,24 +115,21 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
       ),
       const _ProfileTab(key: 'union', label: '合集'),
     ].where((tab) => !tab.hidden).toList();
+  }
 
-    // Only update if tabs changed
-    if (_visibleTabs.length != newTabs.length ||
-        _tabController == null ||
-        _tabController!.length != newTabs.length) {
-      setState(() {
-        _visibleTabs = newTabs;
-        _tabController?.dispose();
-        _tabController = TabController(
-          length: newTabs.length,
-          vsync: this,
-        );
-        _tabController!.addListener(() {
+  /// Ensure TabController matches the tab count
+  void _ensureTabController(int tabCount) {
+    if (_tabController == null || _lastTabCount != tabCount) {
+      _tabController?.dispose();
+      _tabController = TabController(length: tabCount, vsync: this);
+      _tabController!.addListener(() {
+        if (mounted) {
           setState(() {
             _currentTabIndex = _tabController!.index;
           });
-        });
+        }
       });
+      _lastTabCount = tabCount;
     }
   }
 
@@ -136,13 +141,15 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
     final isSelf = authState.user?.mid == widget.mid;
     final currentUserId = authState.user?.mid;
 
-    // Update tabs when space info is loaded
-    // Source: biu/src/pages/user-profile/index.tsx - tabs don't wait for spacePrivacy
-    // spacePrivacy only affects whether favorites tab is hidden
-    if (state.spaceInfo != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _updateTabs(state, currentUserId, isSelf);
-      });
+    // Build tabs directly in build method (like source project)
+    // Source: biu/src/pages/user-profile/index.tsx - tabs are computed on each render
+    final visibleTabs = state.spaceInfo != null
+        ? _buildTabs(state, currentUserId, isSelf)
+        : <_ProfileTab>[];
+
+    // Update tab controller if needed
+    if (visibleTabs.isNotEmpty) {
+      _ensureTabController(visibleTabs.length);
     }
 
     return Scaffold(
@@ -188,16 +195,16 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                   child: Text('该用户已被拉黑'),
                 ),
               )
-            else if (_tabController != null && _visibleTabs.isNotEmpty) ...[
+            else if (_tabController != null && visibleTabs.isNotEmpty) ...[
               // Tab bar
               SliverToBoxAdapter(
-                child: _buildTabBar(context),
+                child: _buildTabBar(context, visibleTabs),
               ),
               // Tab content
               SliverFillRemaining(
                 child: TabBarView(
                   controller: _tabController,
-                  children: _visibleTabs.map((tab) {
+                  children: visibleTabs.map((tab) {
                     switch (tab.key) {
                       case 'dynamic':
                         return DynamicList(mid: widget.mid);
@@ -220,12 +227,12 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
     );
   }
 
-  Widget _buildTabBar(BuildContext context) {
+  Widget _buildTabBar(BuildContext context, List<_ProfileTab> tabs) {
     return ColoredBox(
       color: AppColors.contentBackground,
       child: TabBar(
         controller: _tabController,
-        tabs: _visibleTabs.map((tab) => Tab(text: tab.label)).toList(),
+        tabs: tabs.map((tab) => Tab(text: tab.label)).toList(),
         indicatorColor: AppColors.primary,
         labelColor: AppColors.textPrimary,
         unselectedLabelColor: AppColors.textTertiary,

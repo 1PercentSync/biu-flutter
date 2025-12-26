@@ -34,7 +34,8 @@
       "Bash(git -C D:/Github/biu-flutter add:*)",
       "mcp__ide__getDiagnostics",
       "Bash(git -C D:/Github/biu-flutter status:*)",
-      "Bash(findstr:*)"
+      "Bash(findstr:*)",
+      "Bash(openspec show:*)"
     ]
   }
 }

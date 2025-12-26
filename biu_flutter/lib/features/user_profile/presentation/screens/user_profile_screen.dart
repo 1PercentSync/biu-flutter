@@ -26,12 +26,10 @@ class _ProfileTab {
   const _ProfileTab({
     required this.key,
     required this.label,
-    this.hidden = false,
   });
 
   final String key;
   final String label;
-  final bool hidden;
 }
 
 /// User profile screen
@@ -48,17 +46,11 @@ class UserProfileScreen extends ConsumerStatefulWidget {
   ConsumerState<UserProfileScreen> createState() => _UserProfileScreenState();
 }
 
-class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
-    with TickerProviderStateMixin {
-  TabController? _tabController;
+class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
   final _scrollController = ScrollController();
   final _keywordController = TextEditingController();
-  int _currentTabIndex = 0;
-  int _lastTabCount = 0;
 
   /// Debounce timer for keyword search
-  /// Source: biu/src/pages/user-profile/video-post.tsx
-  /// Source project uses refreshDeps to auto-refresh on keyword change
   Timer? _keywordDebounceTimer;
   static const _keywordDebounceDuration = Duration(milliseconds: 300);
 
@@ -66,31 +58,11 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
-    // Initialize default tabs immediately
-    // This ensures TabController is ready when data loads
-    _initDefaultTabs();
-  }
-
-  void _initDefaultTabs() {
-    // Create TabController with default 4 tabs (dynamic, video, favorites, union)
-    // Will be updated when spacePrivacy determines favorites visibility
-    _tabController = TabController(length: 4, vsync: this);
-    _tabController!.addListener(_onTabChanged);
-    _lastTabCount = 4;
-  }
-
-  void _onTabChanged() {
-    if (mounted) {
-      setState(() {
-        _currentTabIndex = _tabController!.index;
-      });
-    }
   }
 
   @override
   void dispose() {
     _keywordDebounceTimer?.cancel();
-    _tabController?.dispose();
     _scrollController.dispose();
     _keywordController.dispose();
     super.dispose();
@@ -99,21 +71,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
   void _onScroll() {
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
-      // Load more based on current tab key
-      // Note: dynamic and union tabs manage their own scroll loading
-      final tabs = _buildTabs(
-        ref.read(userProfileProvider(widget.mid)),
-        ref.read(authNotifierProvider).user?.mid,
-        ref.read(authNotifierProvider).user?.mid == widget.mid,
-      );
-      if (_currentTabIndex < tabs.length) {
-        final tabKey = tabs[_currentTabIndex].key;
-        if (tabKey == 'video') {
-          ref.read(userProfileProvider(widget.mid).notifier).loadMoreVideos();
-        } else if (tabKey == 'favorites') {
-          ref.read(userProfileProvider(widget.mid).notifier).loadMoreFolders();
-        }
-      }
+      ref.read(userProfileProvider(widget.mid).notifier).loadMoreVideos();
     }
   }
 
@@ -124,34 +82,13 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
     int? currentUserId,
     bool isSelf,
   ) {
+    final showFavorites = isSelf || state.shouldShowFavoritesTab(currentUserId);
     return <_ProfileTab>[
       const _ProfileTab(key: 'dynamic', label: '动态'),
       const _ProfileTab(key: 'video', label: '投稿'),
-      _ProfileTab(
-        key: 'favorites',
-        label: '收藏夹',
-        hidden: !isSelf && !state.shouldShowFavoritesTab(currentUserId),
-      ),
+      if (showFavorites) const _ProfileTab(key: 'favorites', label: '收藏夹'),
       const _ProfileTab(key: 'union', label: '合集'),
-    ].where((tab) => !tab.hidden).toList();
-  }
-
-  /// Ensure TabController matches the tab count
-  void _ensureTabController(int tabCount) {
-    if (_lastTabCount != tabCount) {
-      // Schedule update for next frame to avoid issues during build
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted && _lastTabCount != tabCount) {
-          setState(() {
-            _tabController?.removeListener(_onTabChanged);
-            _tabController?.dispose();
-            _tabController = TabController(length: tabCount, vsync: this);
-            _tabController!.addListener(_onTabChanged);
-            _lastTabCount = tabCount;
-          });
-        }
-      });
-    }
+    ];
   }
 
   @override
@@ -162,105 +99,88 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
     final isSelf = authState.user?.mid == widget.mid;
     final currentUserId = authState.user?.mid;
 
-    // Build tabs directly in build method (like source project)
-    // Source: biu/src/pages/user-profile/index.tsx - tabs are computed on each render
-    final visibleTabs = state.spaceInfo != null
-        ? _buildTabs(state, currentUserId, isSelf)
-        : <_ProfileTab>[];
-
-    // Update tab controller if needed
-    if (visibleTabs.isNotEmpty) {
-      _ensureTabController(visibleTabs.length);
+    // Source: biu/src/pages/user-profile/index.tsx:120-126
+    // Show loading spinner while userInfo is loading
+    if (state.isLoadingInfo && state.spaceInfo == null) {
+      return Scaffold(
+        appBar: AppBar(),
+        body: const Center(child: CircularProgressIndicator()),
+      );
     }
 
-    return Scaffold(
-      body: RefreshIndicator(
-        onRefresh: () =>
-            ref.read(userProfileProvider(widget.mid).notifier).refresh(),
-        child: CustomScrollView(
-          controller: _scrollController,
-          slivers: [
-            // App bar - no title shown, only back button
-            // Source: biu/src/pages/user-profile/index.tsx has no AppBar title
-            const SliverAppBar(
-              floating: true,
-              snap: true,
-            ),
-            // Header
-            if (state.spaceInfo != null)
-              SliverToBoxAdapter(
-                child: SpaceInfoHeader(
-                  spaceInfo: state.spaceInfo!,
-                  relationStat: state.relationStat,
-                  relationData: state.relationData,
-                  isSelf: isSelf,
-                  isLoggedIn: authState.isAuthenticated,
-                  onFollowTap: authState.isAuthenticated
-                      ? () => ref
-                          .read(userProfileProvider(widget.mid).notifier)
-                          .toggleFollow()
-                      : null,
-                ),
-              )
-            else if (state.isLoadingInfo)
-              const SliverToBoxAdapter(
-                child: SizedBox(
-                  height: 200,
-                  child: Center(child: CircularProgressIndicator()),
-                ),
-              ),
-            // Blocked view
-            if (state.isBlocked)
-              const SliverFillRemaining(
-                child: Center(
-                  child: Text('该用户已被拉黑'),
-                ),
-              )
-            // Only show tabs when controller length matches visible tabs
-            else if (_tabController != null &&
-                visibleTabs.isNotEmpty &&
-                _tabController!.length == visibleTabs.length) ...[
-              // Tab bar
-              SliverToBoxAdapter(
-                child: _buildTabBar(context, visibleTabs),
-              ),
-              // Tab content
-              SliverFillRemaining(
-                child: TabBarView(
-                  controller: _tabController,
-                  children: visibleTabs.map((tab) {
-                    switch (tab.key) {
-                      case 'dynamic':
-                        return DynamicList(mid: widget.mid);
-                      case 'video':
-                        return _buildVideosContent(context, state, displayMode);
-                      case 'favorites':
-                        return UserFavoritesTab(mid: widget.mid);
-                      case 'union':
-                        return VideoSeriesTab(mid: widget.mid);
-                      default:
-                        return const SizedBox.shrink();
-                    }
-                  }).toList(),
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
+    // Build tabs - computed on each render like source project
+    final visibleTabs = _buildTabs(state, currentUserId, isSelf);
 
-  Widget _buildTabBar(BuildContext context, List<_ProfileTab> tabs) {
-    return ColoredBox(
-      color: AppColors.contentBackground,
-      child: TabBar(
-        controller: _tabController,
-        tabs: tabs.map((tab) => Tab(text: tab.label)).toList(),
-        indicatorColor: AppColors.primary,
-        labelColor: AppColors.textPrimary,
-        unselectedLabelColor: AppColors.textTertiary,
-      ),
+    return Scaffold(
+      body: state.spaceInfo == null
+          ? const Center(child: Text('加载失败'))
+          : DefaultTabController(
+              length: visibleTabs.length,
+              child: NestedScrollView(
+                controller: _scrollController,
+                headerSliverBuilder: (context, innerBoxIsScrolled) => [
+                  // App bar
+                  const SliverAppBar(
+                    floating: true,
+                    snap: true,
+                    forceElevated: false,
+                  ),
+                  // Header
+                  SliverToBoxAdapter(
+                    child: SpaceInfoHeader(
+                      spaceInfo: state.spaceInfo!,
+                      relationStat: state.relationStat,
+                      relationData: state.relationData,
+                      isSelf: isSelf,
+                      isLoggedIn: authState.isAuthenticated,
+                      onFollowTap: authState.isAuthenticated
+                          ? () => ref
+                              .read(userProfileProvider(widget.mid).notifier)
+                              .toggleFollow()
+                          : null,
+                    ),
+                  ),
+                  // Blocked view or Tab bar
+                  if (state.isBlocked)
+                    const SliverFillRemaining(
+                      child: Center(child: Text('该用户已被拉黑')),
+                    )
+                  else
+                    SliverPersistentHeader(
+                      pinned: true,
+                      delegate: _TabBarDelegate(
+                        TabBar(
+                          tabs: visibleTabs
+                              .map((tab) => Tab(text: tab.label))
+                              .toList(),
+                          indicatorColor: AppColors.primary,
+                          labelColor: AppColors.textPrimary,
+                          unselectedLabelColor: AppColors.textTertiary,
+                        ),
+                      ),
+                    ),
+                ],
+                body: state.isBlocked
+                    ? const SizedBox.shrink()
+                    : TabBarView(
+                        children: visibleTabs.map((tab) {
+                          switch (tab.key) {
+                            case 'dynamic':
+                              return DynamicList(mid: widget.mid);
+                            case 'video':
+                              return _buildVideosContent(
+                                  context, state, displayMode);
+                            case 'favorites':
+                              return UserFavoritesTab(mid: widget.mid);
+                            case 'union':
+                              return VideoSeriesTab(mid: widget.mid);
+                            default:
+                              return const SizedBox.shrink();
+                          }
+                        }).toList(),
+                      ),
+              ),
+            ),
     );
   }
 
@@ -310,8 +230,6 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                     fillColor: AppColors.surface,
                   ),
                   style: const TextStyle(fontSize: 14),
-                  // Source: biu/src/pages/user-profile/video-post.tsx
-                  // Source project updates results on every keystroke (via refreshDeps)
                   onChanged: (value) {
                     _keywordDebounceTimer?.cancel();
                     _keywordDebounceTimer = Timer(_keywordDebounceDuration, () {
@@ -383,15 +301,12 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
       padding: const EdgeInsets.all(12),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        // Aspect ratio calculated: cover 16:9 + ~80px info section
-        // For ~188px width: 188 / (105.75 + 80) ≈ 1.0
         childAspectRatio: 0.95,
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
       ),
       itemCount: videos.length + (state.hasMoreVideos ? 1 : 0),
       itemBuilder: (context, index) {
-        // Loading indicator at the end
         if (index == videos.length) {
           if (state.isLoadingMore) {
             return const Center(
@@ -413,8 +328,6 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
     );
   }
 
-  /// List view for videos (when displayMode is list)
-  /// Source: biu/src/pages/user-profile/video-post.tsx:110
   Widget _buildVideosList(BuildContext context, UserProfileState state) {
     if (state.isLoadingVideos && (state.videos?.isEmpty ?? true)) {
       return const Center(child: CircularProgressIndicator());
@@ -430,7 +343,6 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       itemCount: videos.length + (state.hasMoreVideos ? 1 : 0),
       itemBuilder: (context, index) {
-        // Loading indicator at the end
         if (index == videos.length) {
           if (state.isLoadingMore) {
             return const Padding(
@@ -487,5 +399,35 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
     );
 
     ref.read(playlistProvider.notifier).play(playItem);
+  }
+}
+
+/// Delegate for pinned tab bar
+class _TabBarDelegate extends SliverPersistentHeaderDelegate {
+  _TabBarDelegate(this.tabBar);
+
+  final TabBar tabBar;
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return ColoredBox(
+      color: AppColors.contentBackground,
+      child: tabBar,
+    );
+  }
+
+  @override
+  double get maxExtent => tabBar.preferredSize.height;
+
+  @override
+  double get minExtent => tabBar.preferredSize.height;
+
+  @override
+  bool shouldRebuild(covariant _TabBarDelegate oldDelegate) {
+    return tabBar != oldDelegate.tabBar;
   }
 }

@@ -54,10 +54,7 @@ class AppTheme {
   static const double tabFontSizeMin = 16;
 
   /// Tab header maximum font size
-  static const double tabFontSizeMax = 28;
-
-  /// Minimum gap between tab items
-  static const double tabMinGap = 10;
+  static const double tabFontSizeMax = 36;
 
   /// Tab header height (content area, excluding safe area)
   static const double tabHeaderHeight = 66;

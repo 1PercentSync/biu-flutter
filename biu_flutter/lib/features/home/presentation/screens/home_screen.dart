@@ -187,10 +187,9 @@ class _AdaptiveTabHeader extends StatelessWidget {
     required double containerWidth,
     required List<String> tabs,
   }) {
-    // Binary search for the largest font size that fits
+    // Find the largest font size that fits
     const minSize = AppTheme.tabFontSizeMin;
     const maxSize = AppTheme.tabFontSizeMax;
-    const minGap = AppTheme.tabMinGap;
 
     double optimalSize = minSize;
 
@@ -207,9 +206,6 @@ class _AdaptiveTabHeader extends StatelessWidget {
         )..layout();
         totalWidth += textPainter.width;
       }
-
-      // Add gaps between tabs
-      totalWidth += minGap * (tabs.length - 1);
 
       if (totalWidth <= containerWidth) {
         optimalSize = size;

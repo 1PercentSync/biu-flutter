@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/constants/audio.dart';
 import '../../../core/extensions/duration_extensions.dart';
+import '../../../core/router/routes.dart';
 import '../../../features/favorites/presentation/widgets/folder_select_sheet.dart';
 import '../../../features/player/domain/entities/play_item.dart';
 import '../../../features/player/presentation/providers/playlist_notifier.dart';
@@ -82,23 +85,14 @@ class _FullPlayerScreenState extends ConsumerState<FullPlayerScreen> {
         icon: const Icon(Icons.keyboard_arrow_down),
         onPressed: () => Navigator.of(context).pop(),
       ),
-      title: Column(
-        children: [
-          Text(
-            '正在播放',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-          ),
-          Text(
-            currentItem.ownerName ?? '',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppColors.textTertiary,
-                ),
-          ),
-        ],
-      ),
       actions: [
+        // Open in browser button
+        // Source: biu/src/layout/playbar/left/index.tsx - click title opens browser
+        IconButton(
+          icon: const Icon(Icons.open_in_browser),
+          onPressed: () => _openInBrowser(currentItem),
+          tooltip: '在浏览器中打开',
+        ),
         // Video page list button (for multi-part videos)
         // Source: biu/src/layout/playbar/left/video-page-list/index.tsx
         if (hasMultiPart)
@@ -120,6 +114,23 @@ class _FullPlayerScreenState extends ConsumerState<FullPlayerScreen> {
         ),
       ],
     );
+  }
+
+  /// Open the current item in browser
+  /// Source: biu/src/common/utils/url.ts#openBiliVideoLink
+  Future<void> _openInBrowser(PlayItem item) async {
+    String url;
+    if (item.type == PlayDataType.mv) {
+      final pageParam = (item.pageIndex ?? 0) > 1 ? '?p=${item.pageIndex}' : '';
+      url = 'https://www.bilibili.com/video/${item.bvid}$pageParam';
+    } else {
+      url = 'https://www.bilibili.com/audio/au${item.sid}';
+    }
+
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
   }
 
   /// Show video page list sheet for multi-part videos
@@ -183,34 +194,38 @@ class _FullPlayerScreenState extends ConsumerState<FullPlayerScreen> {
   Widget _buildCoverSection(PlayItem currentItem) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Cover image
-            Expanded(
-              child: AspectRatio(
-                aspectRatio: 1,
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.3),
-                        blurRadius: 30,
-                        offset: const Offset(0, 10),
-                      ),
-                    ],
+        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            // Calculate max size: fill one axis while maintaining 1:1 ratio
+            // with a maximum limit of 400px
+            const maxSize = 400.0;
+            final availableWidth = constraints.maxWidth;
+            final availableHeight = constraints.maxHeight;
+            final size = [availableWidth, availableHeight, maxSize].reduce(
+              (a, b) => a < b ? a : b,
+            );
+
+            return Container(
+              width: size,
+              height: size,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.3),
+                    blurRadius: 30,
+                    offset: const Offset(0, 10),
                   ),
-                  clipBehavior: Clip.antiAlias,
-                  child: AppCachedImage(
-                    imageUrl: currentItem.displayCover,
-                    borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
-                  ),
-                ),
+                ],
               ),
-            ),
-          ],
+              clipBehavior: Clip.antiAlias,
+              child: AppCachedImage(
+                imageUrl: currentItem.displayCover,
+                borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
+              ),
+            );
+          },
         ),
       ),
     );
@@ -258,15 +273,29 @@ class _FullPlayerScreenState extends ConsumerState<FullPlayerScreen> {
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 4),
-        // Artist
-        Text(
-          currentItem.ownerName ?? '',
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppColors.textSecondary,
-              ),
-        ),
+        // Artist - clickable to navigate to profile
+        // Source: biu/src/layout/playbar/left/index.tsx - click owner navigates to user page
+        if (currentItem.ownerName != null && currentItem.ownerName!.isNotEmpty)
+          GestureDetector(
+            onTap: () {
+              if (currentItem.ownerMid != null) {
+                Navigator.of(context).pop(); // Close full player first
+                context.push(AppRoutes.userSpacePath(currentItem.ownerMid!));
+              }
+            },
+            child: Text(
+              currentItem.ownerName!,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: AppColors.textSecondary,
+                    decoration: currentItem.ownerMid != null
+                        ? TextDecoration.underline
+                        : null,
+                    decorationColor: AppColors.textSecondary,
+                  ),
+            ),
+          ),
         // Quality badges
         if (currentItem.isLossless == true || currentItem.isDolby == true) ...[
           const SizedBox(height: 8),
@@ -444,9 +473,6 @@ class _FullPlayerScreenState extends ConsumerState<FullPlayerScreen> {
           ),
           tooltip: _getPlayModeTooltip(playlistState.playMode),
         ),
-        // Volume control
-        // Source: biu/src/layout/playbar/right/volume.tsx
-        _buildVolumeControl(playlistState, notifier),
         // Rate button
         TextButton(
           onPressed: _showRateDialog,
@@ -455,84 +481,6 @@ class _FullPlayerScreenState extends ConsumerState<FullPlayerScreen> {
             style: const TextStyle(
               color: AppColors.textSecondary,
             ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  /// Build volume control with slider popup
-  /// Source: biu/src/layout/playbar/right/volume.tsx
-  Widget _buildVolumeControl(PlaylistState playlistState, PlaylistNotifier notifier) {
-    return PopupMenuButton<double>(
-      offset: const Offset(0, -180),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppTheme.borderRadius),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Icon(
-          playlistState.isMuted
-              ? Icons.volume_off
-              : playlistState.volume > 0.5
-                  ? Icons.volume_up
-                  : Icons.volume_down,
-          color: AppColors.textSecondary,
-        ),
-      ),
-      itemBuilder: (context) => [
-        PopupMenuItem<double>(
-          enabled: false,
-          // Use Consumer to properly update volume state inside popup
-          child: Consumer(
-            builder: (context, ref, _) {
-              final volume = ref.watch(playlistProvider.select((s) => s.volume));
-              final isMuted = ref.watch(playlistProvider.select((s) => s.isMuted));
-              return SizedBox(
-                height: 150,
-                width: 48,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Volume percentage
-                    Text(
-                      '${(volume * 100).round()}%',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    // Vertical slider
-                    Expanded(
-                      child: RotatedBox(
-                        quarterTurns: -1,
-                        child: Slider(
-                          value: volume,
-                          onChanged: (value) {
-                            ref.read(playlistProvider.notifier).setVolume(value);
-                          },
-                          activeColor: AppColors.primary,
-                          inactiveColor: AppColors.progressBackground,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    // Mute button - don't close popup to allow continued adjustment
-                    GestureDetector(
-                      onTap: () {
-                        ref.read(playlistProvider.notifier).toggleMute();
-                      },
-                      child: Icon(
-                        isMuted ? Icons.volume_off : Icons.volume_up,
-                        size: 20,
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
           ),
         ),
       ],

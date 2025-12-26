@@ -136,10 +136,20 @@ class MiniPlaybar extends ConsumerWidget {
     final notifier = ref.read(playlistProvider.notifier);
     final isPlaying = playlistState.isPlaying;
     final isLoading = playlistState.isLoading;
+    final canSkip = playlistState.length > 1;
 
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
+        // Previous button
+        // Source: biu/src/layout/playbar/center/index.tsx - has prev button
+        IconButton(
+          onPressed: canSkip ? notifier.prev : null,
+          icon: Icon(
+            Icons.skip_previous,
+            color: canSkip ? AppColors.textPrimary : AppColors.textDisabled,
+          ),
+        ),
         // Play/Pause button
         IconButton(
           onPressed: isLoading ? null : notifier.togglePlay,
@@ -159,12 +169,10 @@ class MiniPlaybar extends ConsumerWidget {
         ),
         // Next button
         IconButton(
-          onPressed: playlistState.length > 1 ? notifier.next : null,
+          onPressed: canSkip ? notifier.next : null,
           icon: Icon(
             Icons.skip_next,
-            color: playlistState.length > 1
-                ? AppColors.textPrimary
-                : AppColors.textDisabled,
+            color: canSkip ? AppColors.textPrimary : AppColors.textDisabled,
           ),
         ),
       ],

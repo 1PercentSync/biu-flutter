@@ -641,35 +641,85 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
     );
   }
 
-  void _playAll(BuildContext context, WidgetRef ref, FolderDetailState state) {
-    final validMedias = state.medias.where((m) => !m.isInvalid).toList();
-    if (validMedias.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('没有可播放的内容')),
-      );
+  /// Play all items in the folder.
+  /// Source: biu/src/pages/video-collection/favorites.tsx#onPlayAll
+  /// Always plays entire folder, not filtered search results.
+  Future<void> _playAll(BuildContext context, WidgetRef ref, FolderDetailState state) async {
+    final folder = state.folder;
+    if (folder == null || folder.mediaCount == 0) {
+      GlobalSnackbar.showWarning('收藏夹为空');
+      return;
+    }
+
+    // If no search keyword, use current medias for better UX
+    // Otherwise, fetch all folder contents (matching source behavior)
+    List<FavMedia> mediasToPlay;
+    if (state.keyword.isEmpty && state.medias.isNotEmpty) {
+      mediasToPlay = state.medias.where((m) => !m.isInvalid).toList();
+    } else {
+      // Fetch all folder contents without search filter
+      GlobalSnackbar.showInfo('正在加载全部内容...');
+      try {
+        final repository = ref.read(favoritesRepositoryProvider);
+        mediasToPlay = await repository.getAllFolderResources(
+          mediaId: widget.folderId.toString(),
+          totalCount: folder.mediaCount,
+          order: state.order.value,
+        );
+      } catch (e) {
+        GlobalSnackbar.showError('获取内容失败');
+        return;
+      }
+    }
+
+    if (mediasToPlay.isEmpty) {
+      GlobalSnackbar.showWarning('没有可播放的内容');
       return;
     }
 
     // Convert to PlayItems and play
-    final playItems = validMedias.map(_mediaToPlayItem).toList();
-    ref.read(playlistProvider.notifier).playList(playItems);
+    final playItems = mediasToPlay.map(_mediaToPlayItem).toList();
+    await ref.read(playlistProvider.notifier).playList(playItems);
   }
 
-  void _addAllToQueue(BuildContext context, WidgetRef ref, FolderDetailState state) {
-    final validMedias = state.medias.where((m) => !m.isInvalid).toList();
-    if (validMedias.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('没有可添加的内容')),
-      );
+  /// Add all items to queue.
+  /// Source: biu/src/pages/video-collection/favorites.tsx#addAllMedia
+  Future<void> _addAllToQueue(BuildContext context, WidgetRef ref, FolderDetailState state) async {
+    final folder = state.folder;
+    if (folder == null || folder.mediaCount == 0) {
+      GlobalSnackbar.showWarning('收藏夹为空');
+      return;
+    }
+
+    // If no search keyword, use current medias for better UX
+    // Otherwise, fetch all folder contents
+    List<FavMedia> mediasToAdd;
+    if (state.keyword.isEmpty && state.medias.isNotEmpty) {
+      mediasToAdd = state.medias.where((m) => !m.isInvalid).toList();
+    } else {
+      GlobalSnackbar.showInfo('正在加载全部内容...');
+      try {
+        final repository = ref.read(favoritesRepositoryProvider);
+        mediasToAdd = await repository.getAllFolderResources(
+          mediaId: widget.folderId.toString(),
+          totalCount: folder.mediaCount,
+          order: state.order.value,
+        );
+      } catch (e) {
+        GlobalSnackbar.showError('获取内容失败');
+        return;
+      }
+    }
+
+    if (mediasToAdd.isEmpty) {
+      GlobalSnackbar.showWarning('没有可添加的内容');
       return;
     }
 
     // Convert to PlayItems and add to queue
-    final playItems = validMedias.map(_mediaToPlayItem).toList();
+    final playItems = mediasToAdd.map(_mediaToPlayItem).toList();
     ref.read(playlistProvider.notifier).addList(playItems);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('已添加 ${playItems.length} 首到播放列表')),
-    );
+    GlobalSnackbar.showSuccess('已添加 ${playItems.length} 首到播放列表');
   }
 
   PlayItem _mediaToPlayItem(FavMedia media) {

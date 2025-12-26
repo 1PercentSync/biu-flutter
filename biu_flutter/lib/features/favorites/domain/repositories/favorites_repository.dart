@@ -99,6 +99,15 @@ abstract class FavoritesRepository {
 
   /// Clean (remove) all invalid/deleted resources from a folder.
   Future<void> cleanInvalidResources(int mediaId);
+
+  /// Get all resources in a folder (all pages).
+  /// Used for "Play All" which should play entire folder, not just search results.
+  /// Source: biu/src/pages/video-collection/utils.ts#getAllFavMedia
+  Future<List<FavMedia>> getAllFolderResources({
+    required String mediaId,
+    required int totalCount,
+    String order = 'mtime',
+  });
 }
 
 /// Result for folder list queries.

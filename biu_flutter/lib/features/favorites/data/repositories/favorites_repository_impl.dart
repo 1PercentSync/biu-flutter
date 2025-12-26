@@ -1,3 +1,4 @@
+import '../../domain/entities/fav_media.dart';
 import '../../domain/entities/favorites_folder.dart';
 import '../../domain/repositories/favorites_repository.dart';
 import '../datasources/favorites_remote_datasource.dart';
@@ -226,5 +227,33 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
   @override
   Future<void> cleanInvalidResources(int mediaId) async {
     await _remoteDataSource.cleanInvalidResources(mediaId);
+  }
+
+  @override
+  Future<List<FavMedia>> getAllFolderResources({
+    required String mediaId,
+    required int totalCount,
+    String order = 'mtime',
+  }) async {
+    // Source: biu/src/pages/video-collection/utils.ts#getAllFavMedia
+    // Fetch all pages in parallel (pageSize=20 matches datasource default)
+    final totalPages = (totalCount / 20).ceil();
+
+    final futures = List.generate(totalPages, (i) {
+      return _remoteDataSource.getFolderResources(
+        mediaId: mediaId,
+        pageNum: i + 1,
+        order: order,
+      );
+    });
+
+    final results = await Future.wait(futures);
+
+    // Flatten and filter valid medias
+    return results
+        .expand((response) => response.medias)
+        .where((media) => media.attr == 0) // attr === 0 means valid
+        .map((e) => e.toEntity())
+        .toList();
   }
 }

@@ -95,26 +95,19 @@ class HistoryItemCard extends StatelessWidget {
         // Author - clickable when authorMid exists
         // Source: biu/src/pages/history/index.tsx:142-145
         if (item.authorName != null)
-          item.authorMid != null
-              ? GestureDetector(
-                  onTap: () => context.push('/user/${item.authorMid}'),
-                  child: Text(
-                    item.authorName!,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
+          GestureDetector(
+            onTap: item.authorMid != null
+                ? () => context.push('/user/${item.authorMid}')
+                : null,
+            child: Text(
+              item.authorName!,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: AppColors.textSecondary,
                   ),
-                )
-              : Text(
-                  item.authorName!,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                ),
+            ),
+          ),
       ],
     );
   }

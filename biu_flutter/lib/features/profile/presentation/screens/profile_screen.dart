@@ -109,7 +109,7 @@ class ProfileScreen extends ConsumerWidget {
               ],
             ),
           ),
-          // Login/Logout button
+          // Login/Navigate button
           if (!isLoggedIn)
             ElevatedButton(
               onPressed: () => context.push(AppRoutes.login),
@@ -118,9 +118,7 @@ class ProfileScreen extends ConsumerWidget {
           else
             IconButton(
               icon: const Icon(Icons.chevron_right),
-              onPressed: () {
-                // TODO: Navigate to user detail
-              },
+              onPressed: () => context.push('/user/${user?.mid}'),
             ),
         ],
       ),
@@ -147,22 +145,6 @@ class ProfileScreen extends ConsumerWidget {
           icon: Icons.watch_later_outlined,
           title: '稍后再看',
           onTap: () => context.push(AppRoutes.later),
-        ),
-        _buildMenuItem(
-          context,
-          icon: Icons.dark_mode,
-          title: '主题',
-          trailing: const Text(
-            '深色',
-            style: TextStyle(color: AppColors.textSecondary),
-          ),
-          onTap: () => context.push(AppRoutes.settings),
-        ),
-        _buildMenuItem(
-          context,
-          icon: Icons.info_outline,
-          title: '关于',
-          onTap: () => context.push(AppRoutes.about),
         ),
       ],
     );

@@ -129,17 +129,20 @@
 ### 5.1 PlaybarScaffold Update
 - [x] 5.1.1 Review `PlaybarScaffold` in `app_router.dart`
 - [x] 5.1.2 Update to use floating MiniPlaybar style (if applicable to non-shell routes)
-- [ ] 5.1.3 Or consider removing if MainShell now handles all playbar display
+- [x] 5.1.3 Or consider removing if MainShell now handles all playbar display
 
 ### 5.2 Route Cleanup
-- [ ] 5.2.1 Evaluate if `AppRoutes.artistRank` and `AppRoutes.musicRecommend` should remain as separate routes
-- [ ] 5.2.2 If embedded in home tabs, may need to remove or redirect these routes
-- [ ] 5.2.3 Update any navigation actions that reference these routes
+- [x] 5.2.1 Evaluate if `AppRoutes.artistRank` and `AppRoutes.musicRecommend` should remain as separate routes
+  - Decision: Keep routes for deep linking, but primary access is via Home tabs
+- [x] 5.2.2 If embedded in home tabs, may need to remove or redirect these routes
+  - Decision: Routes remain but content is now primarily in Home tabs
+- [x] 5.2.3 Update any navigation actions that reference these routes
+  - Done: HomeScreen no longer navigates to these routes (uses internal tabs)
 
 ### 5.3 Export Updates
 - [x] 5.3.1 Update `shared/widgets/playbar/playbar.dart` exports if needed
 - [x] 5.3.2 Create `shared/widgets/glass/glass.dart` barrel file with all glass exports
-- [ ] 5.3.3 Update `shared/widgets/widgets.dart` if it exists
+- [x] 5.3.3 Update `shared/widgets/widgets.dart` if it exists
 
 ## 6. Testing & Verification
 

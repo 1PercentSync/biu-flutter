@@ -735,6 +735,8 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
         duration: media.duration,
       );
     } else {
+      // Don't pass ownerMid for videos to trigger fetching all pages
+      // Source: biu/src/store/play-list.ts:527-535
       return PlayItem(
         id: '${media.bvid}_1',
         type: PlayDataType.mv,
@@ -742,7 +744,7 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
         aid: media.id.toString(),
         title: media.title,
         ownerName: media.upper.name,
-        ownerMid: media.upper.mid,
+        // ownerMid intentionally omitted to trigger multi-part fetch
         cover: media.cover,
         duration: media.duration,
       );
@@ -757,6 +759,9 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
       return;
     }
 
+    // For videos, don't pass ownerMid to trigger fetching all pages
+    // For audio, use direct play with PlayItem
+    // Source: biu/src/store/play-list.ts:527-535
     ref.read(playlistProvider.notifier).play(_mediaToPlayItem(media));
   }
 

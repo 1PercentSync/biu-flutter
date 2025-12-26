@@ -1,12 +1,15 @@
 import 'package:audio_service/audio_service.dart';
+import 'package:biu_flutter/core/constants/audio.dart';
 import 'package:biu_flutter/features/audio/data/datasources/audio_remote_datasource.dart';
 import 'package:biu_flutter/features/auth/presentation/providers/auth_notifier.dart';
+import 'package:biu_flutter/features/player/domain/entities/play_item.dart';
 import 'package:biu_flutter/features/player/presentation/providers/playlist_notifier.dart';
 import 'package:biu_flutter/features/player/services/audio_player_service.dart';
 import 'package:biu_flutter/features/settings/presentation/providers/settings_notifier.dart';
 import 'package:biu_flutter/features/video/data/datasources/video_remote_datasource.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:uuid/uuid.dart';
 
 /// Video fnval constants for requesting video streams
 ///
@@ -186,6 +189,54 @@ void _setupAudioFetchCallbacks(PlaylistNotifier notifier, ProviderContainer cont
         );
       } catch (e, stackTrace) {
         debugPrint('[Audio] Error fetching video info: $e');
+        debugPrint('[Audio] Stack trace: $stackTrace');
+        return null;
+      }
+    }
+    // Callback for fetching all video pages (for multi-part videos)
+    // Source: biu/src/store/play-list.ts#getMVData
+    ..onFetchVideoAllPages = (String bvid) async {
+      try {
+        debugPrint('[Audio] Fetching all video pages: bvid=$bvid');
+        const uuid = Uuid();
+
+        final videoInfo = await videoDataSource.getVideoInfo(bvid: bvid);
+        if (videoInfo.pages.isEmpty) {
+          debugPrint('[Audio] Video has no pages');
+          return null;
+        }
+
+        final hasMultiPart = videoInfo.pages.length > 1;
+
+        // Create a PlayItem for each page
+        // Source: biu/src/store/play-list.ts:127-145
+        final pages = videoInfo.pages.map((page) {
+          return PlayItem(
+            id: uuid.v4(),
+            type: PlayDataType.mv,
+            bvid: bvid,
+            cid: page.cid.toString(),
+            aid: videoInfo.aid.toString(),
+            title: videoInfo.title,
+            cover: videoInfo.pic,
+            ownerName: videoInfo.owner.name,
+            ownerMid: videoInfo.owner.mid,
+            hasMultiPart: hasMultiPart,
+            pageIndex: page.page,
+            pageTitle: hasMultiPart ? page.part : videoInfo.title,
+            pageCover: hasMultiPart
+                ? (page.firstFrame ?? videoInfo.pic)
+                : videoInfo.pic,
+            totalPage: videoInfo.pages.length,
+            duration: page.duration,
+          );
+        }).toList();
+
+        debugPrint('[Audio] Got ${pages.length} pages for video: ${videoInfo.title}');
+
+        return VideoAllPagesResult(pages: pages);
+      } catch (e, stackTrace) {
+        debugPrint('[Audio] Error fetching all video pages: $e');
         debugPrint('[Audio] Stack trace: $stackTrace');
         return null;
       }

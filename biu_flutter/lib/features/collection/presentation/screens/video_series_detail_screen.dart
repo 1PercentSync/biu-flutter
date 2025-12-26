@@ -207,11 +207,12 @@ class _VideoSeriesDetailScreenState
   }
 
   void _playMedia(SeriesMediaItem media) {
-    final playItem = _mediaToPlayItem(media);
-    ref.read(playlistProvider.notifier).play(playItem);
+    ref.read(playlistProvider.notifier).play(_mediaToPlayItem(media));
   }
 
   PlayItem _mediaToPlayItem(SeriesMediaItem media) {
+    // Don't pass ownerMid for videos to trigger fetching all pages
+    // Source: biu/src/store/play-list.ts:527-535
     return PlayItem(
       id: _uuid.v4(),
       title: media.title,
@@ -220,7 +221,7 @@ class _VideoSeriesDetailScreenState
       aid: media.id.toString(),
       cover: media.cover,
       ownerName: media.upper.name,
-      ownerMid: media.upper.mid,
+      // ownerMid intentionally omitted to trigger multi-part fetch
       duration: media.duration,
     );
   }

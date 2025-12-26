@@ -44,6 +44,16 @@ class VideoInfoResult {
   final int? totalPage;
 }
 
+/// Result of fetching all video pages
+/// Source: biu/src/store/play-list.ts#getMVData
+class VideoAllPagesResult {
+  const VideoAllPagesResult({
+    required this.pages,
+  });
+
+  final List<PlayItem> pages;
+}
+
 /// Keys for persistent storage
 class _StorageKeys {
   static const String playlistState = 'playlist_state';
@@ -74,6 +84,9 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
   Future<String?> Function(int sid)? onFetchAudioUrl;
   // Callback for fetching video info (to get cid when missing)
   Future<VideoInfoResult?> Function(String bvid)? onFetchVideoInfo;
+  // Callback for fetching all video pages (for multi-part videos)
+  // Source: biu/src/store/play-list.ts#getMVData
+  Future<VideoAllPagesResult?> Function(String bvid)? onFetchVideoAllPages;
 
   @override
   PlaylistState build() {
@@ -230,6 +243,11 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
   // ============ Playlist Operations ============
 
   /// Play a single item (adds to playlist if not present)
+  ///
+  /// If the item is missing cover/ownerName/ownerMid information,
+  /// it will fetch video info and add all pages to the playlist.
+  ///
+  /// Source: biu/src/store/play-list.ts#play
   Future<void> play(PlayItem item) async {
     debugPrint('[Playlist] Play requested: ${item.title} (type: ${item.type})');
 
@@ -259,12 +277,34 @@ class PlaylistNotifier extends Notifier<PlaylistState> {
       return;
     }
 
-    // Add new item and play
-    debugPrint('[Playlist] Adding new item to playlist');
-    final newList = [...state.list, item];
+    // New item - check if we need to fetch complete info
+    // Source: biu/src/store/play-list.ts:527-535
+    // "补充缺失信息" - if cover/ownerName/ownerMid is missing, fetch all pages
+    var itemsToAdd = <PlayItem>[item];
+    String? playId = item.id;
+
+    final needsFetch = item.cover == null ||
+        item.cover!.isEmpty ||
+        item.ownerName == null ||
+        item.ownerName!.isEmpty ||
+        item.ownerMid == null;
+
+    if (needsFetch && item.type == PlayDataType.mv && item.bvid != null) {
+      debugPrint('[Playlist] Info incomplete, fetching all pages for video...');
+      final pagesResult = await onFetchVideoAllPages?.call(item.bvid!);
+      if (pagesResult != null && pagesResult.pages.isNotEmpty) {
+        itemsToAdd = pagesResult.pages;
+        playId = itemsToAdd.first.id;
+        debugPrint('[Playlist] Got ${itemsToAdd.length} pages');
+      }
+    }
+
+    // Add items and play
+    debugPrint('[Playlist] Adding ${itemsToAdd.length} item(s) to playlist');
+    final newList = [...state.list, ...itemsToAdd];
     state = state.copyWith(
       list: newList,
-      playId: item.id,
+      playId: playId,
       currentTime: 0,
       clearDuration: true,
     );

@@ -17,6 +17,8 @@ import '../providers/later_state.dart';
 import '../widgets/later_item_card.dart';
 import '../widgets/later_item_list_tile.dart';
 
+const _uuid = Uuid();
+
 /// Screen displaying watch later list with infinite scroll
 ///
 /// Source: biu/src/pages/later/index.tsx#Later
@@ -28,7 +30,6 @@ class LaterScreen extends ConsumerStatefulWidget {
 }
 
 class _LaterScreenState extends ConsumerState<LaterScreen> {
-  static const _uuid = Uuid();
   final _scrollController = ScrollController();
 
   @override
@@ -243,6 +244,8 @@ class _LaterScreenState extends ConsumerState<LaterScreen> {
       return;
     }
 
+    // Don't pass ownerMid to trigger fetching all pages
+    // Source: biu/src/store/play-list.ts:527-535
     final playItem = PlayItem(
       id: _uuid.v4(),
       title: item.title,
@@ -252,7 +255,7 @@ class _LaterScreenState extends ConsumerState<LaterScreen> {
       cid: item.cid.toString(),
       cover: item.pic,
       ownerName: item.owner?.name,
-      ownerMid: item.owner?.mid,
+      // ownerMid intentionally omitted to trigger multi-part fetch
       duration: item.duration,
     );
 

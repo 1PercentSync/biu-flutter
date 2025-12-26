@@ -14,6 +14,8 @@ import '../providers/history_notifier.dart';
 import '../providers/history_state.dart';
 import '../widgets/history_item_card.dart';
 
+const _uuid = Uuid();
+
 /// Screen displaying watch history with infinite scroll
 ///
 /// Source: biu/src/pages/history/index.tsx#History
@@ -25,7 +27,6 @@ class HistoryScreen extends ConsumerStatefulWidget {
 }
 
 class _HistoryScreenState extends ConsumerState<HistoryScreen> {
-  static const _uuid = Uuid();
   final _scrollController = ScrollController();
 
   @override
@@ -191,16 +192,29 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
       return;
     }
 
+    final bvid = item.history.bvid;
+    if (bvid == null || bvid.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('视频信息不完整'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    // Don't pass ownerMid to trigger fetching all pages
+    // Source: biu/src/store/play-list.ts:527-535
     final playItem = PlayItem(
       id: _uuid.v4(),
       title: item.title,
       type: PlayDataType.mv,
-      bvid: item.history.bvid,
+      bvid: bvid,
       aid: item.history.oid.toString(),
       cid: item.history.cid?.toString(),
       cover: item.cover,
       ownerName: item.authorName,
-      ownerMid: item.authorMid,
+      // ownerMid intentionally omitted to trigger multi-part fetch
       duration: item.duration,
     );
 

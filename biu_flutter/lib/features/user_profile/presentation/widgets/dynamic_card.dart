@@ -460,6 +460,8 @@ class _DynamicCardState extends ConsumerState<DynamicCard> {
 
   /// Play video from archive.
   void _playVideo(MajorArchive archive) {
+    // Don't pass ownerMid to trigger fetching all pages
+    // Source: biu/src/store/play-list.ts:527-535
     final playItem = PlayItem(
       id: _uuid.v4(),
       title: archive.title,
@@ -468,32 +470,9 @@ class _DynamicCardState extends ConsumerState<DynamicCard> {
       aid: archive.aid,
       cover: archive.cover,
       ownerName: item.modules.moduleAuthor.name,
-      ownerMid: item.modules.moduleAuthor.mid,
-      duration: _parseDuration(archive.durationText),
+      // ownerMid intentionally omitted to trigger multi-part fetch
     );
 
     ref.read(playlistProvider.notifier).play(playItem);
-  }
-
-  /// Parse duration text to seconds.
-  int _parseDuration(String durationText) {
-    if (durationText.isEmpty) return 0;
-
-    final parts = durationText.split(':').reversed.toList();
-    var seconds = 0;
-    for (var i = 0; i < parts.length; i++) {
-      final value = int.tryParse(parts[i]) ?? 0;
-      seconds += value * _pow(60, i);
-    }
-    return seconds;
-  }
-
-  /// Simple power function.
-  int _pow(int base, int exponent) {
-    var result = 1;
-    for (var i = 0; i < exponent; i++) {
-      result *= base;
-    }
-    return result;
   }
 }

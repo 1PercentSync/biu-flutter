@@ -410,6 +410,8 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
   }
 
   void _playVideo(SpaceArcVListItem video) {
+    // Don't pass ownerMid to trigger fetching all pages
+    // Source: biu/src/store/play-list.ts:527-535
     final playItem = PlayItem(
       id: _uuid.v4(),
       title: video.title,
@@ -418,7 +420,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
       aid: video.aid.toString(),
       cover: video.pic,
       ownerName: video.author,
-      ownerMid: video.mid,
+      // ownerMid intentionally omitted to trigger multi-part fetch
       duration: video.durationSeconds,
     );
 

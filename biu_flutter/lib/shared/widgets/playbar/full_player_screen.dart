@@ -8,7 +8,6 @@ import '../../../features/player/domain/entities/play_item.dart';
 import '../../../features/player/presentation/providers/playlist_notifier.dart';
 import '../../../features/player/presentation/providers/playlist_state.dart';
 import '../../theme/theme.dart';
-import '../audio_visualizer.dart';
 import '../cached_image.dart';
 
 /// Full-screen player widget.
@@ -57,10 +56,10 @@ class _FullPlayerScreenState extends ConsumerState<FullPlayerScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Cover image section with visualizer
+            // Cover image section
             Expanded(
               flex: 3,
-              child: _buildCoverSection(currentItem, playlistState.isPlaying),
+              child: _buildCoverSection(currentItem),
             ),
             // Track info and controls
             Expanded(
@@ -181,7 +180,7 @@ class _FullPlayerScreenState extends ConsumerState<FullPlayerScreen> {
     );
   }
 
-  Widget _buildCoverSection(PlayItem currentItem, bool isPlaying) {
+  Widget _buildCoverSection(PlayItem currentItem) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -209,19 +208,6 @@ class _FullPlayerScreenState extends ConsumerState<FullPlayerScreen> {
                     borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
                   ),
                 ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            // Audio visualizer
-            // Note: Simulated animation since just_audio doesn't support FFT data
-            SizedBox(
-              height: 40,
-              child: AudioVisualizer(
-                isPlaying: isPlaying,
-                barCount: 48,
-                maxHeight: 0.9,
-                primaryColor: AppColors.primary,
-                secondaryColor: AppColors.primary.withValues(alpha: 0.4),
               ),
             ),
           ],

@@ -1,7 +1,7 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../shared/theme/theme.dart';
+import '../../../../shared/widgets/cached_image.dart';
 import '../../data/models/search_result.dart';
 
 /// Card widget for displaying user search results
@@ -41,12 +41,11 @@ class UserSearchCard extends StatelessWidget {
     return Stack(
       children: [
         ClipOval(
-          child: CachedNetworkImage(
+          child: AppCachedImage(
             imageUrl: user.upic,
             width: 48,
             height: 48,
-            fit: BoxFit.cover,
-            placeholder: (context, url) => Container(
+            placeholder: Container(
               width: 48,
               height: 48,
               color: AppColors.surfaceElevated,
@@ -55,7 +54,7 @@ class UserSearchCard extends StatelessWidget {
                 color: AppColors.textTertiary,
               ),
             ),
-            errorWidget: (context, url, error) => Container(
+            errorWidget: Container(
               width: 48,
               height: 48,
               color: AppColors.surfaceElevated,

@@ -5,150 +5,179 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Biu - Home Tabs Prototype</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        /*
+         * ============================================================
+         * DESIGN TOKENS - Flutter: Define in AppTheme / ThemeExtension
+         * ============================================================
+         */
         :root {
-            --background: #000000;
-            --surface: #1c1c1e;
-            --card-bg: #2c2c2e;
-            --text-primary: #ffffff;
-            --text-secondary: rgba(255, 255, 255, 0.6);
-            --text-tertiary: rgba(255, 255, 255, 0.35);
-            --accent: #fa2d5a;
-            --divider: rgba(255, 255, 255, 0.08);
+            /* Colors - Flutter: ColorScheme / Custom Colors */
+            --color-background: #000000;
+            --color-surface: #1c1c1e;
+            --color-surface-elevated: #2c2c2e;
+            --color-primary: #fa2d5a;
+            --color-on-background: #ffffff;
+            --color-on-background-medium: rgba(255, 255, 255, 0.6);
+            --color-on-background-subtle: rgba(255, 255, 255, 0.35);
+            --color-divider: rgba(255, 255, 255, 0.08);
+
+            /* Glass Effect - Flutter: Use BackdropFilter + Container */
+            --glass-background: rgba(28, 28, 30, 0.88);
+            --glass-background-elevated: rgba(50, 50, 55, 0.85);
+            --glass-blur: 20px;
+            --glass-blur-strong: 30px;
+            --glass-saturate: 180%;
+
+            /* iOS Safe Areas - Flutter: MediaQuery.of(context).padding */
             --safe-area-top: 44px;
             --safe-area-bottom: 20px;
-            --cover-radius: 4px;
+
+            /* Spacing - Flutter: EdgeInsets constants */
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 12px;
+            --spacing-lg: 16px;
+
+            /* Border Radius - Flutter: BorderRadius constants */
+            --radius-sm: 5px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+            --radius-cover: 4px;  /* Configurable via settings */
+
+            /* Sizes - Flutter: Constants or responsive calculations */
+            --tab-bar-height: 49px;
+            --mini-player-height: 48px;
+            --list-item-cover-size: 48px;
+            --grid-cover-aspect: 1;
+
+            /* Typography - Flutter: TextTheme */
+            --font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', sans-serif;
+            --tab-font-size: 28px;
         }
 
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', 'PingFang SC', sans-serif;
-            background-color: #000;
-            color: var(--text-primary);
+            font-family: var(--font-family);
+            background: var(--color-background);
+            color: var(--color-on-background);
             min-height: 100vh;
-            overflow-x: hidden;
             display: flex;
             justify-content: center;
             gap: 40px;
             padding: 20px;
         }
 
-        /* ========== SETTINGS PANEL (Outside Phone) ========== */
+        /*
+         * ============================================================
+         * SETTINGS PANEL - For prototype testing only (not in Flutter)
+         * ============================================================
+         */
         .settings-panel {
             width: 280px;
-            background: var(--surface);
-            border-radius: 16px;
+            background: var(--color-surface);
+            border-radius: var(--radius-lg);
             padding: 20px;
             height: fit-content;
             position: sticky;
             top: 20px;
         }
-
         .settings-panel h3 {
             font-size: 14px;
             font-weight: 600;
-            color: var(--text-secondary);
-            margin-bottom: 16px;
+            color: var(--color-on-background-medium);
+            margin-bottom: var(--spacing-lg);
             text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
-
-        .setting-group {
-            margin-bottom: 24px;
-        }
-
-        .setting-label {
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin-bottom: 8px;
-        }
-
-        .setting-row {
-            display: flex;
-            gap: 8px;
-        }
-
+        .setting-group { margin-bottom: 24px; }
+        .setting-label { font-size: 13px; color: var(--color-on-background-medium); margin-bottom: var(--spacing-sm); }
+        .setting-row { display: flex; gap: var(--spacing-sm); }
         .setting-btn {
             flex: 1;
             padding: 10px 12px;
-            border-radius: 8px;
+            border-radius: var(--radius-sm);
             border: none;
-            background: var(--card-bg);
-            color: var(--text-secondary);
+            background: var(--color-surface-elevated);
+            color: var(--color-on-background-medium);
             font-size: 13px;
             cursor: pointer;
-            transition: all 0.2s;
         }
-
-        .setting-btn.active {
-            background: var(--accent);
-            color: white;
-        }
-
-        .setting-btn:hover:not(.active) {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .slider-container {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
+        .setting-btn.active { background: var(--color-primary); color: white; }
+        .slider-container { display: flex; align-items: center; gap: var(--spacing-md); }
         .slider {
             flex: 1;
             -webkit-appearance: none;
             height: 4px;
             border-radius: 2px;
-            background: var(--card-bg);
-            outline: none;
+            background: var(--color-surface-elevated);
         }
-
         .slider::-webkit-slider-thumb {
             -webkit-appearance: none;
             width: 18px;
             height: 18px;
             border-radius: 50%;
-            background: var(--accent);
+            background: var(--color-primary);
             cursor: pointer;
         }
+        .slider-value { font-size: 13px; min-width: 36px; text-align: right; }
+        .preview-box { width: 48px; height: 48px; background: linear-gradient(135deg, #6c5ce7, #a29bfe); margin-top: var(--spacing-md); }
 
-        .slider-value {
-            font-size: 13px;
-            color: var(--text-primary);
-            min-width: 36px;
-            text-align: right;
-        }
-
-        .preview-box {
-            width: 48px;
-            height: 48px;
-            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
-            margin-top: 12px;
-        }
-
-        /* ========== PHONE FRAME ========== */
+        /*
+         * ============================================================
+         * PHONE FRAME - For prototype display (not in Flutter)
+         * Flutter: This is your Scaffold with SafeArea
+         * ============================================================
+         */
         .phone-frame {
             width: 390px;
             height: 844px;
-            background: var(--background);
+            background: var(--color-background);
             border-radius: 47px;
             border: 8px solid #333;
             overflow: hidden;
             position: relative;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
-            flex-shrink: 0;
             display: flex;
             flex-direction: column;
         }
 
+        /*
+         * ============================================================
+         * GLASS BACKDROP - Flutter: Positioned + BackdropFilter
+         *
+         * Widget: Stack(children: [
+         *   content,
+         *   Positioned(top: 0, child: ClipRect(child: BackdropFilter(...)))
+         * ])
+         * ============================================================
+         */
+        .glass-backdrop,
+        .glass-backdrop-bottom {
+            position: absolute;
+            left: 0;
+            right: 0;
+            background: var(--glass-background);
+            backdrop-filter: saturate(var(--glass-saturate)) blur(var(--glass-blur));
+            -webkit-backdrop-filter: saturate(var(--glass-saturate)) blur(var(--glass-blur));
+            z-index: 8;
+            pointer-events: none;
+        }
+        .glass-backdrop {
+            top: 0;
+            height: calc(var(--safe-area-top) + 66px);
+        }
+        .glass-backdrop-bottom {
+            bottom: 0;
+            height: calc(var(--tab-bar-height) + var(--safe-area-bottom));
+        }
+
+        /*
+         * ============================================================
+         * STATUS BAR - Flutter: Handled by SystemUiOverlayStyle
+         * ============================================================
+         */
         .status-bar {
             height: var(--safe-area-top);
-            background: transparent;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -158,137 +187,145 @@
             position: relative;
             z-index: 11;
         }
+        .status-bar .icons { display: flex; gap: 4px; }
 
+        /*
+         * ============================================================
+         * MAIN CONTAINER - Flutter: Expanded child in Column
+         * ============================================================
+         */
         .main-container {
             flex: 1;
             overflow: hidden;
             position: relative;
         }
 
-        /* Header - Positioned above content */
+        /*
+         * ============================================================
+         * HEADER WITH TAB BAR - Flutter: SliverAppBar or custom widget
+         *
+         * Widget: Container(
+         *   padding: EdgeInsets.all(16),
+         *   child: Row(
+         *     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+         *     children: tabs.map((tab) => GestureDetector(...))
+         *   )
+         * )
+         * ============================================================
+         */
         .header {
-            padding: 16px 16px 16px 16px;
+            padding: var(--spacing-lg);
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             z-index: 10;
         }
-
-        /* Frosted glass backdrop covering status bar + header */
-        .glass-backdrop {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: calc(var(--safe-area-top) + 66px);
-            background: rgba(28, 28, 30, 0.88);
-            backdrop-filter: saturate(180%) blur(20px);
-            -webkit-backdrop-filter: saturate(180%) blur(20px);
-            z-index: 8;
-            pointer-events: none;
-        }
-
-        .header-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            height: 100%;
-        }
-
-        /* Tab Bar */
         .tab-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex: 1;
-            --tab-font-size: 28px;
         }
-
         .tab-item {
             font-size: var(--tab-font-size);
             font-weight: 600;
-            color: var(--text-tertiary);
+            color: var(--color-on-background-subtle);
             cursor: pointer;
-            transition: color 0.2s ease;
+            transition: color 0.2s;
             user-select: none;
-            white-space: nowrap;
         }
-
         .tab-item.active {
-            color: var(--text-primary);
+            color: var(--color-on-background);
         }
 
-        /* Content Area */
+        /*
+         * ============================================================
+         * SWIPEABLE CONTENT - Flutter: PageView with PageController
+         *
+         * Widget: PageView(
+         *   controller: _pageController,
+         *   onPageChanged: (index) => setState(() => _currentTab = index),
+         *   children: [HotSongsPage(), ArtistsPage(), RecommendPage()]
+         * )
+         * ============================================================
+         */
         .content-wrapper {
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            inset: 0;
             overflow: hidden;
         }
-
         .swipe-container {
             display: flex;
             height: 100%;
-            transition: transform 0.35s cubic-bezier(0.25, 0.1, 0.25, 1);
             width: 300%;
+            transition: transform 0.35s cubic-bezier(0.25, 0.1, 0.25, 1);
         }
-
         .tab-content {
             width: 33.333%;
             height: 100%;
             overflow-y: auto;
-            padding: 86px 16px 140px 16px;
+            /* Top: header height + gap, Bottom: mini-player + tab-bar + gap */
+            padding: 86px var(--spacing-lg) 140px;
+            scrollbar-width: none;
         }
+        .tab-content::-webkit-scrollbar { display: none; }
 
-        .tab-content::-webkit-scrollbar {
-            display: none;
-        }
-
-        /* ========== CARD MODE - Compact ========== */
-        .song-grid {
+        /*
+         * ============================================================
+         * SONG GRID (Card Mode) - Flutter: GridView.builder
+         *
+         * Widget: GridView.builder(
+         *   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+         *     crossAxisCount: 2,
+         *     mainAxisSpacing: 12,
+         *     crossAxisSpacing: 12,
+         *     childAspectRatio: calculated
+         *   ),
+         *   itemBuilder: (ctx, i) => SongCard(song: songs[i])
+         * )
+         * ============================================================
+         */
+        .song-grid,
+        .artist-grid {
             display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 12px;
+            gap: var(--spacing-md);
             align-items: start;
         }
+        .song-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .artist-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 
-        .song-card {
+        /*
+         * SONG CARD - Flutter: Column with Image and Text
+         */
+        .song-card,
+        .artist-card {
             cursor: pointer;
             transition: transform 0.2s;
         }
-
-        .song-card:active {
-            transform: scale(0.98);
-        }
+        .song-card:active,
+        .artist-card:active { transform: scale(0.98); }
 
         .song-cover {
             width: 100%;
-            aspect-ratio: 1;
+            aspect-ratio: var(--grid-cover-aspect);
+            border-radius: var(--radius-cover);
             position: relative;
             overflow: hidden;
-            border-radius: var(--cover-radius);
         }
-
         .play-count {
             position: absolute;
             bottom: 6px;
             right: 6px;
             font-size: 11px;
-            color: white;
             background: rgba(0,0,0,0.6);
             padding: 2px 6px;
-            border-radius: 4px;
+            border-radius: var(--radius-sm);
             backdrop-filter: blur(4px);
         }
-
         .song-info {
-            padding: 4px 0 0 0;
+            padding: var(--spacing-xs) 0 0;
             height: 36px;
         }
-
         .song-title {
             font-size: 13px;
             font-weight: 500;
@@ -296,253 +333,140 @@
             white-space: nowrap;
             overflow: hidden;
         }
-
         .song-artist {
             font-size: 12px;
-            color: var(--text-secondary);
+            color: var(--color-on-background-medium);
             line-height: 1.3;
             white-space: nowrap;
             overflow: hidden;
         }
 
-        /* ========== LIST MODE - Apple Music Style ========== */
-        .song-list {
-            display: flex;
-            flex-direction: column;
+        /*
+         * ARTIST CARD - Flutter: Column with CircleAvatar and Text
+         */
+        .artist-avatar {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 50%;
+            margin-bottom: 6px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
         }
+        .artist-name {
+            font-size: 15px;
+            font-weight: 600;
+            text-align: center;
+            line-height: 1.3;
+        }
+
+        /*
+         * ============================================================
+         * SONG LIST (List Mode) - Flutter: ListView.builder
+         *
+         * Widget: ListView.separated(
+         *   itemBuilder: (ctx, i) => SongListTile(song: songs[i]),
+         *   separatorBuilder: (ctx, i) => Divider(indent: 58)
+         * )
+         * ============================================================
+         */
+        .song-list { display: flex; flex-direction: column; }
 
         .song-list-item {
             display: flex;
             align-items: center;
             gap: 10px;
             cursor: pointer;
-            transition: background 0.15s;
         }
-
         .song-list-item:active {
             background: rgba(255, 255, 255, 0.05);
-            margin: 0 -16px;
-            padding: 0 16px;
+            margin: 0 calc(-1 * var(--spacing-lg));
+            padding: 0 var(--spacing-lg);
         }
-
         .song-list-item .cover {
-            width: 48px;
-            height: 48px;
-            border-radius: var(--cover-radius);
+            width: var(--list-item-cover-size);
+            height: var(--list-item-cover-size);
+            border-radius: var(--radius-cover);
             flex-shrink: 0;
-            overflow: hidden;
         }
-
         .song-list-item .content {
             flex: 1;
             min-width: 0;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: var(--spacing-sm);
             padding: 6px 0;
-            border-bottom: 0.5px solid var(--divider);
+            border-bottom: 0.5px solid var(--color-divider);
         }
-
-        .song-list-item:last-child .content {
-            border-bottom: none;
-        }
-
-        .song-list-item .info {
-            flex: 1;
-            min-width: 0;
-        }
-
+        .song-list-item:last-child .content { border-bottom: none; }
+        .song-list-item .info { flex: 1; min-width: 0; }
         .song-list-item .title {
             font-size: 15px;
-            font-weight: 400;
-            color: var(--text-primary);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             margin-bottom: 1px;
         }
-
         .song-list-item .artist {
             font-size: 13px;
-            color: var(--text-secondary);
+            color: var(--color-on-background-medium);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
-
         .song-list-item .more-btn {
             width: 28px;
             height: 28px;
             border: none;
             background: transparent;
-            color: #ffffff;
+            color: white;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 13px;
-            flex-shrink: 0;
             letter-spacing: 1px;
         }
 
-        /* ========== ARTIST CARD MODE ========== */
-        .artist-grid {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 12px;
-            align-items: start;
-        }
-
-        .artist-card {
-            text-align: center;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-        .artist-card:active {
-            transform: scale(0.98);
-        }
-
-        .artist-avatar {
-            width: 100%;
-            aspect-ratio: 1;
-            border-radius: 50%;
-            margin-bottom: 6px;
-            overflow: hidden;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-        }
-
-        .artist-name {
-            font-size: 15px;
-            font-weight: 600;
-            line-height: 1.3;
-        }
-
-        .artist-fans {
-            font-size: 12px;
-            color: var(--text-tertiary);
-            line-height: 1.2;
-        }
-
-        /* ========== ARTIST LIST MODE ========== */
-        .artist-list {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .artist-list-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 4px 0;
-            cursor: pointer;
-        }
-
-        .artist-list-item:active {
-            background: rgba(255, 255, 255, 0.05);
-            margin: 0 -16px;
-            padding: 4px 16px;
-        }
-
-        .artist-list-item .avatar {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            flex-shrink: 0;
-            overflow: hidden;
-        }
-
-        .artist-list-item .content {
-            flex: 1;
-            min-width: 0;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 0;
-            border-bottom: 0.5px solid var(--divider);
-        }
-
-        .artist-list-item:last-child .content {
-            border-bottom: none;
-        }
-
-        .artist-list-item .info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .artist-list-item .name {
-            font-size: 15px;
-            font-weight: 500;
-            color: var(--text-primary);
-            margin-bottom: 1px;
-        }
-
-        .artist-list-item .fans {
-            font-size: 13px;
-            color: var(--text-secondary);
-        }
-
-        .artist-list-item .more-btn {
-            width: 28px;
-            height: 28px;
-            border: none;
-            background: transparent;
-            color: #ffffff;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 13px;
-            flex-shrink: 0;
-            letter-spacing: 1px;
-        }
-
-        /* Bottom glass backdrop - iOS standard tab bar height */
-        .glass-backdrop-bottom {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: calc(49px + var(--safe-area-bottom));
-            background: rgba(28, 28, 30, 0.88);
-            backdrop-filter: saturate(180%) blur(20px);
-            -webkit-backdrop-filter: saturate(180%) blur(20px);
-            z-index: 8;
-            pointer-events: none;
-        }
-
-        /* Mini Player */
+        /*
+         * ============================================================
+         * MINI PLAYER - Flutter: Positioned widget with BackdropFilter
+         *
+         * Widget: Positioned(
+         *   bottom: tabBarHeight + safeAreaBottom + 8,
+         *   left: 8, right: 8,
+         *   child: ClipRRect(
+         *     borderRadius: BorderRadius.circular(14),
+         *     child: BackdropFilter(
+         *       filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
+         *       child: Container(...)
+         *     )
+         *   )
+         * )
+         * ============================================================
+         */
         .mini-player {
             position: absolute;
-            bottom: calc(49px + var(--safe-area-bottom) + 8px);
-            left: 8px;
-            right: 8px;
-            height: 48px;
-            background: rgba(50, 50, 55, 0.85);
-            backdrop-filter: saturate(180%) blur(30px);
-            -webkit-backdrop-filter: saturate(180%) blur(30px);
+            bottom: calc(var(--tab-bar-height) + var(--safe-area-bottom) + var(--spacing-sm));
+            left: var(--spacing-sm);
+            right: var(--spacing-sm);
+            height: var(--mini-player-height);
+            background: var(--glass-background-elevated);
+            backdrop-filter: saturate(var(--glass-saturate)) blur(var(--glass-blur-strong));
+            -webkit-backdrop-filter: saturate(var(--glass-saturate)) blur(var(--glass-blur-strong));
             display: flex;
             align-items: center;
-            padding: 0 8px;
+            padding: 0 var(--spacing-sm);
             gap: 10px;
-            border-radius: 14px;
+            border-radius: var(--radius-lg);
             z-index: 10;
         }
-
         .mini-player-cover {
             width: 36px;
             height: 36px;
-            border-radius: 5px;
-            background: linear-gradient(135deg, var(--accent), #8b5cf6);
+            border-radius: var(--radius-sm);
+            background: linear-gradient(135deg, var(--color-primary), #8b5cf6);
             flex-shrink: 0;
         }
-
-        .mini-player-info {
-            flex: 1;
-            min-width: 0;
-        }
-
+        .mini-player-info { flex: 1; min-width: 0; }
         .mini-player-title {
             font-size: 14px;
             font-weight: 500;
@@ -550,71 +474,63 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
-
         .mini-player-controls {
             display: flex;
-            gap: 4px;
+            gap: var(--spacing-xs);
             align-items: center;
         }
-
         .mini-player-btn {
             width: 32px;
             height: 32px;
-            border-radius: 50%;
             border: none;
             background: transparent;
-            color: var(--text-primary);
+            color: var(--color-on-background);
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
         }
+        .mini-player-btn svg { width: 28px; height: 28px; }
 
-        .mini-player-btn svg {
-            width: 28px;
-            height: 28px;
-        }
-
-        /* Bottom Navigation - iOS standard: 49pt content + 34pt safe area */
+        /*
+         * ============================================================
+         * BOTTOM NAVIGATION - Flutter: BottomNavigationBar
+         *
+         * Widget: BottomNavigationBar(
+         *   type: BottomNavigationBarType.fixed,
+         *   backgroundColor: Colors.transparent,
+         *   selectedItemColor: AppColors.primary,
+         *   unselectedItemColor: AppColors.textSubtle,
+         *   items: [...]
+         * )
+         * ============================================================
+         */
         .bottom-nav {
             position: absolute;
             bottom: 0;
             left: 0;
             right: 0;
-            height: calc(49px + var(--safe-area-bottom));
-            background: transparent;
+            height: calc(var(--tab-bar-height) + var(--safe-area-bottom));
             display: flex;
             align-items: flex-start;
             padding-top: 6px;
             z-index: 10;
         }
-
         .nav-item {
             flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start;
             gap: 1px;
             cursor: pointer;
-            color: var(--text-tertiary);
+            color: var(--color-on-background-subtle);
             transition: color 0.2s;
         }
+        .nav-item.active { color: var(--color-primary); }
+        .nav-item svg { width: 28px; height: 28px; }
+        .nav-item span { font-size: 10px; font-weight: 500; }
 
-        .nav-item.active {
-            color: var(--accent);
-        }
-
-        .nav-item svg {
-            width: 28px;
-            height: 28px;
-        }
-
-        .nav-item span {
-            font-size: 10px;
-            font-weight: 500;
-        }
-
+        /* Home Indicator - Flutter: Handled by SafeArea */
         .home-indicator {
             position: absolute;
             bottom: 8px;
@@ -630,10 +546,9 @@
     </style>
 </head>
 <body>
-    <!-- Settings Panel (Outside Phone) -->
+    <!-- Settings Panel - Prototype Only -->
     <div class="settings-panel">
         <h3>设置项预览</h3>
-
         <div class="setting-group">
             <div class="setting-label">显示模式 (displayMode)</div>
             <div class="setting-row">
@@ -641,7 +556,6 @@
                 <button class="setting-btn" id="listBtn">列表</button>
             </div>
         </div>
-
         <div class="setting-group">
             <div class="setting-label">封面圆角 (coverRadius)</div>
             <div class="slider-container">
@@ -652,15 +566,30 @@
         </div>
     </div>
 
-    <!-- Phone Frame -->
+    <!--
+        Phone Frame - Flutter Implementation Structure:
+
+        Scaffold(
+          body: Stack(
+            children: [
+              // Content with PageView
+              PageView(...),
+              // Top glass backdrop
+              Positioned(top: 0, child: GlassAppBar(...)),
+              // Mini player
+              Positioned(bottom: ..., child: MiniPlayer()),
+              // Bottom glass backdrop + nav
+              Positioned(bottom: 0, child: GlassBottomNav(...)),
+            ],
+          ),
+        )
+    -->
     <div class="phone-frame">
-        <!-- Frosted glass backdrop (top) -->
         <div class="glass-backdrop"></div>
-        <!-- Frosted glass backdrop (bottom) -->
         <div class="glass-backdrop-bottom"></div>
 
         <div class="status-bar">
-            <span class="time">9:41</span>
+            <span>9:41</span>
             <div class="icons">
                 <svg width="17" height="12" fill="currentColor"><path d="M1 4.5A1.5 1.5 0 012.5 3h2A1.5 1.5 0 016 4.5v3A1.5 1.5 0 014.5 9h-2A1.5 1.5 0 011 7.5v-3zm5.5 0A1.5 1.5 0 018 3h2a1.5 1.5 0 011.5 1.5v3A1.5 1.5 0 0110 9H8a1.5 1.5 0 01-1.5-1.5v-3zm5.5 0A1.5 1.5 0 0113.5 3h2A1.5 1.5 0 0117 4.5v3a1.5 1.5 0 01-1.5 1.5h-2A1.5 1.5 0 0112 7.5v-3z"/></svg>
                 <svg width="15" height="12" fill="currentColor"><path d="M7.5 1.5c-3 0-5.5 2-6.5 4.5 1 2.5 3.5 4.5 6.5 4.5s5.5-2 6.5-4.5c-1-2.5-3.5-4.5-6.5-4.5z"/></svg>
@@ -669,16 +598,16 @@
         </div>
 
         <div class="main-container">
+            <!-- Header with Tab Bar -->
             <div class="header">
-                <div class="header-row">
-                    <div class="tab-bar" id="tabBar">
-                        <div class="tab-item active" data-tab="0">热歌精选</div>
-                        <div class="tab-item" data-tab="1">音乐大咖</div>
-                        <div class="tab-item" data-tab="2">音乐推荐</div>
-                    </div>
+                <div class="tab-bar" id="tabBar">
+                    <div class="tab-item active" data-tab="0">热歌精选</div>
+                    <div class="tab-item" data-tab="1">音乐大咖</div>
+                    <div class="tab-item" data-tab="2">音乐推荐</div>
                 </div>
             </div>
 
+            <!-- Swipeable Content (PageView in Flutter) -->
             <div class="content-wrapper">
                 <div class="swipe-container" id="swipeContainer">
                     <div class="tab-content" id="tab0"></div>
@@ -688,6 +617,7 @@
             </div>
         </div>
 
+        <!-- Mini Player -->
         <div class="mini-player">
             <div class="mini-player-cover"></div>
             <div class="mini-player-info">
@@ -695,65 +625,50 @@
             </div>
             <div class="mini-player-controls">
                 <button class="mini-player-btn">
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
-                    </svg>
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
                 </button>
                 <button class="mini-player-btn">
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M8 5v14l11-7z"/>
-                    </svg>
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
                 </button>
                 <button class="mini-player-btn">
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/>
-                    </svg>
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
                 </button>
             </div>
         </div>
 
-        <div class="bottom-nav">
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
             <div class="nav-item active">
-                <!-- house.fill -->
-                <svg viewBox="0 0 22 22" fill="currentColor">
-                    <path d="M11.38 1.25a.75.75 0 00-.76 0l-9 5.25a.75.75 0 00-.37.65v11.1c0 .97.78 1.75 1.75 1.75h4.25a.75.75 0 00.75-.75v-5.5a1 1 0 011-1h2.5a1 1 0 011 1v5.5c0 .41.34.75.75.75H17c.97 0 1.75-.78 1.75-1.75V7.15a.75.75 0 00-.37-.65l-9-5.25z"/>
-                </svg>
+                <svg viewBox="0 0 22 22" fill="currentColor"><path d="M11.38 1.25a.75.75 0 00-.76 0l-9 5.25a.75.75 0 00-.37.65v11.1c0 .97.78 1.75 1.75 1.75h4.25a.75.75 0 00.75-.75v-5.5a1 1 0 011-1h2.5a1 1 0 011 1v5.5c0 .41.34.75.75.75H17c.97 0 1.75-.78 1.75-1.75V7.15a.75.75 0 00-.37-.65l-9-5.25z"/></svg>
                 <span>首页</span>
             </div>
             <div class="nav-item">
-                <!-- magnifyingglass -->
-                <svg viewBox="0 0 22 22" fill="currentColor">
-                    <path fill-rule="evenodd" d="M9.5 2a7.5 7.5 0 015.65 12.44l4.7 4.7a.75.75 0 01-1.06 1.06l-4.7-4.7A7.5 7.5 0 119.5 2zm0 1.5a6 6 0 100 12 6 6 0 000-12z"/>
-                </svg>
+                <svg viewBox="0 0 22 22" fill="currentColor"><path fill-rule="evenodd" d="M9.5 2a7.5 7.5 0 015.65 12.44l4.7 4.7a.75.75 0 01-1.06 1.06l-4.7-4.7A7.5 7.5 0 119.5 2zm0 1.5a6 6 0 100 12 6 6 0 000-12z"/></svg>
                 <span>搜索</span>
             </div>
             <div class="nav-item">
-                <!-- heart.fill -->
-                <svg viewBox="0 0 22 22" fill="currentColor">
-                    <path d="M11 19.5l-.9-.8C5.4 14.4 2 11.4 2 7.5 2 4.4 4.4 2 7.5 2c1.7 0 3.4.8 4.5 2.1C13.1 2.8 14.8 2 16.5 2 19.6 2 22 4.4 22 7.5c0 3.9-3.4 6.9-8.1 11.2l-.9.8z"/>
-                </svg>
+                <svg viewBox="0 0 22 22" fill="currentColor"><path d="M11 19.5l-.9-.8C5.4 14.4 2 11.4 2 7.5 2 4.4 4.4 2 7.5 2c1.7 0 3.4.8 4.5 2.1C13.1 2.8 14.8 2 16.5 2 19.6 2 22 4.4 22 7.5c0 3.9-3.4 6.9-8.1 11.2l-.9.8z"/></svg>
                 <span>收藏</span>
             </div>
             <div class="nav-item">
-                <!-- clock.fill -->
-                <svg viewBox="0 0 22 22" fill="currentColor">
-                    <path fill-rule="evenodd" d="M11 20a9 9 0 100-18 9 9 0 000 18zm.75-13a.75.75 0 00-1.5 0v4.5c0 .28.16.53.4.66l3 1.75a.75.75 0 10.76-1.3l-2.66-1.54V7z"/>
-                </svg>
+                <svg viewBox="0 0 22 22" fill="currentColor"><path fill-rule="evenodd" d="M11 20a9 9 0 100-18 9 9 0 000 18zm.75-13a.75.75 0 00-1.5 0v4.5c0 .28.16.53.4.66l3 1.75a.75.75 0 10.76-1.3l-2.66-1.54V7z"/></svg>
                 <span>历史</span>
             </div>
             <div class="nav-item">
-                <!-- person.fill -->
-                <svg viewBox="0 0 22 22" fill="currentColor">
-                    <path d="M11 11a4 4 0 100-8 4 4 0 000 8zm0 2c-4 0-8 2-8 5v1.5c0 .28.22.5.5.5h15c.28 0 .5-.22.5-.5V18c0-3-4-5-8-5z"/>
-                </svg>
+                <svg viewBox="0 0 22 22" fill="currentColor"><path d="M11 11a4 4 0 100-8 4 4 0 000 8zm0 2c-4 0-8 2-8 5v1.5c0 .28.22.5.5.5h15c.28 0 .5-.22.5-.5V18c0-3-4-5-8-5z"/></svg>
                 <span>我的</span>
             </div>
-        </div>
+        </nav>
 
         <div class="home-indicator"></div>
     </div>
 
     <script>
+        /**
+         * ============================================================
+         * DATA MODELS - Flutter: Define in models/ directory
+         * ============================================================
+         */
         const songs1 = [
             { title: 'By The Whispers of Our Memo...', artist: 'Xeuphoria', color: '#ff6b6b, #ee5a24' },
             { title: 'さようなら世界夫人よ', artist: 'Zuno Keisatsu', color: '#a29bfe, #6c5ce7' },
@@ -777,100 +692,94 @@
         ];
 
         const artists = [
-            { name: '周杰伦', fans: '1234.5万', color: '#6c5ce7, #a29bfe' },
-            { name: '林俊杰', fans: '987.2万', color: '#00b894, #55efc4' },
-            { name: '陈奕迅', fans: '856.3万', color: '#e17055, #fab1a0' },
-            { name: '薛之谦', fans: '745.8万', color: '#0984e3, #74b9ff' },
-            { name: '邓紫棋', fans: '698.1万', color: '#e84393, #fd79a8' },
-            { name: '毛不易', fans: '523.4万', color: '#fdcb6e, #ffeaa7' },
+            { name: '周杰伦', color: '#6c5ce7, #a29bfe' },
+            { name: '林俊杰', color: '#00b894, #55efc4' },
+            { name: '陈奕迅', color: '#e17055, #fab1a0' },
+            { name: '薛之谦', color: '#0984e3, #74b9ff' },
+            { name: '邓紫棋', color: '#e84393, #fd79a8' },
+            { name: '毛不易', color: '#fdcb6e, #ffeaa7' },
         ];
 
+        /**
+         * ============================================================
+         * STATE - Flutter: Use Provider/Riverpod/Bloc
+         * ============================================================
+         */
         let currentTab = 0;
-        let displayMode = 'grid';
-        let coverRadius = 4;
+        let displayMode = 'grid';  // From settings
+        let coverRadius = 4;       // From settings
 
+        /**
+         * ============================================================
+         * DOM REFERENCES
+         * ============================================================
+         */
         const tabItems = document.querySelectorAll('.tab-item');
         const swipeContainer = document.getElementById('swipeContainer');
+        const tabBar = document.getElementById('tabBar');
         const gridBtn = document.getElementById('gridBtn');
         const listBtn = document.getElementById('listBtn');
         const radiusSlider = document.getElementById('radiusSlider');
         const radiusValue = document.getElementById('radiusValue');
         const previewBox = document.getElementById('previewBox');
 
-        function updateCoverRadius(value) {
-            coverRadius = value;
-            document.documentElement.style.setProperty('--cover-radius', value + 'px');
-            radiusValue.textContent = value + 'px';
-            previewBox.style.borderRadius = value + 'px';
-        }
+        /**
+         * ============================================================
+         * RENDER FUNCTIONS - Flutter: Widget build methods
+         * ============================================================
+         */
 
-        function renderSongCard(song) {
-            return `
-                <div class="song-card">
-                    <div class="song-cover" style="background: linear-gradient(135deg, ${song.color});">
-                        <span class="play-count">12.3万</span>
-                    </div>
-                    <div class="song-info">
-                        <div class="song-title">${song.title}</div>
-                        <div class="song-artist">${song.artist}</div>
-                    </div>
+        // SongCard widget
+        const renderSongCard = (song) => `
+            <div class="song-card">
+                <div class="song-cover" style="background: linear-gradient(135deg, ${song.color})">
+                    <span class="play-count">12.3万</span>
                 </div>
-            `;
-        }
+                <div class="song-info">
+                    <div class="song-title">${song.title}</div>
+                    <div class="song-artist">${song.artist}</div>
+                </div>
+            </div>
+        `;
 
-        function renderSongListItem(song) {
-            return `
-                <div class="song-list-item">
-                    <div class="cover" style="background: linear-gradient(135deg, ${song.color});"></div>
-                    <div class="content">
-                        <div class="info">
-                            <div class="title">${song.title}</div>
-                            <div class="artist">${song.artist}</div>
-                        </div>
-                        <button class="more-btn">•••</button>
+        // SongListTile widget
+        const renderSongListItem = (song) => `
+            <div class="song-list-item">
+                <div class="cover" style="background: linear-gradient(135deg, ${song.color})"></div>
+                <div class="content">
+                    <div class="info">
+                        <div class="title">${song.title}</div>
+                        <div class="artist">${song.artist}</div>
                     </div>
+                    <button class="more-btn">•••</button>
                 </div>
-            `;
-        }
+            </div>
+        `;
 
-        function renderArtistCard(artist) {
-            return `
-                <div class="artist-card">
-                    <div class="artist-avatar" style="background: linear-gradient(135deg, ${artist.color});"></div>
-                    <div class="artist-name">${artist.name}</div>
-                </div>
-            `;
-        }
+        // ArtistCard widget
+        const renderArtistCard = (artist) => `
+            <div class="artist-card">
+                <div class="artist-avatar" style="background: linear-gradient(135deg, ${artist.color})"></div>
+                <div class="artist-name">${artist.name}</div>
+            </div>
+        `;
 
-        function renderArtistListItem(artist) {
-            return `
-                <div class="artist-list-item">
-                    <div class="avatar" style="background: linear-gradient(135deg, ${artist.color});"></div>
-                    <div class="content">
-                        <div class="info">
-                            <div class="name">${artist.name}</div>
-                            <div class="fans">${artist.fans} 粉丝</div>
-                        </div>
-                        <button class="more-btn">•••</button>
-                    </div>
-                </div>
-            `;
-        }
-
+        /**
+         * ============================================================
+         * CONTENT RENDERING - Flutter: Build method with conditional
+         * ============================================================
+         */
         function renderContent() {
             const tab0 = document.getElementById('tab0');
             const tab1 = document.getElementById('tab1');
             const tab2 = document.getElementById('tab2');
 
-            // Tab 1: 音乐大咖 (artists) - always card mode
+            // Artists tab always uses grid mode
             tab1.innerHTML = `<div class="artist-grid">${artists.map(renderArtistCard).join('')}</div>`;
 
             if (displayMode === 'grid') {
-                // Tab 0: 热歌精选 (songs)
                 tab0.innerHTML = `<div class="song-grid">${songs1.map(renderSongCard).join('')}</div>`;
-                // Tab 2: 音乐推荐 (songs)
                 tab2.innerHTML = `<div class="song-grid">${songs2.map(renderSongCard).join('')}</div>`;
-                // Apply text truncation with bottom-aligned ellipsis
                 requestAnimationFrame(applyTextTruncation);
             } else {
                 tab0.innerHTML = `<div class="song-list">${songs1.map(renderSongListItem).join('')}</div>`;
@@ -878,36 +787,33 @@
             }
         }
 
+        /**
+         * Text truncation with baseline-aligned ellipsis
+         * Flutter: Use Text widget with maxLines and overflow
+         */
         function applyTextTruncation() {
-            const elements = document.querySelectorAll('.song-title, .song-artist');
-            elements.forEach(el => {
-                // Store original text if not already stored
-                if (!el.dataset.originalText) {
-                    el.dataset.originalText = el.textContent;
-                }
-                // Reset to original text
+            document.querySelectorAll('.song-title, .song-artist').forEach(el => {
+                if (!el.dataset.originalText) el.dataset.originalText = el.textContent;
                 el.textContent = el.dataset.originalText;
 
-                // Check if text overflows
                 if (el.scrollWidth > el.clientWidth) {
                     const text = el.dataset.originalText;
-                    let truncated = text;
-                    // Binary search for the right length
                     let low = 0, high = text.length;
                     while (low < high) {
                         const mid = Math.ceil((low + high) / 2);
                         el.textContent = text.substring(0, mid) + '...';
-                        if (el.scrollWidth <= el.clientWidth) {
-                            low = mid;
-                        } else {
-                            high = mid - 1;
-                        }
+                        el.scrollWidth <= el.clientWidth ? low = mid : high = mid - 1;
                     }
                     el.textContent = text.substring(0, low) + '...';
                 }
             });
         }
 
+        /**
+         * ============================================================
+         * TAB SWITCHING - Flutter: PageController.animateToPage
+         * ============================================================
+         */
         function switchTab(index) {
             if (index === currentTab) return;
             tabItems[currentTab].classList.remove('active');
@@ -916,6 +822,11 @@
             swipeContainer.style.transform = `translateX(-${index * 33.333}%)`;
         }
 
+        /**
+         * ============================================================
+         * SETTINGS - Flutter: SettingsProvider / SharedPreferences
+         * ============================================================
+         */
         function setDisplayMode(mode) {
             displayMode = mode;
             gridBtn.classList.toggle('active', mode === 'grid');
@@ -923,21 +834,46 @@
             renderContent();
         }
 
-        tabItems.forEach((tab, index) => {
-            tab.addEventListener('click', () => switchTab(index));
-        });
+        function updateCoverRadius(value) {
+            coverRadius = value;
+            document.documentElement.style.setProperty('--radius-cover', value + 'px');
+            radiusValue.textContent = value + 'px';
+            previewBox.style.borderRadius = value + 'px';
+        }
 
+        /**
+         * Adaptive tab font size - Flutter: LayoutBuilder + FittedBox
+         */
+        function adjustTabFontSize() {
+            const containerWidth = tabBar.parentElement.clientWidth;
+            const MIN_GAP = 10, MAX_SIZE = 28, MIN_SIZE = 16;
+            let low = MIN_SIZE, high = MAX_SIZE, fontSize = MAX_SIZE;
+
+            while (low <= high) {
+                const mid = Math.floor((low + high) / 2);
+                tabBar.style.setProperty('--tab-font-size', mid + 'px');
+
+                let totalWidth = Array.from(tabItems).reduce((sum, tab) => sum + tab.offsetWidth, 0);
+                totalWidth += MIN_GAP * (tabItems.length - 1);
+
+                totalWidth <= containerWidth ? (fontSize = mid, low = mid + 1) : high = mid - 1;
+            }
+            tabBar.style.setProperty('--tab-font-size', fontSize + 'px');
+        }
+
+        /**
+         * ============================================================
+         * EVENT LISTENERS - Flutter: GestureDetector / onTap
+         * ============================================================
+         */
+        tabItems.forEach((tab, i) => tab.addEventListener('click', () => switchTab(i)));
         gridBtn.addEventListener('click', () => setDisplayMode('grid'));
         listBtn.addEventListener('click', () => setDisplayMode('list'));
+        radiusSlider.addEventListener('input', (e) => updateCoverRadius(e.target.value));
 
-        radiusSlider.addEventListener('input', (e) => {
-            updateCoverRadius(e.target.value);
-        });
-
+        // Swipe gesture - Flutter: PageView handles this automatically
         let touchStartX = 0;
-        swipeContainer.addEventListener('touchstart', (e) => {
-            touchStartX = e.changedTouches[0].screenX;
-        });
+        swipeContainer.addEventListener('touchstart', (e) => touchStartX = e.changedTouches[0].screenX);
         swipeContainer.addEventListener('touchend', (e) => {
             const diff = touchStartX - e.changedTouches[0].screenX;
             if (Math.abs(diff) > 50) {
@@ -946,55 +882,19 @@
             }
         });
 
-        // Tab font size adjustment
-        const MIN_TAB_GAP = 10; // Minimum gap between tabs in pixels
-        const MAX_TAB_FONT_SIZE = 28;
-        const MIN_TAB_FONT_SIZE = 16;
-        const tabBar = document.getElementById('tabBar');
+        window.addEventListener('resize', () => {
+            adjustTabFontSize();
+            if (displayMode === 'grid') requestAnimationFrame(applyTextTruncation);
+        });
 
-        function adjustTabFontSize() {
-            const containerWidth = tabBar.parentElement.clientWidth;
-            let fontSize = MAX_TAB_FONT_SIZE;
-
-            // Binary search for optimal font size
-            let low = MIN_TAB_FONT_SIZE;
-            let high = MAX_TAB_FONT_SIZE;
-
-            while (low <= high) {
-                const mid = Math.floor((low + high) / 2);
-                tabBar.style.setProperty('--tab-font-size', mid + 'px');
-
-                // Calculate total width needed
-                let totalTabWidth = 0;
-                tabItems.forEach(tab => {
-                    totalTabWidth += tab.offsetWidth;
-                });
-                const totalGapWidth = MIN_TAB_GAP * (tabItems.length - 1);
-                const totalNeeded = totalTabWidth + totalGapWidth;
-
-                if (totalNeeded <= containerWidth) {
-                    fontSize = mid;
-                    low = mid + 1;
-                } else {
-                    high = mid - 1;
-                }
-            }
-
-            tabBar.style.setProperty('--tab-font-size', fontSize + 'px');
-        }
-
-        // Initialize
+        /**
+         * ============================================================
+         * INITIALIZATION - Flutter: initState
+         * ============================================================
+         */
         updateCoverRadius(4);
         renderContent();
         adjustTabFontSize();
-
-        // Reapply on resize
-        window.addEventListener('resize', () => {
-            adjustTabFontSize();
-            if (displayMode === 'grid') {
-                requestAnimationFrame(applyTextTruncation);
-            }
-        });
     </script>
 </body>
 </html>

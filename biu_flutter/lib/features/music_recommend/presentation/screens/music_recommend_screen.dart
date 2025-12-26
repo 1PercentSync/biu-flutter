@@ -6,13 +6,13 @@ import '../../../../core/constants/audio.dart';
 import '../../../../shared/theme/theme.dart';
 import '../../../../shared/widgets/error_state.dart';
 import '../../../../shared/widgets/loading_state.dart';
+import '../../../../shared/widgets/song_item.dart';
 import '../../../player/player.dart';
 import '../../../settings/domain/entities/app_settings.dart';
 import '../../../settings/presentation/providers/settings_notifier.dart';
 import '../../data/models/recommended_song.dart';
 import '../providers/music_recommend_notifier.dart';
 import '../providers/music_recommend_state.dart';
-import '../widgets/recommended_song_card.dart';
 
 /// Music recommend screen displaying recommended songs with infinite scroll.
 /// Source: biu/src/pages/music-recommend/index.tsx
@@ -145,8 +145,15 @@ class _MusicRecommendScreenState extends ConsumerState<MusicRecommendScreen> {
               final song = state.songs[index];
               return Padding(
                 padding: const EdgeInsets.only(bottom: 8),
-                child: RecommendedSongListTile(
-                  song: song,
+                child: SongItem(
+                  displayMode: displayMode,
+                  title: song.musicTitle,
+                  author: song.author,
+                  bvid: song.bvid,
+                  aid: song.aid,
+                  cid: song.cid,
+                  cover: song.cover,
+                  playCount: song.playCount,
                   onTap: () => _playSong(song),
                 ),
               );
@@ -172,8 +179,15 @@ class _MusicRecommendScreenState extends ConsumerState<MusicRecommendScreen> {
         delegate: SliverChildBuilderDelegate(
           (context, index) {
             final song = state.songs[index];
-            return RecommendedSongCard(
-              song: song,
+            return SongItem(
+              displayMode: displayMode,
+              title: song.musicTitle,
+              author: song.author,
+              bvid: song.bvid,
+              aid: song.aid,
+              cid: song.cid,
+              cover: song.cover,
+              playCount: song.playCount,
               onTap: () => _playSong(song),
             );
           },

@@ -8,6 +8,7 @@ import '../../../../core/router/routes.dart';
 import '../../../../shared/theme/theme.dart';
 import '../../../../shared/widgets/error_state.dart';
 import '../../../../shared/widgets/loading_state.dart';
+import '../../../../shared/widgets/song_item.dart';
 import '../../../music_rank/music_rank.dart';
 import '../../../player/player.dart';
 import '../../../settings/domain/entities/app_settings.dart';
@@ -98,8 +99,15 @@ class HomeScreen extends ConsumerWidget {
               final song = state.songs[index];
               return Padding(
                 padding: const EdgeInsets.only(bottom: 8),
-                child: HotSongListTile(
-                  song: song,
+                child: SongItem(
+                  displayMode: displayMode,
+                  title: song.musicTitle,
+                  author: song.author,
+                  bvid: song.bvid,
+                  aid: song.aid,
+                  cid: song.cid,
+                  cover: song.cover,
+                  playCount: song.totalVv,
                   onTap: () => _playSong(ref, song),
                 ),
               );
@@ -125,8 +133,15 @@ class HomeScreen extends ConsumerWidget {
         delegate: SliverChildBuilderDelegate(
           (context, index) {
             final song = state.songs[index];
-            return HotSongCard(
-              song: song,
+            return SongItem(
+              displayMode: displayMode,
+              title: song.musicTitle,
+              author: song.author,
+              bvid: song.bvid,
+              aid: song.aid,
+              cid: song.cid,
+              cover: song.cover,
+              playCount: song.totalVv,
               onTap: () => _playSong(ref, song),
             );
           },

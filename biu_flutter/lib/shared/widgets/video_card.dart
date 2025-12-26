@@ -49,6 +49,7 @@ class VideoCard extends StatelessWidget {
     this.onLongPress,
     this.onOwnerTap,
     this.actions,
+    this.actionWidget,
   });
 
   /// Video title (may contain HTML `<em>` tags if [highlightTitle] is true)
@@ -107,8 +108,14 @@ class VideoCard extends StatelessWidget {
   /// Callback when owner name is tapped
   final VoidCallback? onOwnerTap;
 
-  /// Actions to show in popup menu
+  /// Actions to show in popup menu on cover
   final List<VideoCardAction>? actions;
+
+  /// Action widget displayed next to title (e.g., MediaActionMenu)
+  ///
+  /// Alternative to [actions] which shows popup menu on cover.
+  /// Source: biu/src/components/mv-card/index.tsx#titleExtra
+  final Widget? actionWidget;
 
   @override
   Widget build(BuildContext context) {
@@ -236,21 +243,28 @@ class VideoCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Title - supports HTML highlight tags from search results
-        // Source: biu/src/components/mv-card/index.tsx#isTitleIncludeHtmlTag
-        if (highlightTitle)
-          HighlightedText(
-            text: title,
-            style: titleStyle,
-            maxLines: 2,
-          )
-        else
-          Text(
-            title,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: titleStyle,
-          ),
+        // Title row with optional action widget
+        // Source: biu/src/components/mv-card/index.tsx#titleExtra
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: highlightTitle
+                  ? HighlightedText(
+                      text: title,
+                      style: titleStyle,
+                      maxLines: 2,
+                    )
+                  : Text(
+                      title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: titleStyle,
+                    ),
+            ),
+            if (actionWidget != null) actionWidget!,
+          ],
+        ),
         const SizedBox(height: 8),
         // Owner and stats
         Row(

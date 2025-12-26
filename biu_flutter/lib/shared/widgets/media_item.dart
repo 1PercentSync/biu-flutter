@@ -98,13 +98,15 @@ class MediaItem extends StatelessWidget {
 
   // ── Actions ───────────────────────────────────────────────────
 
-  /// Action widget (e.g., MediaActionMenu) - used in list mode
+  /// Action widget (e.g., MediaActionMenu)
   ///
-  /// For list mode, this widget's onPressed callback will be used.
-  /// For card mode, use [cardActions] instead.
+  /// For list mode, this widget's onPressed callback will be extracted.
+  /// For card mode, this widget will be displayed next to the title.
   final Widget? actionWidget;
 
-  /// Actions for card mode popup menu
+  /// Actions for card mode popup menu (displayed on cover)
+  ///
+  /// Alternative to [actionWidget] for card mode.
   final List<VideoCardAction>? cardActions;
 
   // ── Callbacks ─────────────────────────────────────────────────
@@ -175,6 +177,7 @@ class MediaItem extends StatelessWidget {
       onLongPress: onLongPress,
       onOwnerTap: onOwnerTap,
       actions: cardActions,
+      actionWidget: actionWidget,
     );
   }
 }

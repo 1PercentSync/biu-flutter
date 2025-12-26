@@ -218,8 +218,8 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
         _buildSearchFilter(context, state),
         Expanded(
           child: displayMode == DisplayMode.card
-              ? _buildVideosGrid(context, state)
-              : _buildVideosList(context, state),
+              ? _buildVideosGrid(context, state, displayMode)
+              : _buildVideosList(context, state, displayMode),
         ),
       ],
     );
@@ -310,7 +310,11 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
     );
   }
 
-  Widget _buildVideosGrid(BuildContext context, UserProfileState state) {
+  Widget _buildVideosGrid(
+    BuildContext context,
+    UserProfileState state,
+    DisplayMode displayMode,
+  ) {
     if (state.isLoadingVideos && (state.videos?.isEmpty ?? true)) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -344,15 +348,20 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
         }
 
         final video = videos[index];
-        return VideoPostCard(
+        return VideoPostItem(
           video: video,
+          displayMode: displayMode,
           onTap: () => _playVideo(video),
         );
       },
     );
   }
 
-  Widget _buildVideosList(BuildContext context, UserProfileState state) {
+  Widget _buildVideosList(
+    BuildContext context,
+    UserProfileState state,
+    DisplayMode displayMode,
+  ) {
     if (state.isLoadingVideos && (state.videos?.isEmpty ?? true)) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -380,8 +389,9 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
         final video = videos[index];
         return Padding(
           padding: const EdgeInsets.only(bottom: 8),
-          child: VideoPostListTile(
+          child: VideoPostItem(
             video: video,
+            displayMode: displayMode,
             onTap: () => _playVideo(video),
           ),
         );

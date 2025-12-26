@@ -149,7 +149,6 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
             const SliverAppBar(
               floating: true,
               snap: true,
-              forceElevated: false,
             ),
             // Header
             SliverToBoxAdapter(

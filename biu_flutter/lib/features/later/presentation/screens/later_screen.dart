@@ -9,10 +9,13 @@ import '../../../../shared/theme/theme.dart';
 import '../../../../shared/widgets/error_state.dart';
 import '../../../../shared/widgets/loading_state.dart';
 import '../../../player/player.dart';
+import '../../../settings/domain/entities/app_settings.dart';
+import '../../../settings/presentation/providers/settings_notifier.dart';
 import '../../data/models/watch_later_item.dart';
 import '../providers/later_notifier.dart';
 import '../providers/later_state.dart';
 import '../widgets/later_item_card.dart';
+import '../widgets/later_item_list_tile.dart';
 
 /// Screen displaying watch later list with infinite scroll
 ///
@@ -57,6 +60,7 @@ class _LaterScreenState extends ConsumerState<LaterScreen> {
   @override
   Widget build(BuildContext context) {
     final laterState = ref.watch(laterProvider);
+    final displayMode = ref.watch(displayModeProvider);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -72,14 +76,18 @@ class _LaterScreenState extends ConsumerState<LaterScreen> {
               title: Text('稍后再看'),
             ),
             // Content
-            _buildContent(context, laterState),
+            _buildContent(context, laterState, displayMode),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildContent(BuildContext context, LaterState state) {
+  Widget _buildContent(
+    BuildContext context,
+    LaterState state,
+    DisplayMode displayMode,
+  ) {
     // Not logged in state
     if (state.isNotLoggedIn) {
       return SliverFillRemaining(
@@ -124,9 +132,52 @@ class _LaterScreenState extends ConsumerState<LaterScreen> {
       );
     }
 
-    // Watch later list
+    // Watch later list - card mode or list mode
+    // Source: biu/src/pages/later/index.tsx:139-143
+    if (displayMode == DisplayMode.card) {
+      return _buildCardGrid(context, state);
+    } else {
+      return _buildListView(context, state);
+    }
+  }
+
+  /// Build card grid layout (displayMode === "card")
+  /// Source: biu/src/pages/later/index.tsx:139-140 - uses GridList
+  Widget _buildCardGrid(BuildContext context, LaterState state) {
     return SliverPadding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
+      sliver: SliverGrid(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          childAspectRatio: 0.85,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+        ),
+        delegate: SliverChildBuilderDelegate(
+          (context, index) {
+            // Show loading indicator at the end
+            if (index == state.items.length) {
+              return _buildLoadingIndicator(state);
+            }
+
+            final item = state.items[index];
+            return LaterItemCard(
+              item: item,
+              onTap: () => _playItem(item),
+              onDelete: () => _confirmDelete(context, item),
+            );
+          },
+          childCount: state.items.length + (state.hasMore ? 1 : 0),
+        ),
+      ),
+    );
+  }
+
+  /// Build list layout (displayMode === "list")
+  /// Source: biu/src/pages/later/index.tsx:141-143 - uses plain div list
+  Widget _buildListView(BuildContext context, LaterState state) {
+    return SliverPadding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate(
           (context, index) {
@@ -137,8 +188,8 @@ class _LaterScreenState extends ConsumerState<LaterScreen> {
 
             final item = state.items[index];
             return Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: LaterItemCard(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: LaterItemListTile(
                 item: item,
                 onTap: () => _playItem(item),
                 onDelete: () => _confirmDelete(context, item),
@@ -209,15 +260,11 @@ class _LaterScreenState extends ConsumerState<LaterScreen> {
   }
 
   void _confirmDelete(BuildContext context, WatchLaterItem item) {
+    // Source: biu/src/pages/later/index.tsx:61-83 - uses onOpenConfirmModal
     showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('从稍后再看中移除？'),
-        content: Text(
-          'Remove "${item.title}" from your watch later list?',
-          maxLines: 3,
-          overflow: TextOverflow.ellipsis,
-        ),
+        title: const Text('确认删除吗？'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -228,7 +275,7 @@ class _LaterScreenState extends ConsumerState<LaterScreen> {
             style: TextButton.styleFrom(
               foregroundColor: Colors.red,
             ),
-            child: const Text('移除'),
+            child: const Text('删除'),
           ),
         ],
       ),
@@ -239,7 +286,7 @@ class _LaterScreenState extends ConsumerState<LaterScreen> {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(success ? '已移除' : '移除失败'),
+              content: Text(success ? '删除成功' : '删除失败'),
               duration: const Duration(seconds: 2),
             ),
           );

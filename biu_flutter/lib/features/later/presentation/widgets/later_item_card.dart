@@ -1,10 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../shared/theme/theme.dart';
 import '../../../../shared/widgets/cached_image.dart';
+import '../../../../shared/widgets/media_action_menu.dart';
 import '../../data/models/watch_later_item.dart';
 
-/// Card widget for displaying a watch later item
+/// Format number for display (e.g., 10000 -> "1万")
+String _formatNumber(int num) {
+  if (num >= 100000000) {
+    return '${(num / 100000000).toStringAsFixed(1)}亿';
+  }
+  if (num >= 10000) {
+    return '${(num / 10000).toStringAsFixed(1)}万';
+  }
+  return num.toString();
+}
+
+/// Card widget for displaying a watch later item in card/grid mode.
+/// Source: biu/src/pages/later/index.tsx - card mode uses MVCard with
+/// cover (with playCount overlay), title, footer (owner link + duration)
 class LaterItemCard extends StatelessWidget {
   const LaterItemCard({
     required this.item,
@@ -26,8 +41,7 @@ class LaterItemCard extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(AppTheme.borderRadius),
-        child: Container(
-          padding: const EdgeInsets.all(12),
+        child: DecoratedBox(
           decoration: BoxDecoration(
             color: AppColors.contentBackground,
             borderRadius: BorderRadius.circular(AppTheme.borderRadius),
@@ -35,16 +49,15 @@ class LaterItemCard extends StatelessWidget {
                 ? Border.all(color: AppColors.primary, width: 2)
                 : null,
           ),
-          child: Row(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Cover image with duration
+              // Cover image with play count
               _buildCover(),
-              const SizedBox(width: 12),
-              // Info section
-              Expanded(child: _buildInfo(context)),
-              // Delete button
-              if (onDelete != null) _buildDeleteButton(context),
+              // Title with action menu
+              _buildTitle(context),
+              // Footer: owner link + duration
+              _buildFooter(context),
             ],
           ),
         ),
@@ -53,63 +66,62 @@ class LaterItemCard extends StatelessWidget {
   }
 
   Widget _buildCover() {
-    return SizedBox(
-      width: 120,
-      height: 68,
+    return AspectRatio(
+      aspectRatio: 16 / 9,
       child: Stack(
         fit: StackFit.expand,
         children: [
           // Cover image
           ClipRRect(
-            borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
+            borderRadius: const BorderRadius.vertical(
+              top: Radius.circular(AppTheme.borderRadius),
+            ),
             child: AppCachedImage(
               imageUrl: item.pic,
               fileType: FileType.video,
             ),
           ),
-          // Duration badge
-          Positioned(
-            right: 4,
-            bottom: 4,
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 4,
-                vertical: 2,
-              ),
-              decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.75),
-                borderRadius:
-                    BorderRadius.circular(AppTheme.borderRadiusSmall),
-              ),
-              child: Text(
-                item.durationFormatted,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 10,
-                  fontFeatures: [FontFeature.tabularFigures()],
-                ),
-              ),
-            ),
-          ),
-          // Progress bar
-          if (item.progress > 0 && item.duration > 0)
+          // Play count overlay at bottom left
+          // Source: biu/src/components/mv-card/index.tsx - playCount shown at bottom
+          if ((item.stat?.view ?? 0) > 0)
             Positioned(
               left: 0,
               right: 0,
               bottom: 0,
-              child: ClipRRect(
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(AppTheme.borderRadiusSmall),
-                  bottomRight: Radius.circular(AppTheme.borderRadiusSmall),
-                ),
-                child: LinearProgressIndicator(
-                  value: item.progressRatio,
-                  minHeight: 3,
-                  backgroundColor: Colors.black.withValues(alpha: 0.3),
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    AppColors.primary.withValues(alpha: 0.9),
+              child: Container(
+                height: 32,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      Colors.black.withValues(alpha: 0.7),
+                    ],
                   ),
                 ),
+              ),
+            ),
+          if ((item.stat?.view ?? 0) > 0)
+            Positioned(
+              left: 8,
+              bottom: 6,
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.play_arrow,
+                    color: Colors.white,
+                    size: 16,
+                  ),
+                  const SizedBox(width: 2),
+                  Text(
+                    _formatNumber(item.stat!.view),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
               ),
             ),
         ],
@@ -117,75 +129,85 @@ class LaterItemCard extends StatelessWidget {
     );
   }
 
-  Widget _buildInfo(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        // Title
-        Text(
-          item.title,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w500,
-                height: 1.3,
-              ),
-        ),
-        const SizedBox(height: 6),
-        // Author
-        if (item.owner != null)
-          Text(
-            item.owner!.name,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-          ),
-        const SizedBox(height: 4),
-        // Add time and view count
-        Row(
-          children: [
-            Text(
-              item.addAtFormatted,
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: AppColors.textTertiary,
+  Widget _buildTitle(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 8, 4, 0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Text(
+              item.title,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w500,
+                    height: 1.3,
                   ),
             ),
-            if (item.stat != null) ...[
-              const SizedBox(width: 8),
-              const Icon(
-                Icons.play_circle_outline,
-                size: 12,
-                color: AppColors.textTertiary,
-              ),
-              const SizedBox(width: 2),
-              Text(
-                item.stat!.viewFormatted,
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: AppColors.textTertiary,
-                    ),
-              ),
+          ),
+          // Action menu with delete option
+          // Source: biu/src/pages/later/index.tsx - menus=[{key:"delete"}]
+          MediaActionMenu(
+            title: item.title,
+            bvid: item.bvid,
+            aid: item.aid.toString(),
+            cid: item.cid.toString(),
+            cover: item.pic,
+            ownerName: item.owner?.name,
+            ownerMid: item.owner?.mid,
+            showWatchLater: false, // Already in watch later page
+            additionalActions: [
+              if (onDelete != null)
+                MediaActionItem(
+                  key: 'delete',
+                  icon: Icons.delete_outline,
+                  label: '删除',
+                  onTap: () {
+                    Navigator.pop(context);
+                    onDelete!();
+                  },
+                ),
             ],
-          ],
-        ),
-      ],
+            iconSize: 18,
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildDeleteButton(BuildContext context) {
-    return IconButton(
-      icon: const Icon(
-        Icons.delete_outline,
-        color: AppColors.textTertiary,
-        size: 20,
-      ),
-      onPressed: onDelete,
-      padding: EdgeInsets.zero,
-      constraints: const BoxConstraints(
-        minWidth: 32,
-        minHeight: 32,
+  Widget _buildFooter(BuildContext context) {
+    // Source: biu/src/pages/later/index.tsx:107-114 - footer shows owner link + duration
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 4, 8, 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // Owner name (clickable)
+          Expanded(
+            child: GestureDetector(
+              onTap: item.owner?.mid != null
+                  ? () => context.push('/user/${item.owner!.mid}')
+                  : null,
+              child: Text(
+                item.owner?.name ?? '',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+              ),
+            ),
+          ),
+          // Duration
+          Text(
+            item.durationFormatted,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: AppColors.textSecondary,
+                  fontFeatures: [const FontFeature.tabularFigures()],
+                ),
+          ),
+        ],
       ),
     );
   }

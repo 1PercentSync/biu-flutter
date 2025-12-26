@@ -136,8 +136,10 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
     final isSelf = authState.user?.mid == widget.mid;
     final currentUserId = authState.user?.mid;
 
-    // Update tabs when privacy settings are loaded
-    if (state.spacePrivacy != null) {
+    // Update tabs when space info is loaded
+    // Source: biu/src/pages/user-profile/index.tsx - tabs don't wait for spacePrivacy
+    // spacePrivacy only affects whether favorites tab is hidden
+    if (state.spaceInfo != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _updateTabs(state, currentUserId, isSelf);
       });

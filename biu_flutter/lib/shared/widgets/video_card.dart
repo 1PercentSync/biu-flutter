@@ -119,37 +119,60 @@ class VideoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        onLongPress: onLongPress,
-        borderRadius: BorderRadius.circular(AppTheme.borderRadius),
-        child: Container(
-          decoration: BoxDecoration(
-            color: AppColors.contentBackground,
-            borderRadius: BorderRadius.circular(AppTheme.borderRadius),
-            border: isActive
-                ? Border.all(color: AppColors.primary, width: 2)
-                : null,
-          ),
-          clipBehavior: Clip.antiAlias,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Cover image with duration overlay
-              _buildCoverSection(context),
-              // Info section - use Expanded to prevent overflow
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: _buildInfoSection(context),
+    // Use Stack to place actionWidget outside of InkWell's gesture area
+    // This completely avoids gesture competition between card tap and action button
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final cardWidth = constraints.maxWidth;
+        final coverHeight = cardWidth / aspectRatio;
+
+        return Stack(
+          clipBehavior: Clip.none,
+          children: [
+            // Main card with InkWell - excludes actionWidget from gesture area
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: onTap,
+                onLongPress: onLongPress,
+                borderRadius: BorderRadius.circular(AppTheme.borderRadius),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.contentBackground,
+                    borderRadius: BorderRadius.circular(AppTheme.borderRadius),
+                    border: isActive
+                        ? Border.all(color: AppColors.primary, width: 2)
+                        : null,
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Cover image with duration overlay
+                      _buildCoverSection(context),
+                      // Info section - use Expanded to prevent overflow
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: _buildInfoSection(context, showAction: false),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ],
-          ),
-        ),
-      ),
+            ),
+            // Action widget positioned outside InkWell to avoid gesture conflict
+            // Source: biu/src/components/image-card/index.tsx titleExtra
+            if (actionWidget != null)
+              Positioned(
+                right: 4,
+                top: coverHeight + 6,
+                child: actionWidget!,
+              ),
+          ],
+        );
+      },
     );
   }
 
@@ -236,7 +259,7 @@ class VideoCard extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoSection(BuildContext context) {
+  Widget _buildInfoSection(BuildContext context, {bool showAction = true}) {
     final titleStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
           fontWeight: FontWeight.w500,
           height: 1.3,
@@ -266,7 +289,9 @@ class VideoCard extends StatelessWidget {
                         style: titleStyle,
                       ),
               ),
-              if (actionWidget != null) actionWidget!,
+              // Reserve space for action widget when it's rendered in Stack overlay
+              if (actionWidget != null && showAction) actionWidget!,
+              if (actionWidget != null && !showAction) const SizedBox(width: 28),
             ],
           ),
         ),

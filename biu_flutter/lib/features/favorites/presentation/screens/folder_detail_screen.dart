@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -38,8 +40,15 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
   final _searchController = TextEditingController();
   final _searchFocusNode = FocusNode();
 
+  /// Debounce timer for keyword search
+  /// Source: biu/src/pages/video-collection/favorites.tsx
+  /// Source project uses refreshDeps to auto-refresh on keyword change
+  Timer? _keywordDebounceTimer;
+  static const _keywordDebounceDuration = Duration(milliseconds: 300);
+
   @override
   void dispose() {
+    _keywordDebounceTimer?.cancel();
     _searchController.dispose();
     _searchFocusNode.dispose();
     super.dispose();
@@ -330,10 +339,15 @@ class _FolderDetailScreenState extends ConsumerState<FolderDetailScreen> {
                 fillColor: AppColors.contentBackground,
                 isDense: true,
               ),
-              onSubmitted: (value) {
-                ref
-                    .read(folderDetailProvider(widget.folderId).notifier)
-                    .setKeyword(value.trim());
+              // Source: biu/src/pages/video-collection/favorites.tsx
+              // Source project updates results on every keystroke (via refreshDeps)
+              onChanged: (value) {
+                _keywordDebounceTimer?.cancel();
+                _keywordDebounceTimer = Timer(_keywordDebounceDuration, () {
+                  ref
+                      .read(folderDetailProvider(widget.folderId).notifier)
+                      .setKeyword(value.trim());
+                });
               },
             ),
           ),

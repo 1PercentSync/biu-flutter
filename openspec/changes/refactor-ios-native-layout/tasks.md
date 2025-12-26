@@ -146,6 +146,8 @@
 
 ## 6. Testing & Verification
 
+> **Note**: These tests require iOS simulator or device. Mark as complete after manual verification.
+
 ### 6.1 Visual Verification
 - [ ] 6.1.1 Test on iPhone SE simulator (smallest screen, no notch)
 - [ ] 6.1.2 Test on iPhone 14 simulator (standard notch)
@@ -177,11 +179,11 @@
 - [x] 7.1.3 Add comments explaining safe area handling
 
 ### 7.2 Cleanup
-- [ ] 7.2.1 Remove any deprecated code paths
-- [ ] 7.2.2 Remove unused imports
-- [ ] 7.2.3 Run `flutter analyze` and fix any issues
-- [ ] 7.2.4 Run `dart format` on all modified files
+- [x] 7.2.1 Remove any deprecated code paths
+- [x] 7.2.2 Remove unused imports
+- [ ] 7.2.3 Run `flutter analyze` and fix any issues (requires local environment)
+- [ ] 7.2.4 Run `dart format` on all modified files (requires local environment)
 
 ### 7.3 Git Commit
-- [ ] 7.3.1 Create commit with message: `refactor(ui): implement iOS-native layout with frosted glass effects`
+- [x] 7.3.1 Create commit with message: `refactor(ui): implement iOS-native layout with frosted glass effects`
 - [ ] 7.3.2 Push to remote repository

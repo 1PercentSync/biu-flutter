@@ -18,7 +18,7 @@ class UserProfileState {
     this.videoOrder = 'pubdate',
     this.userFolders,
     this.folderPage = 1,
-    this.isLoadingInfo = false,
+    this.isLoadingInfo = true, // Default to true for initial loading state
     this.isLoadingVideos = false,
     this.isLoadingMore = false,
     this.isLoadingFolders = false,
